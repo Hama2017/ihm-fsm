@@ -4,15 +4,15 @@ import App from './App.vue';
 import router from './router';
 import './assets/style.css';
 
-// Créer l'application
 const app = createApp(App);
-
-// Initialiser Pinia (state management)
 const pinia = createPinia();
-app.use(pinia);
 
-// Initialiser le routeur
+app.use(pinia); // Pinia doit être appliqué AVANT d'appeler le store
 app.use(router);
-
-// Monter l'application
 app.mount('#app');
+
+// ✅ Maintenant que pinia est actif, on peut appeler le store
+import { useThemeStore } from './stores/theme';
+const themeStore = useThemeStore();
+themeStore.setDarkMode(themeStore.darkMode);      // applique ou retire .dark de <html>
+themeStore.updateCssVariables();                  // applique les couleurs personnalisées

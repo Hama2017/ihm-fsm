@@ -38,7 +38,20 @@
   import FunctionList from '../components/fsm/FunctionList.vue';
   import StateList from '../components/fsm/StateList.vue';
   import { LucideRocket, LucideCode, LucideCircuitBoard } from 'lucide-vue-next';
+  import { useThemeStore } from '../stores/theme';
+  import { storeToRefs } from 'pinia';
+  import { watch } from 'vue';
   
+  // Récupérer l'état du thème
+  const themeStore = useThemeStore();
+  const { darkMode } = storeToRefs(themeStore);
+  
+    // Appliquer la classe "dark" sur <html> selon le thème
+watch(darkMode, (value) => {
+  document.documentElement.classList.toggle('dark', value);
+  console.log('Dark mode:', value);
+}, { immediate: true });
+
   // Stats mock data
   const stats = [
     {

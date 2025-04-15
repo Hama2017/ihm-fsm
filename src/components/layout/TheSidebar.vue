@@ -1,3 +1,4 @@
+// src/components/layout/TheSidebar.vue
 <template>
     <aside
       :class="[
@@ -60,50 +61,55 @@
   </template>
   
   <script setup>
-  import { ref, computed, inject } from 'vue';
-  import { useRouter } from 'vue-router';
-  import { 
-    LucideRocket, 
-    LucideChevronsLeft, 
-    LucideChevronsRight, 
-    LucideLayoutDashboard,
-    LucideSettings,
-    LucideBox
-  } from 'lucide-vue-next';
-  
-  // Props
-  const props = defineProps({
-    isCollapsed: {
-      type: Boolean,
-      default: false
-    }
-  });
-  
-  defineEmits(['toggleSidebar']);
-  
-  // Router
-  const router = useRouter();
-  
-  // Theme
-  const isDarkMode = inject('isDarkMode', ref(false));
-  
-  // Computed
-  const menuItems = computed(() => {
-    return router.options.routes[0].children.map(route => ({
-      name: route.name,
-      path: route.path,
-      meta: route.meta
-    }));
-  });
-  
-  // Méthodes
-  const getIconComponent = (iconName) => {
-    const iconMap = {
-      'dashboard': LucideLayoutDashboard,
-      'automation': LucideBox,
-      'settings': LucideSettings
-    };
-    
-    return iconMap[iconName] || LucideLayoutDashboard;
+import { computed } from 'vue';
+import { useRouter } from 'vue-router';
+import { storeToRefs } from 'pinia';
+import { useThemeStore } from '../../stores/theme';
+import { 
+  LucideRocket, 
+  LucideChevronsLeft, 
+  LucideChevronsRight, 
+  LucideLayoutDashboard,
+  LucideSettings,
+  LucideBox
+} from 'lucide-vue-next';
+
+// Props
+const props = defineProps({
+  isCollapsed: {
+    type: Boolean,
+    default: false
+  }
+});
+
+defineEmits(['toggleSidebar']);
+
+// Router
+const router = useRouter();
+
+// Theme
+const themeStore = useThemeStore();
+const { darkMode } = storeToRefs(themeStore);
+const isDarkMode = darkMode;
+
+// Computed
+const menuItems = computed(() => {
+  return router.options.routes[0].children.map(route => ({
+    name: route.name,
+    path: route.path,
+    meta: route.meta
+  }));
+});
+
+// Méthodes
+const getIconComponent = (iconName) => {
+  const iconMap = {
+    'dashboard': LucideLayoutDashboard,
+    'automation': LucideBox,
+    'settings': LucideSettings
   };
-  </script>
+  
+  return iconMap[iconName] || LucideLayoutDashboard;
+};
+
+</script>

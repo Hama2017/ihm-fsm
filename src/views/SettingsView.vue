@@ -1,3 +1,4 @@
+// src/views/SettingsView.vue
 <template>
     <div>
       <h1 class="text-2xl font-semibold text-gray-900 dark:text-white mb-6">Paramètres</h1>
@@ -21,7 +22,7 @@
                     name="theme" 
                     value="light" 
                     class="sr-only peer" 
-                    :checked="!themeStore.darkMode"
+                    :checked="!darkMode"
                     @change="themeStore.setDarkMode(false)"
                   />
                   <div class="flex items-center gap-2 px-3 py-2 rounded-lg transition-colors duration-200 peer-checked:bg-blue-100 peer-checked:text-blue-800 dark:peer-checked:bg-blue-900 dark:peer-checked:text-blue-200">
@@ -35,7 +36,7 @@
                     name="theme" 
                     value="dark" 
                     class="sr-only peer" 
-                    :checked="themeStore.darkMode"
+                    :checked="darkMode"
                     @change="themeStore.setDarkMode(true)"
                   />
                   <div class="flex items-center gap-2 px-3 py-2 rounded-lg transition-colors duration-200 peer-checked:bg-blue-100 peer-checked:text-blue-800 dark:peer-checked:bg-blue-900 dark:peer-checked:text-blue-200">
@@ -177,10 +178,12 @@
   <script setup>
   import { ref, onMounted } from 'vue';
   import { useThemeStore } from '../stores/theme';
+  import { storeToRefs } from 'pinia';
   import { LucideSun, LucideMoon, LucidePlus } from 'lucide-vue-next';
   
   // Store
   const themeStore = useThemeStore();
+  const { darkMode, colors } = storeToRefs(themeStore);
   
   // State
   const systemTheme = ref(false);
@@ -205,6 +208,8 @@
   
   // Méthodes
   const followSystemTheme = () => {
+    localStorage.setItem('followSystemTheme', JSON.stringify(systemTheme.value));
+    
     if (systemTheme.value) {
       // Écouter les changements de préférence du système
       window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', updateThemeFromSystem);

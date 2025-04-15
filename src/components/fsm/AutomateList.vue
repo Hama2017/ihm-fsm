@@ -35,9 +35,20 @@
   </template>
   
   <script setup>
-  import { ref } from 'vue';
+  import { ref,watch } from 'vue';
   import { LucidePlus } from 'lucide-vue-next';
+  import { useThemeStore } from '../../stores/theme';
+  import { storeToRefs } from 'pinia';
   
+  // Récupérer l'état du thème
+  const themeStore = useThemeStore();
+  const { darkMode } = storeToRefs(themeStore);
+
+  // Appliquer la classe "dark" sur <html> selon le thème
+watch(darkMode, (value) => {
+  document.documentElement.classList.toggle('dark', value);
+}, { immediate: true });
+
   // Sample data
   const automates = ref([
     { id: 1, name: 'ELEMENT 01' },
@@ -62,3 +73,6 @@
     });
   };
   </script>
+
+
+

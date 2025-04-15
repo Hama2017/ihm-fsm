@@ -35,7 +35,7 @@
           <!-- Dropdown notifications -->
           <div 
             v-if="showNotifications"
-            class="absolute right-0 mt-2 w-80 rounded-md shadow-lg z-50 border transition-colors duration-300"
+            class="absolute right-0 mt-2 w-80 rounded-md shadow-lg z-50 border transition-colors duration-300 notifications-dropdown"
             :class="darkMode 
               ? 'bg-gray-900 border-gray-700' 
               : 'bg-white border-gray-200'"
@@ -173,7 +173,7 @@
   </template>
   
   <script setup>
-  import { ref, computed, onMounted, onUnmounted, watch, inject } from 'vue';
+  import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
   import { useRoute } from 'vue-router';
   import { 
     LucideSun, 
@@ -201,9 +201,6 @@
   const pageTitle = computed(() => {
     return route.meta.title || 'Dashboard';
   });
-  
-  // Theme
-  const isDarkMode = inject('isDarkMode', ref(false));
   
   // Dropdowns state
   const showProfileMenu = ref(false);

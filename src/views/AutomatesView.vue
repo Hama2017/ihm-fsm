@@ -69,6 +69,12 @@
   import { ref } from 'vue';
   import AutomateEditor from '../components/fsm/AutomateEditor.vue';
   import { LucidePlus, LucideSearch, LucidePencil, LucideTrash2 } from 'lucide-vue-next';
+  import { useThemeStore } from '../stores/theme';
+  import { storeToRefs } from 'pinia';
+  
+  // Récupérer l'état du thème
+  const themeStore = useThemeStore();
+  const { darkMode } = storeToRefs(themeStore);
   
   // Status CSS classes
   const statusClasses = {

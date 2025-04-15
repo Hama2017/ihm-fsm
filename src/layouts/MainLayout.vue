@@ -1,3 +1,4 @@
+// src/layouts/MainLayout.vue
 <template>
     <div class="flex min-h-screen" :class="{ 'dark': isDarkMode }">
       <!-- Sidebar -->
@@ -16,7 +17,7 @@
   
         <!-- Main content area -->
         <main class="flex-1 p-6">
-          <router-view />
+          <router-view  />
         </main>
   
         <!-- Footer -->
@@ -26,33 +27,41 @@
   </template>
   
   <script setup>
-  import { ref, provide, onMounted } from 'vue';
+  import { ref, provide, onMounted, watch } from 'vue';
   import TheSidebar from '../components/layout/TheSidebar.vue';
   import TheHeader from '../components/layout/TheHeader.vue';
   import TheFooter from '../components/layout/TheFooter.vue';
   import { useThemeStore } from '../stores/theme';
+  import { storeToRefs } from 'pinia';
   
   // Sidebar state
   const isSidebarCollapsed = ref(false);
   
   // Theme state
   const themeStore = useThemeStore();
-  const isDarkMode = ref(themeStore.isDarkMode);
+  // Utilisation de storeToRefs pour préserver la réactivité
+  const { darkMode } = storeToRefs(themeStore);
+  const isDarkMode = darkMode;
   
   // Méthodes
   const toggleTheme = () => {
-    isDarkMode.value = !isDarkMode.value;
-    themeStore.setDarkMode(isDarkMode.value);
+    themeStore.setDarkMode(!isDarkMode.value);
   };
+  
+  // Surveillez les changements de thème et appliquez-les au document HTML
+  watch(isDarkMode, (newVal) => {
+    if (newVal) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, { immediate: true });
   
   // Fournir l'état du thème aux composants enfants
   provide('isDarkMode', isDarkMode);
   
   // Initialiser le thème au chargement
   onMounted(() => {
-    // Restaurer l'état du thème depuis le store
-    isDarkMode.value = themeStore.isDarkMode;
-    
     // Appliquer les classes dark au document si nécessaire
     if (isDarkMode.value) {
       document.documentElement.classList.add('dark');
