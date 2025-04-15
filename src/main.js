@@ -4,15 +4,17 @@ import App from './App.vue';
 import router from './router';
 import './assets/style.css';
 
+import { useThemeStore } from './stores/theme'; // 👈 importer AVANT le mount
+
 const app = createApp(App);
 const pinia = createPinia();
 
-app.use(pinia); // Pinia doit être appliqué AVANT d'appeler le store
+app.use(pinia); // appliquer Pinia avant d’utiliser le store
 app.use(router);
-app.mount('#app');
 
-// ✅ Maintenant que pinia est actif, on peut appeler le store
-import { useThemeStore } from './stores/theme';
+// ⬇️ IMPORTANT : appeler le store après avoir activé Pinia, mais AVANT le mount
 const themeStore = useThemeStore();
-themeStore.setDarkMode(themeStore.darkMode);      // applique ou retire .dark de <html>
-themeStore.updateCssVariables();                  // applique les couleurs personnalisées
+themeStore.setDarkMode(themeStore.darkMode);      // applique la classe .dark à <html>
+themeStore.updateCssVariables();                  // met à jour les couleurs CSS
+
+app.mount('#app'); // 👈 doit être appelé en dernier

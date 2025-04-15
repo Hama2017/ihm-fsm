@@ -4,7 +4,6 @@ export default {
       "./index.html",
       "./src/**/*.{vue,js,ts,jsx,tsx}",
     ],
-    darkMode: 'class', // Active le mode sombre basé sur la classe 'dark'
     theme: {
       extend: {
         colors: {

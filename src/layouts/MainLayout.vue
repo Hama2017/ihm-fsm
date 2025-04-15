@@ -1,7 +1,7 @@
 // src/layouts/MainLayout.vue
 <template>
-    <div class="flex min-h-screen" :class="{ 'dark': isDarkMode }">
-      <!-- Sidebar -->
+<div class="flex min-h-screen">
+  <!-- Sidebar -->
       <TheSidebar
         :is-collapsed="isSidebarCollapsed"
         @toggle-sidebar="isSidebarCollapsed = !isSidebarCollapsed"
