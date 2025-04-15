@@ -1,19 +1,18 @@
-import { createApp } from 'vue'
-import './style.css'
-import App from './App.vue'
+import { createApp } from 'vue';
+import { createPinia } from 'pinia';
+import App from './App.vue';
+import router from './router';
+import './assets/style.css';
 
-// Pour simuler le router en attendant son implémentation
-const app = createApp(App)
+// Créer l'application
+const app = createApp(App);
 
-// Composant router-link de remplacement
-app.component('router-link', {
-  props: {
-    to: {
-      type: String,
-      required: true
-    }
-  },
-  template: `<a href="#" @click.prevent class="router-link"><slot></slot></a>`
-})
+// Initialiser Pinia (state management)
+const pinia = createPinia();
+app.use(pinia);
 
-app.mount('#app')
+// Initialiser le routeur
+app.use(router);
+
+// Monter l'application
+app.mount('#app');

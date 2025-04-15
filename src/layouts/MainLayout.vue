@@ -1,90 +1,63 @@
-<script setup>
-import { ref, onMounted, onBeforeUnmount } from 'vue';
-import Sidebar from '@/components/layout/Sidebar.vue';
-import Header from '@/components/layout/Header.vue';
-import Footer from '@/components/layout/Footer.vue';
-
-const isSidebarCollapsed = ref(false);
-const isMobileSidebarOpen = ref(false);
-
-// Fonction pour gérer le toggle du sidebar sur desktop
-const toggleSidebar = () => {
-  isSidebarCollapsed.value = !isSidebarCollapsed.value;
-};
-
-// Fonction pour gérer l'ouverture/fermeture du sidebar sur mobile
-const toggleMobileSidebar = () => {
-  isMobileSidebarOpen.value = !isMobileSidebarOpen.value;
-};
-
-// Fonction pour fermer le sidebar mobile
-const closeMobileSidebar = () => {
-  isMobileSidebarOpen.value = false;
-};
-
-// Fonction pour gérer les clics en dehors du sidebar pour le fermer
-const handleClickOutside = (event) => {
-  const sidebar = document.getElementById('sidebar');
-  const openButton = document.getElementById('open-sidebar-btn');
-  
-  if (
-    isMobileSidebarOpen.value && 
-    sidebar && 
-    openButton && 
-    !sidebar.contains(event.target) && 
-    !openButton.contains(event.target)
-  ) {
-    closeMobileSidebar();
-  }
-};
-
-// Ajouter/supprimer les écouteurs d'événements
-onMounted(() => {
-  document.addEventListener('click', handleClickOutside);
-});
-
-onBeforeUnmount(() => {
-  document.removeEventListener('click', handleClickOutside);
-});
-</script>
-
 <template>
-  <div class="flex h-screen custom-scrollbar hash-bg">
-    <!-- Sidebar -->
-    <Sidebar 
-      id="sidebar"
-      :is-collapsed="isSidebarCollapsed" 
-      :is-mobile-open="isMobileSidebarOpen"
-      @toggle-sidebar="toggleSidebar"
-      @close-sidebar="closeMobileSidebar"
-    />
-    
-    <!-- Overlay pour mobile quand le sidebar est ouvert -->
-    <div 
-      v-if="isMobileSidebarOpen" 
-      class="fixed inset-0 bg-black bg-opacity-50 z-20 lg:hidden"
-      @click="closeMobileSidebar"
-    ></div>
-    
-    <!-- Contenu principal -->
-    <div 
-      class="flex-1 flex flex-col h-screen transition-all duration-300"
-      :class="isSidebarCollapsed ? 'lg:ml-20' : 'lg:ml-64'"
-    >
-      <!-- Header -->
-      <Header 
-        :title="'Tableau de bord'" 
-        @open-sidebar="toggleMobileSidebar" 
-        id="open-sidebar-btn"
+    <div class="flex min-h-screen" :class="{ 'dark': isDarkMode }">
+      <!-- Sidebar -->
+      <TheSidebar
+        :is-collapsed="isSidebarCollapsed"
+        @toggle-sidebar="isSidebarCollapsed = !isSidebarCollapsed"
       />
-      
-      <!-- Contenu principal -->
-      <main class="flex-1 overflow-y-auto p-4 custom-scrollbar">
-        <slot></slot>
-      </main>
-      
-      <!-- Footer -->
-      <Footer />
+  
+      <!-- Main content -->
+      <div class="flex flex-col flex-1 min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+        <!-- Header -->
+        <TheHeader 
+          @toggle-theme="toggleTheme"
+          :dark-mode="isDarkMode"
+        />
+  
+        <!-- Main content area -->
+        <main class="flex-1 p-6">
+          <router-view />
+        </main>
+  
+        <!-- Footer -->
+        <TheFooter />
+      </div>
     </div>
-  </div>
-</template>
+  </template>
+  
+  <script setup>
+  import { ref, provide, onMounted } from 'vue';
+  import TheSidebar from '../components/layout/TheSidebar.vue';
+  import TheHeader from '../components/layout/TheHeader.vue';
+  import TheFooter from '../components/layout/TheFooter.vue';
+  import { useThemeStore } from '../stores/theme';
+  
+  // Sidebar state
+  const isSidebarCollapsed = ref(false);
+  
+  // Theme state
+  const themeStore = useThemeStore();
+  const isDarkMode = ref(themeStore.isDarkMode);
+  
+  // Méthodes
+  const toggleTheme = () => {
+    isDarkMode.value = !isDarkMode.value;
+    themeStore.setDarkMode(isDarkMode.value);
+  };
+  
+  // Fournir l'état du thème aux composants enfants
+  provide('isDarkMode', isDarkMode);
+  
+  // Initialiser le thème au chargement
+  onMounted(() => {
+    // Restaurer l'état du thème depuis le store
+    isDarkMode.value = themeStore.isDarkMode;
+    
+    // Appliquer les classes dark au document si nécessaire
+    if (isDarkMode.value) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  });
+  </script>
