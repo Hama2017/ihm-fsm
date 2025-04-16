@@ -30,7 +30,8 @@
       
       <div class="overflow-y-auto py-4 flex-grow">
         <ul class="space-y-1 px-3">
-          <li v-for="item in menuItems" :key="item.name">
+          <!-- Menu items sans groupe -->
+          <li v-for="item in standardMenuItems" :key="item.name">
             <router-link 
               :to="{ name: item.name }" 
               class="flex items-center gap-3 px-3 py-2 rounded-lg transition-colors"
@@ -47,6 +48,36 @@
               <component :is="getIconComponent(item.meta.icon)" class="w-5 h-5" />
               <span v-if="!isCollapsed">{{ item.meta.title }}</span>
             </router-link>
+          </li>
+          
+          <!-- Menu Contrats avec sous-menus -->
+          <li class="mt-4" v-if="contractsMenuItems.length > 0">
+            <div v-if="!isCollapsed" class="px-3 py-2 text-xs font-semibold uppercase tracking-wider" 
+              :class="isDarkMode ? 'text-gray-400' : 'text-gray-500'">
+              Contrats
+            </div>
+            <div v-else class="border-t my-2" :class="isDarkMode ? 'border-gray-800' : 'border-gray-200'"></div>
+            
+            <ul class="mt-1 space-y-1">
+              <li v-for="item in contractsMenuItems" :key="item.name">
+                <router-link 
+                  :to="{ name: item.name }" 
+                  class="flex items-center gap-3 px-3 py-2 rounded-lg transition-colors"
+                  :class="[
+                    $route.name === item.name 
+                      ? isDarkMode 
+                        ? 'bg-blue-900 text-white' 
+                        : 'bg-blue-50 text-blue-600'
+                      : isDarkMode
+                        ? 'text-gray-300 hover:bg-gray-800 hover:text-white'
+                        : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
+                  ]"
+                >
+                  <component :is="getIconComponent(item.meta.icon)" class="w-5 h-5" />
+                  <span v-if="!isCollapsed">{{ item.meta.title }}</span>
+                </router-link>
+              </li>
+            </ul>
           </li>
         </ul>
       </div>
@@ -71,7 +102,9 @@ import {
   LucideChevronsRight, 
   LucideLayoutDashboard,
   LucideSettings,
-  LucideBox
+  LucideBox,
+  LucideFileText,
+  LucideFilePlus
 } from 'lucide-vue-next';
 
 // Props
@@ -101,12 +134,22 @@ const menuItems = computed(() => {
   }));
 });
 
+// Séparer les éléments de menu par groupe
+const standardMenuItems = computed(() => {
+  return menuItems.value.filter(item => !item.meta.group);
+});
+
+const contractsMenuItems = computed(() => {
+  return menuItems.value.filter(item => item.meta.group === 'Contrats');
+});
+
 // Méthodes
 const getIconComponent = (iconName) => {
   const iconMap = {
     'dashboard': LucideLayoutDashboard,
     'automation': LucideBox,
-    'settings': LucideSettings
+    'settings': LucideSettings,
+    'contract': LucideFileText
   };
   
   return iconMap[iconName] || LucideLayoutDashboard;

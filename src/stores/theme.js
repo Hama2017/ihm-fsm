@@ -90,13 +90,111 @@ export const useThemeStore = defineStore('theme', () => {
     
     updateCssVariables();
   }
+   
+  // Fonction pour obtenir les options de thème de base pour SweetAlert
+  function getSwalThemeOptions() {
+    return {
+      background: darkMode.value ? colors.value.darkSidebarBg : colors.value.sidebarBg,
+      color: darkMode.value ? colors.value.darkSidebarText : colors.value.sidebarText,
+      confirmButtonColor: colors.value.primary,
+      cancelButtonColor: colors.value.secondary
+    };
+  }
 
+  // Nouvelle fonction pour obtenir les classes Tailwind pour SweetAlert2
+  function getSwalCustomClasses() {
+    return {
+      // Conteneur global
+      container: 'z-50',
+      
+      // Popup principal
+      popup: `rounded-lg shadow-xl border border-gray-200 ${darkMode.value ? 'dark:border-gray-700 dark:bg-gray-800' : ''}`,
+      
+      // Section d'en-tête
+      header: `border-b ${darkMode.value ? 'dark:border-gray-700' : 'border-gray-100'} pb-2`,
+      
+      // Titre du dialogue
+      title: `text-lg font-semibold ${darkMode.value ? 'dark:text-white' : 'text-gray-900'}`,
+      
+      // Bouton de fermeture
+      closeButton: `text-gray-400 hover:text-gray-600 ${darkMode.value ? 'dark:text-gray-500 dark:hover:text-gray-300' : ''} transition-colors`,
+      
+      // Icône
+      icon: 'mx-auto mb-4',
+      
+      // Image
+      image: 'rounded-md mx-auto mb-4',
+      
+      // Conteneur HTML
+      htmlContainer: `${darkMode.value ? 'dark:text-gray-300' : 'text-gray-700'} my-3`,
+      
+      // Champ de saisie
+      input: `w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-${colors.value.primary} focus:border-${colors.value.primary} text-sm ${
+        darkMode.value ? 'dark:border-gray-600 dark:bg-gray-700 dark:text-white' : 'border-gray-300'
+      }`,
+      
+      // Étiquette du champ
+      inputLabel: `block text-sm font-medium mb-1 text-left ${darkMode.value ? 'dark:text-gray-300' : 'text-gray-700'}`,
+      
+      // Message de validation/erreur
+      validationMessage: `py-2 px-3 my-2 rounded-md text-sm text-center font-medium ${
+        darkMode.value 
+          ? 'text-red-300 bg-red-900/50 border-red-800' 
+          : 'text-red-700 bg-red-100 border-red-300'
+      } border`,
+      
+      // Zone des boutons d'action
+      actions: 'mt-5 sm:mt-6 flex space-x-2 justify-end',
+      
+      // Bouton de confirmation (OK, Ajouter, etc.)
+      confirmButton: `inline-flex justify-center rounded-md px-4 py-2 text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors ${
+        darkMode.value 
+          ? `bg-${colors.value.darkSidebarActiveBg} hover:bg-opacity-90 focus:ring-${colors.value.primary}` 
+          : `bg-${colors.value.primary} hover:bg-opacity-90 focus:ring-${colors.value.primary}`
+      }`,
+      
+      // Bouton refuser (si utilisé)
+      denyButton: `inline-flex justify-center rounded-md px-4 py-2 text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors ${
+        darkMode.value 
+          ? 'bg-red-700 hover:bg-red-800 focus:ring-red-500' 
+          : 'bg-red-600 hover:bg-red-700 focus:ring-red-500'
+      }`,
+      
+      // Bouton annuler
+      cancelButton: `inline-flex justify-center rounded-md border shadow-sm px-4 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors ${
+        darkMode.value 
+          ? 'bg-gray-700 text-gray-300 border-gray-600 hover:bg-gray-600 focus:ring-gray-500' 
+          : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50 focus:ring-gray-500'
+      }`,
+      
+      // Indicateur de chargement
+      loader: darkMode.value ? 'text-gray-300' : 'text-gray-700',
+      
+      // Pied de page
+      footer: `mt-2 text-xs text-center ${darkMode.value ? 'text-gray-400' : 'text-gray-500'}`,
+      
+      // Barre de progression du timer
+      timerProgressBar: darkMode.value ? 'bg-blue-700' : 'bg-blue-600'
+    };
+  }
+
+  // Fonction combinée pour obtenir toutes les options SweetAlert
+  function getAllSwalOptions() {
+    return {
+      ...getSwalThemeOptions(),
+      customClass: getSwalCustomClasses()
+    };
+  }
+  
   return {
     darkMode,
     colors,
     setDarkMode,
     setColor,
     updateCssVariables,
-    resetColors
+    resetColors,
+    getSwalThemeOptions,
+    getSwalCustomClasses,
+    getAllSwalOptions
   };
 });
