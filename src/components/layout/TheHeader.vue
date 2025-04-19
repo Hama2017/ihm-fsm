@@ -97,10 +97,10 @@
           />
           <div class="leading-tight text-left">
             <p class="text-sm font-medium m-0" :class="darkMode ? 'text-gray-200' : 'text-gray-900'">
-              Hamadou Ba
+              Hamadou BA
             </p>
             <p class="text-xs m-0" :class="darkMode ? 'text-gray-400' : 'text-gray-500'">
-              Admin Web3
+              Admin
             </p>
           </div>
         </button>

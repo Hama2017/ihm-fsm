@@ -97,7 +97,7 @@ const router = createRouter({
 
 // Navigation guards pour mettre à jour le titre de la page et gérer le splash screen
 router.beforeEach((to, from, next) => {
-  document.title = `FSM Web3 - ${to.meta.title || 'Application'}`;
+  document.title = `Smart Legal Contract - ${to.meta.title || 'Application'}`;
   
   // Vérifier si c'est la première visite
   const splashScreenSeen = localStorage.getItem('splash_screen_seen');

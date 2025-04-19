@@ -1,4 +1,3 @@
-// src/layouts/MainLayout.vue
 <template>
 <div class="flex min-h-screen">
   <!-- Sidebar -->
@@ -17,7 +16,7 @@
   
         <!-- Main content area -->
         <main class="flex-1 p-6">
-          <router-view  />
+          <router-view  @collapseSideBar="(value)=> isSidebarCollapsed=value"  />
         </main>
   
         <!-- Footer -->

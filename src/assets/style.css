@@ -3,6 +3,35 @@
 @import "tailwindcss";
 @custom-variant dark (&:where(.dark, .dark *));
 
+
+
+
+
+.dark .vue-flow__minimap {
+  background-color: #101828 !important; /* gray-800 */
+  color: #2f353b !important;            /* gray-100 */
+  
+}
+
+.vue-flow__minimap {
+  background-color: #ffffff !important; /* gray-100 */
+  color: #1f2937 !important;            /* gray-800 */
+}
+
+
+
+.vue-flow__minimap-mask{
+  fill: #1e293991;
+  border-radius: 100px;
+
+}
+
+
+
+
+
+
+
 .vue-flow__handle-top {
   height: 12px;
   width: 12px;
@@ -110,4 +139,28 @@
   .card {
     @apply bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700 transition-colors duration-300;
   }
+}
+
+
+
+
+@keyframes pulse-line {
+  0% {
+    stroke-dashoffset: 1000;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+.animated-edge {
+  stroke: #facc15; /* jaune vif */
+  stroke-width: 3px;
+  stroke-dasharray: 10;
+  animation: pulse-line 1s ease forwards;
+}
+.ring-highlight {
+  transition: all 0.3s ease;
+  box-shadow: 0 0 0 4px #fde047; /* ring-yellow-400 */
+  background-color: #fef3c7; /* bg-yellow-100 */
 }

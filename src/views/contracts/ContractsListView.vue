@@ -110,6 +110,11 @@
     LucideFileSearch
   } from 'lucide-vue-next';
   
+  import { useContractStore } from '../../stores/contractStore';
+  
+  const contractStore = useContractStore();
+
+  
   // Router
   const router = useRouter();
   
@@ -129,65 +134,7 @@
   };
   
   // Exemple de données de contrats
-  const contracts = ref([
-    {
-      id: "0001",
-      name: "CONTRACT 0001",
-      status: "Actif",
-      createdAt: new Date(2024, 9, 5),
-      automates: [
-        {
-          id: "01",
-          name: "AUTOMATE 01",
-          active: true,
-          states: [
-            { id: "state-1", label: "État A" },
-            { id: "state-2", label: "État B" }
-          ],
-          transitions: [
-            { id: "transition-1", source: "state-1", target: "state-2", label: "aller" }
-          ]
-        }
-      ]
-    },
-    {
-      id: "0002",
-      name: "CONTRACT 0002",
-      status: "Brouillon",
-      createdAt: new Date(2024, 8, 15),
-      automates: [
-        {
-          id: "01",
-          name: "AUTOMATE 01",
-          active: true,
-          states: [
-            { id: "state-1", label: "État Initial" },
-            { id: "state-2", label: "État Final" }
-          ],
-          transitions: [
-            { id: "transition-1", source: "state-1", target: "state-2", label: "terminer" }
-          ]
-        },
-        {
-          id: "02",
-          name: "AUTOMATE 02",
-          active: false,
-          states: [
-            { id: "state-1", label: "État A" },
-            { id: "state-2", label: "État B" }
-          ],
-          transitions: []
-        }
-      ]
-    },
-    {
-      id: "0003",
-      name: "CONTRACT 0003",
-      status: "Inactif",
-      createdAt: new Date(2024, 7, 22),
-      automates: []
-    }
-  ]);
+  const contracts = ref(computed(() => contractStore.contracts));
   
   // Filtrer les contrats selon la recherche et le statut
   const filteredContracts = computed(() => {

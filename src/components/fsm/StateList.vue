@@ -1,25 +1,24 @@
 <template>
   <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-md p-5 transition-colors duration-300">
-    
     <!-- En-tête -->
     <div class="flex justify-between items-center mb-5">
       <h2 class="text-lg font-semibold text-gray-900 dark:text-white tracking-wide">
-        ETATS <span class="text-sm text-gray-400">({{ sortedStates.length }})</span>
+        Etats <span class="text-sm text-gray-400">({{ sortedStates.length }})</span>
       </h2>
 
-      <div class="flex items-center space-x-2">
-        <!-- Tri -->
-        <button @click="toggleSort" class="p-1.5 rounded-full bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition">
+      <div class="flex items-center space-x-3">
+        <!-- Tri (seulement icône) -->
+        <button @click="toggleSort" class="p-2 rounded-full bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition">
           <LucideArrowDownUp class="w-4 h-4 text-gray-800 dark:text-gray-200" />
         </button>
 
-        <!-- Ajouter -->
+        <!-- Ajouter (plus petit avec hover amélioré) -->
         <button 
-          @click="showAddStateModal = true"
-          class="bg-gradient-to-tr from-purple-100 to-purple-200 text-purple-700 dark:from-purple-900 dark:to-purple-800 dark:text-purple-300 px-2 py-1 rounded-full hover:scale-105 transition flex items-center"
+          @click="$emit('open-add-modal')"
+          class="bg-gradient-to-tr from-blue-500 to-blue-600 text-white dark:from-blue-600 dark:to-blue-700 dark:text-white px-2.5 py-1.5 rounded-full hover:shadow-lg hover:scale-105 hover:bg-blue-500 transition-all duration-200 flex items-center"
         >
-          <LucidePlus class="w-4 h-4" />
-          <span class="ml-2 text-sm font-medium">Ajouter</span>
+          <LucidePlus class="w-3.5 h-3.5" />
+          <span class="ml-1.5 text-xs font-medium">Ajouter</span>
         </button>
       </div>
     </div>
@@ -29,162 +28,138 @@
       Cliquer sur le bouton <strong>"Ajouter"</strong> pour ajouter un état.
     </div>
 
-    <!-- Liste des états -->
-    <ul v-else class="space-y-3">
-      <li 
-        v-for="(state, index) in sortedStates" 
-        :key="index"
-        class="relative group"
-      >
-        <div class="flex items-center">
-          <!-- Bouton état -->
-          <button
-            @click="toggleSelectState(state.id)"
-            :class="[
-              'flex-grow px-4 py-2 text-sm font-medium shadow-sm rounded-full transition-colors duration-200 text-left',
-              selectedState === state.id
-                ? 'bg-gradient-to-tr from-blue-500 to-blue-700 text-white font-semibold shadow-lg'
-                : 'bg-gray-100 hover:bg-gray-200 text-gray-800 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-300'
-            ]"
-          >
-            {{ state.label }}
-          </button>
-
-          <!-- Actions -->
-          <div class="absolute right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex space-x-2">
-            <button @click.stop="openEditStateModal(state.id)" class="flex items-center p-1 rounded-full transition bg-yellow-500 text-white hover:bg-yellow-600">
-              <LucidePencil class="w-4 h-4" />
-            </button>
-
-            <button @click.stop="openRemoveStateModal(state.id)" class="flex items-center p-1 rounded-full transition bg-red-600 text-white hover:bg-red-700">
-              <LucideTrash2 class="w-4 h-4" />
-            </button>
-          </div>
+    <!-- Barre de recherche pour filtrer les états -->
+    <div v-if="sortedStates.length > 0" class="mb-4">
+      <div class="relative">
+        <input
+          type="text"
+          v-model="searchQuery"
+          placeholder="Rechercher un état..."
+          class="w-full px-3 py-2 pr-10 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+        />
+        <div class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 dark:text-gray-500">
+          <LucideSearch class="w-4 h-4" />
         </div>
-      </li>
-    </ul>
-    
-    <!-- Modals -->
-    <!-- Modal Ajouter État -->
-    <Modal
-      v-model="showAddStateModal"
-      title="Ajouter un état"
-      confirm-text="Ajouter"
-      @confirm="confirmAddState"
-    >
-      <div class="space-y-4">
-        <label for="new-state-name" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-          Nom du nouvel état
-        </label>
-        <input 
-          id="new-state-name"
-          v-model="newStateName"
-          type="text"
-          placeholder="ex: EN_COURS"
-          class="block w-full px-3 py-2 border rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-        />
-        <p v-if="addStateError" class="text-sm text-red-600 dark:text-red-400">
-          {{ addStateError }}
-        </p>
       </div>
-    </Modal>
+    </div>
+
+    <!-- Liste des états avec scroll et style de scrollbar personnalisé -->
+    <div v-if="sortedStates.length > 0" class="max-h-[500px] overflow-y-auto pr-1" style="scrollbar-width: thin; scrollbar-color: #cbd5e0 #f1f5f9;">
+      <ul class="space-y-3">
+        <li 
+          v-for="(state, index) in filteredStates" 
+          :key="index"
+          class="relative group mb-4"
+        >
+          <!-- Carte d'état avec design amélioré -->
+          <div :class="[
+            'flex flex-col border rounded-lg overflow-hidden shadow-sm',
+            selectedState === state.id 
+              ? 'border-blue-500 dark:border-blue-400' 
+              : 'border-gray-200 dark:border-gray-700'
+          ]">
+            <!-- Contenu principal de la carte d'état -->
+            <div :class="[
+              'px-4 py-3',
+              selectedState === state.id 
+                ? 'bg-blue-600 dark:bg-blue-700 border-b border-blue-700 dark:border-blue-800' 
+                : 'bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700'
+            ]">
+              <div class="flex justify-between items-center">
+                <span :class="[
+                  'font-medium',
+                  selectedState === state.id 
+                    ? 'text-white' 
+                    : 'text-gray-800 dark:text-gray-200'
+                ]">{{ state.label }}</span>
+                
+                <!-- Badge de sélection -->
+                <span v-if="selectedState === state.id" class="px-2 py-0.5 bg-white/20 text-white text-xs rounded-full">
+                  Sélectionné
+                </span>
+              </div>
+            </div>
+            
+            <!-- Boutons d'action -->
+            <div class="flex bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 divide-x divide-gray-200 dark:divide-gray-700">
+              <!-- Bouton principal -->
+              <button
+                @click="toggleSelectState(state.id)"
+                :class="[
+                  'flex-grow py-2 px-3 text-sm font-medium transition-colors',
+                  selectedState === state.id
+                    ? 'text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-900/20'
+                    : 'text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20'
+                ]"
+              >
+                {{ selectedState === state.id ? 'Désélectionner' : 'Sélectionner' }}
+              </button>
+              
+              <!-- Bouton de modification -->
+              <button 
+                @click.stop="$emit('open-edit-modal', state.id)" 
+                class="px-3 py-2 text-yellow-600 dark:text-yellow-400 hover:bg-yellow-50 dark:hover:bg-yellow-900/20 transition-colors"
+                title="Modifier"
+              >
+                <LucidePencil class="w-4 h-4" />
+              </button>
+              
+              <!-- Bouton de suppression -->
+              <button 
+                @click.stop="$emit('open-remove-modal', state.id)" 
+                class="px-3 py-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                title="Supprimer"
+              >
+                <LucideTrash2 class="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        </li>
+      </ul>
+    </div>
     
-    <!-- Modal Modifier État -->
-    <Modal
-      v-model="showEditStateModal"
-      title="Modifier un état"
-      confirm-text="Modifier"
-      @confirm="confirmEditState"
-    >
-      <div class="space-y-4">
-        <label for="edit-state-name" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-          Nouveau nom
-        </label>
-        <input 
-          id="edit-state-name"
-          v-model="editStateName"
-          type="text"
-          class="block w-full px-3 py-2 border rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-        />
-        <p v-if="editStateError" class="text-sm text-red-600 dark:text-red-400">
-          {{ editStateError }}
-        </p>
-      </div>
-    </Modal>
-    
-    <!-- Modal Supprimer État -->
-    <Modal
-      v-model="showRemoveStateModal"
-      title="Supprimer cet état ?"
-      confirm-text="Oui, supprimer"
-      variant="danger"
-      @confirm="confirmRemoveState"
-    >
-      <div class="space-y-2">
-        <p class="text-gray-700 dark:text-gray-300">
-          Cette action est irréversible.
-        </p>
-        <p v-if="stateUsedInEdges" class="text-yellow-600 dark:text-yellow-400 font-medium">
-          Cet état est utilisé dans une ou plusieurs transitions qui seront également supprimées.
-        </p>
-      </div>
-    </Modal>
+    <!-- Message si aucun résultat après filtrage -->
+    <div v-if="sortedStates.length > 0 && filteredStates.length === 0" class="text-center text-sm text-gray-500 dark:text-gray-400 py-10">
+      Aucun état ne correspond à votre recherche.
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { ref, computed } from 'vue'
 import { 
   LucidePlus,
   LucidePencil,
   LucideTrash2,
-  LucideArrowDownUp
+  LucideArrowDownUp,
+  LucideSearch
 } from 'lucide-vue-next'
-import Modal from '@/components/ui/UiModal.vue'
-import toast from '@/components/ui/ToastService'
 
-// --- Props / Événements
-const emits = defineEmits(['add-state', 'edit-state', 'remove-state', 'select-state'])
-const nodes = defineModel('nodes') // v-model:nodes
+const emits = defineEmits([
+  'add-state', 
+  'edit-state', 
+  'remove-state', 
+  'select-state', 
+  'open-add-modal', 
+  'open-edit-modal', 
+  'open-remove-modal'
+])
 
-// Accepter les edges en prop pour vérifier si un état est utilisé dans des transitions
+const nodes = defineModel('nodes')
 const props = defineProps({
-  selectedState: {
-    type: String,
-    default: null
-  },
-  edges: {
-    type: Array,
-    default: () => []
-  }
+  selectedState: { type: String, default: null },
+  edges: { type: Array, default: () => [] }
 })
 
-// --- États internes
 const sortAsc = ref(true)
+const searchQuery = ref('')
 
-// --- États modaux
-const showAddStateModal = ref(false)
-const showEditStateModal = ref(false)
-const showRemoveStateModal = ref(false)
-const newStateName = ref('')
-const editStateName = ref('')
-const editStateId = ref(null)
-const removeStateId = ref(null)
-const addStateError = ref('')
-const editStateError = ref('')
-const stateUsedInEdges = ref(false)
-
-// --- Liste des états dérivée de nodes
 const states = computed(() => 
   Array.isArray(nodes.value)
-    ? nodes.value.map(node => ({
-        id: node.id,
-        label: node.data.label
-      }))
+    ? nodes.value.map(node => ({ id: node.id, label: node.data.label }))
     : []
 )
 
-// --- Liste triée
 const sortedStates = computed(() => {
   return [...states.value].sort((a, b) =>
     sortAsc.value
@@ -193,123 +168,23 @@ const sortedStates = computed(() => {
   )
 })
 
-// --- Vider les formulaires lorsque les modals se ferment
-watch(showAddStateModal, (newVal) => {
-  if (!newVal) {
-    newStateName.value = ''
-    addStateError.value = ''
-  }
-})
-
-watch(showEditStateModal, (newVal) => {
-  if (!newVal) {
-    editStateName.value = ''
-    editStateId.value = null
-    editStateError.value = ''
-  }
-})
-
-// --- Vérifier si un nom d'état existe déjà (insensible à la casse)
-const stateNameExists = (name, excludeId = null) => {
-  return states.value.some(state => 
-    state.label.toLowerCase() === name.toLowerCase() && 
-    state.id !== excludeId
+const filteredStates = computed(() => {
+  if (!searchQuery.value.trim()) return sortedStates.value
+  const query = searchQuery.value.toLowerCase().trim()
+  return sortedStates.value.filter(state => 
+    state.label.toLowerCase().includes(query)
   )
-}
+})
 
-// --- Sélectionner/désélectionner un état (modifié pour liaison bidirectionnelle)
 const toggleSelectState = (id) => {
-  // Si l'état est déjà sélectionné, on l'émet avec null pour désélectionner
   if (props.selectedState === id) {
     emits('select-state', null)
   } else {
-    // Sinon, on sélectionne le nouvel état
     emits('select-state', id)
   }
 }
 
-// --- Inverser l'ordre de tri
 const toggleSort = () => {
   sortAsc.value = !sortAsc.value
-}
-
-// --- Ajouter un état avec validation
-const confirmAddState = () => {
-  // Validation
-  if (!newStateName.value || !newStateName.value.trim()) {
-    addStateError.value = 'Le nom de l\'état ne peut pas être vide!'
-    return
-  }
-  
-  // Validation du nom unique
-  if (stateNameExists(newStateName.value)) {
-    addStateError.value = 'Un état avec ce nom existe déjà!'
-    return
-  }
-  
-  const newId = 'state-' + (nodes.value?.length + 1 || 1)
-  emits('add-state', { id: newId, libelle: newStateName.value.trim() })
-  
-  // Fermer le modal
-  showAddStateModal.value = false
-  
-  // Afficher un toast de succès
-  toast.success('État ajouté avec succès', { position: 'top-right', duration: 3000 })
-}
-
-// --- Ouvrir le modal de modification d'état
-const openEditStateModal = (id) => {
-  const node = nodes.value?.find(n => n.id === id)
-  if (node) {
-    editStateId.value = id
-    editStateName.value = node.data.label
-    showEditStateModal.value = true
-  }
-}
-
-// --- Modifier un état avec validation
-const confirmEditState = () => {
-  // Validation
-  if (!editStateName.value || !editStateName.value.trim()) {
-    editStateError.value = 'Le nom de l\'état ne peut pas être vide!'
-    return
-  }
-  
-  // Validation du nom unique (en excluant l'ID actuel)
-  if (stateNameExists(editStateName.value, editStateId.value)) {
-    editStateError.value = 'Un état avec ce nom existe déjà!'
-    return
-  }
-  
-  emits('edit-state', { id: editStateId.value, libelle: editStateName.value.trim() })
-  
-  // Fermer le modal
-  showEditStateModal.value = false
-  
-  // Afficher un toast de succès
-  toast.success('État modifié avec succès', { position: 'top-right', duration: 3000 })
-}
-
-// --- Ouvrir le modal de suppression d'état
-const openRemoveStateModal = (id) => {
-  removeStateId.value = id
-  stateUsedInEdges.value = checkIfStateUsedInEdges(id)
-  showRemoveStateModal.value = true
-}
-
-// --- Supprimer un état
-const confirmRemoveState = () => {
-  emits('remove-state', removeStateId.value)
-  
-  // Fermer le modal
-  showRemoveStateModal.value = false
-  
-  // Afficher un toast de succès
-  toast.success('État supprimé avec succès', { position: 'top-right', duration: 3000 })
-}
-
-// Vérifier si un état est utilisé dans des transitions
-const checkIfStateUsedInEdges = (stateId) => {
-  return props.edges.some(edge => edge.source === stateId || edge.target === stateId)
 }
 </script>

@@ -13,11 +13,15 @@
       <div class="p-4 border-b flex items-center justify-between"
         :class="isDarkMode ? 'border-gray-800' : 'border-gray-200'"
       >
+
+      <img 
+  :src="isCollapsed ? logoCollapsed : logo" 
+  alt="SLC logo" 
+  :class="isCollapsed ? 'h-18 w-10' : 'h-25 w-200'" 
+/>
         <div class="flex items-center gap-3">
-          <div class="h-8 w-8 bg-blue-600 rounded-lg flex items-center justify-center">
-            <LucideRocket class="w-5 h-5 text-white" />
-          </div>
-          <span v-if="!isCollapsed" class="text-xl font-semibold">FSM</span>
+   
+         
         </div>
         <button @click="$emit('toggleSidebar')" 
           class="hover:bg-gray-200 dark:hover:bg-gray-800 p-1 rounded"
@@ -96,6 +100,9 @@ import { computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { storeToRefs } from 'pinia';
 import { useThemeStore } from '../../stores/theme';
+import logo from '@/assets/logo/logo.svg';
+import logoCollapsed from '@/assets/logo/logo-collapsed.svg';
+
 import { 
   LucideRocket, 
   LucideChevronsLeft, 

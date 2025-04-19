@@ -13,4 +13,8 @@ export default defineConfig({
       '@': '/src',
     },
   },
+  server: {
+    host: false
+}
+
 })
