@@ -562,6 +562,9 @@ export default function useTransitionManagement({
    * @returns {Object} Résultat de l'opération
    */
   const handleConnectNodes = ({ source, target }) => {
+
+    console.log("dd");
+    
     // Éviter les connexions d'un nœud à lui-même
     if (source === target) {
       return { success: false, message: 'Impossible de connecter un état à lui-même' };
