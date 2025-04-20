@@ -31,7 +31,6 @@ export default function useTransitionManagement({
 
   // --- États pour les modals ---
   const showAddTransitionModal = ref(false);
-  const showAddTransitionModalOnConnect = ref(null);
   const showEditTransitionModal = ref(false);
   const showRemoveTransitionModal = ref(false);
   const showInvertTransitionModal = ref(false);
@@ -562,41 +561,23 @@ export default function useTransitionManagement({
    * @returns {Object} Résultat de l'opération
    */
   const handleConnectNodes = ({ source, target }) => {
-
-    console.log("dd");
-    
-    // Éviter les connexions d'un nœud à lui-même
     if (source === target) {
-      return { success: false, message: 'Impossible de connecter un état à lui-même' };
+      return { success: false, message: 'Impossible de connecter un état à lui-même' }
     }
-    
-    // Vérifier si cette connexion existe déjà
-    const connectionExists = edges.value.some(
-      edge => edge.source === source && edge.target === target
-    );
-    
-    if (connectionExists) {
-      return { success: false, message: 'Cette transition existe déjà' };
+    if (edges.value.some(e => e.source === source && e.target === target)) {
+      return { success: false, message: 'Cette transition existe déjà' }
     }
-    
-    // Récupérer les noms des états source et cible pour le dialogue
-    const sourceNode = nodes.value.find(node => node.id === source);
-    const targetNode = nodes.value.find(node => node.id === target);
-    const sourceName = sourceNode ? sourceNode.data.label : source;
-    const targetName = targetNode ? targetNode.data.label : target;
-    
-    // Ouvrir le modal d'ajout de transition
-    showAddTransitionModalOnConnect.value.open(source, target, sourceName, targetName);
-
-    // Retourner les informations pour ouvrir le modal dans le composant parent
-    return { 
-      success: true, 
-      source, 
-      target, 
-      sourceName, 
-      targetName 
-    };
-  };
+  
+    const sourceNode = nodes.value.find(n => n.id === source)
+    const targetNode = nodes.value.find(n => n.id === target)
+    return {
+      success: true,
+      source,
+      target,
+      sourceName: sourceNode?.data.label || source,
+      targetName: targetNode?.data.label || target
+    }
+  }
 
   /**
    * Gère le clic sur une arête dans VueFlow
@@ -701,7 +682,6 @@ export default function useTransitionManagement({
     invertingTransition,
     removeTransitionId,
     editTransitionError,
-    showAddTransitionModalOnConnect,
     
     // États pour la mise à jour des arêtes
     edgeUpdateData,

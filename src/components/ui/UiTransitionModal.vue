@@ -89,14 +89,19 @@
     targetName.value = targetLabel;
     isOpen.value = true;
   };
+
+  const close = () => {
+  isOpen.value = false
+}
   
   const confirmTransition = () => {
+
     // Validation
     if (!selectedTransition.value) {
       validationError.value = 'Veuillez sélectionner une transition';
       return;
     }
-  
+
     // Émettre l'événement avec les données
     emits('confirm', {
       source: sourceId.value,
@@ -110,6 +115,7 @@
   
   // Exposer les méthodes
   defineExpose({
-    open
+    open,
+    close
   });
   </script>

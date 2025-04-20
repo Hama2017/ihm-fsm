@@ -114,7 +114,6 @@
         isFullScreen ? 'hidden' : ''
       ]">
         <div class="flex items-center justify-between mb-2">
-          <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Automates</h2>
           <!-- Bouton pour masquer/afficher sur mobile -->
           <button 
             @click="toggleLeftPanel" 
@@ -140,8 +139,8 @@
       <!-- Colonne centrale : Éditeur d'automate avec contrôles améliorés -->
       <div class="xl:h-full flex flex-col">
         <div class="flex items-center justify-between mb-2">
-          <h2 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
-            Éditeur<span v-if="activeAutomateName()"> : {{ activeAutomateName() }}</span>
+          <h2 class="text-lg font-semibold text-gray-900 dark:text-white w-full text-center">
+            Automate <span v-if="activeAutomateName()"> : {{ activeAutomateName() }}</span>
           </h2>
         </div>
         
@@ -192,7 +191,7 @@
             v-model:nodes="currentNodes" 
             v-model:edges="currentEdges"
             class="h-full w-full"
-            @connect="handleConnectNodes"
+            @connect="onNodeConnect"
             @edgeUpdate="handleEdgeUpdate"
             @edgeClick="onEdgeClick"
             @nodeContextMenu="onNodeRightClick"
@@ -538,23 +537,54 @@
       
     <!-- Modal d'inversion de transition -->
     <Modal
-      v-model="showInvertTransitionModal"
-      title="Inverser la transition"
-      confirm-text="Inverser"
-      variant="danger"
-      @confirm="confirmInvertTransition"
-    >
-      <div class="space-y-4">
-        <p class="text-gray-700 dark:text-gray-300">
-          Voulez-vous inverser le sens de la transition ?
-        </p>
-        <div class="flex items-center justify-center space-x-2 bg-gray-100 dark:bg-gray-700 p-3 rounded-lg">
-          <span class="font-medium text-gray-700 dark:text-gray-300">{{ getNodeName(invertingTransition.source) }}</span>
-          <LucideArrowRight class="mx-2 text-blue-500" />
-          <span class="font-medium text-gray-700 dark:text-gray-300">{{ getNodeName(invertingTransition.source) }}</span>
+  v-model="showInvertTransitionModal"
+  title="Inverser la transition"
+  confirm-text="Inverser"
+  variant="warning"
+  @confirm="confirmInvertTransition"
+>
+  <div class="space-y-6">
+    <p class="text-gray-700 dark:text-gray-300 font-medium text-center">
+      Voulez-vous inverser le sens de cette transition ?
+    </p>
+    
+    <!-- Sens actuel -->
+    <div class="border border-gray-200 dark:border-gray-600 rounded-lg p-4 bg-gray-50 dark:bg-gray-800">
+      <div class="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2 font-medium">Sens actuel</div>
+      <div class="flex items-center justify-center space-x-3 p-3">
+        <div class="px-3 py-2 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 rounded-lg font-medium">
+          {{ getNodeLabelById(invertingTransition.source) }}
+        </div>
+        <LucideArrowRight class="h-6 w-6 text-blue-500 dark:text-blue-400" />
+        <div class="px-3 py-2 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 rounded-lg font-medium">
+          {{ getNodeLabelById(invertingTransition.target) }}
         </div>
       </div>
-    </Modal>
+    </div>
+    
+    <!-- Flèche d'inversion -->
+    <div class="flex justify-center items-center">
+      <div class="w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
+        <LucideArrowDownUp class="h-6 w-6 text-amber-600 dark:text-amber-400 transform rotate-180" />
+      </div>
+    </div>
+    
+    <!-- Nouveau sens -->
+    <div class="border border-green-200 dark:border-green-800 rounded-lg p-4 bg-green-50 dark:bg-green-900/20">
+      <div class="text-xs uppercase tracking-wider text-green-600 dark:text-green-400 mb-2 font-medium">Nouveau sens</div>
+      <div class="flex items-center justify-center space-x-3 p-3">
+        <div class="px-3 py-2 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200 rounded-lg font-medium">
+          {{ getNodeLabelById(invertingTransition.target) }}
+        </div>
+        <LucideArrowRight class="h-6 w-6 text-green-500 dark:text-green-400" />
+        <div class="px-3 py-2 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200 rounded-lg font-medium">
+          {{ getNodeLabelById(invertingTransition.source) }}
+        </div>
+      </div>
+    </div>
+ 
+  </div>
+</Modal>
     
     <!-- Modal de mise à jour des connexions -->
     <Modal
@@ -724,12 +754,13 @@
         </p>
       </div>
     </Modal>
-    
+       <!-- Container pour les toasts -->
+       <ToastContainer />
     <!-- Composant TransitionModal pour gérer les transitions -->
     <TransitionModal 
       ref="transitionModalRef"
       :transitions="availableFunctions"
-      @confirm="onTransitionConfirm"
+      @confirm="onTransitionConfirmOnConnect"
     />
   </div>
 </template>
@@ -743,6 +774,10 @@ import { Background } from '@vue-flow/background';
 import { MiniMap } from '@vue-flow/minimap';
 import { useThemeStore } from '@/stores/theme';
 import { useContractStore } from '@/stores/contractStore';
+import ToastContainer from '@/components/ui/ToastContainer.vue';
+import toast from '@/components/ui/ToastService';
+
+
 
 // Composants
 import Modal from '@/components/ui/UiModal.vue';
@@ -890,7 +925,7 @@ const {
 } = useNodeStyles({ isDarkMode });
 
 // 2. Obtenir les fonctions VueFlow
-const { findNode, setSelectedElements } = useVueFlow();
+const { findNode,onNodeClick, addSelectedNodes, nodesSelectionActive  } = useVueFlow();
 
 // Fonction auxiliaire pour obtenir la configuration des noeuds
 function getNodeConfig(type) {
@@ -1150,18 +1185,7 @@ const getNodeName = (nodeId) => {
   return node ? node.data.label : nodeId;
 };
 
-// Gestion des transitions avec le composant modal
-const onTransitionConfirm = (data) => {
-  const newEdge = {
-    id: `edge-${Date.now()}`,
-    source: data.source,
-    target: data.target,
-    label: data.transition,
-    markerEnd: MarkerType.ArrowClosed
-  };
-  
-  addTransition(newEdge);
-};
+
 
 // Initialisation
 onMounted(() => {
@@ -1185,6 +1209,85 @@ watch([currentNodes, currentEdges], () => {
   validateAutomate();
   isSaved.value = false;
 }, { deep: true });
+
+
+
+
+
+
+
+
+
+// Sélection d'un nœud dans VueFlow
+onNodeClick(({ node }) => {
+ 
+  // Si le nœud cliqué est déjà le nœud actif, le désélectionner
+  if (activeStateId.value === node.id) {
+    activeStateId.value = null;
+    updateNodeStyles(null);
+  } else {
+    // Sinon, sélectionner le nouveau nœud
+    activeStateId.value = node.id;
+    updateNodeStyles(node.id);
+  }
+});
+
+
+
+/**
+ * Capturé depuis @connect de VueFlow.
+ * Valide la connexion et, si OK, ouvre le modal en lui passant source/target.
+ */
+ function onNodeConnect(params) {
+  const { source, target } = params
+  const result = handleConnectNodes({ source, target })
+
+  if (!result.success) {
+    toast.error(result.message)
+    return
+  }
+
+  // ouvre le modal exposé par TransitionModal.vue
+  transitionModalRef.value.open(
+    result.source,
+    result.target,
+    result.sourceName,
+    result.targetName
+  )
+}
+
+/**
+ * Capturé depuis @confirm du TransitionModal.
+ * Ajoute vraiment la transition, affiche un toast et recentre si tout est OK.
+ */
+function onTransitionConfirmOnConnect({ source, target, transition }) {
+  const { success, message } = addTransition({
+    source,
+    target,
+    label: transition
+  })
+
+  if (!success) {
+    toast.error(message)
+  } else {
+    toast.success(message)
+    centerGraph()
+  }
+  
+}
+
+
+
+onMounted(() => {
+
+  window.addEventListener('click', () => (contextMenu.value.visible = false))
+
+  window.addEventListener('click', () => (edgeContextMenu.value.visible = false))
+
+});
+
+
+
 </script>
 
 <style scoped>
