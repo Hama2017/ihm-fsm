@@ -117,7 +117,7 @@
               
               <!-- Bouton d'inversion -->
               <button 
-                @click.stop="openReverseEdgeModal(edge)" 
+                @click.stop="$emit('inver-transition', edge)" 
                 class="px-3 py-2 text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors"
                 title="Inverser"
               >
@@ -337,7 +337,7 @@ const props = defineProps({
 });
 
 // Événements émis
-const emit = defineEmits(['select-transition', 'add-transition', 'edit-transition', 'remove-transition', 'reverse-transition']);
+const emit = defineEmits(['select-transition', 'add-transition', 'edit-transition', 'remove-transition', 'reverse-transition', 'inver-transition']);
 
 // État pour le tri
 const sortAsc = ref(true);

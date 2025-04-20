@@ -139,7 +139,7 @@
       <div class="xl:h-full flex flex-col">
         <div class="flex items-center justify-between mb-2">
           <h2 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
-            Éditeur<span v-if="automateManager.activeAutomateName"> : {{ automateManager.activeAutomateName }}</span>
+            Éditeur<span v-if="automateManager.activeAutomateName()"> : {{ automateManager.activeAutomateName() }}</span>
           </h2>
         </div>
         
@@ -375,3 +375,782 @@
           <!-- Onglet États -->
           <div v-if="editorControls.rightPanelTab === 'states'" class="h-full">
             <StateList
+              v-model:nodes="currentNodes"
+              :edges="currentEdges"
+              :selectedState="activeStateId"
+              @add-state="stateManager.openAddStateModal"
+              @edit-state="stateManager.openEditStateModal"
+              @remove-state="stateManager.openRemoveStateModal"
+              @select-state="stateManager.selectState"
+              @open-add-modal="stateManager.openAddStateModal"
+              @open-edit-modal="stateManager.openEditStateModal"
+              @open-remove-modal="stateManager.openRemoveStateModal"
+            />
+          </div>
+          
+          <!-- Onglet Fonctions -->
+          <div v-if="editorControls.rightPanelTab === 'functions'" class="h-full">
+            <FunctionList
+              :edges="currentEdges"
+              :nodes="currentNodes"
+              :availableFunctions="availableFunctions"
+              :activeTransition="activeTransitionId"
+              @select-transition="transitionManager.selectTransition"
+              @add-transition="transitionManager.addTransition"
+              @edit-transition="transitionManager.editTransition"
+              @remove-transition="transitionManager.removeTransition"
+              @reverse-transition="transitionManager.invertTransition"
+            />
+          </div>
+          
+          <!-- Onglet Analyse -->
+          <div v-if="editorControls.rightPanelTab === 'analyzer'" class="h-full">
+            <AutomatonAnalyzer
+              :nodes="currentNodes"
+              :edges="currentEdges"
+              :validationErrors="validation.validationErrors"
+              :cyclePath="validation.cyclePath"
+              @analyze="validation.validateAutomate"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Modals -->
+    <!-- Modal pour la simulation -->
+    <Modal
+      v-model="simulation.showSimulationModal"
+      title="Simulation de l'automate"
+      confirm-text="Lancer la simulation"
+      @confirm="simulation.launchSimulation"
+    >
+      <p class="text-gray-700 dark:text-gray-300">
+        Voulez-vous lancer la simulation de déploiement de cet automate ?
+      </p>
+      <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">
+        Cette simulation vous permettra de visualiser l'ordre de déploiement des états selon leur dépendance.
+      </p>
+    </Modal>
+    
+    <!-- Modal récapitulatif de déploiement -->
+    <DeploymentSummaryPanel
+      v-if="simulation.showDeploymentSummaryModal"
+      :deployedOrder="simulation.deploymentResult"
+      :nodes="currentNodes"
+      @close="simulation.closeDeploymentSummaryModal"
+    />
+    
+    <!-- Modal d'ajout d'état -->
+    <Modal
+      v-model="stateManager.showAddStateModal"
+      title="Ajouter un état"
+      confirm-text="Ajouter"
+      @confirm="stateManager.confirmAddState"
+    >
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nom de l'état</label>
+          <input
+            type="text"
+            v-model="stateManager.newStateName"
+            placeholder="Saisir le nom de l'état..."
+            class="w-full px-3 py-2 border rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+          />
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Type d'état</label>
+          <select
+            v-model="stateManager.newStateType"
+            class="w-full px-3 py-2 border rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+          >
+            <option value="standard">État standard</option>
+            <option value="initial">État initial</option>
+            <option value="final">État final</option>
+          </select>
+        </div>
+        
+        <p v-if="stateManager.addStateError" class="text-sm text-red-600 dark:text-red-400 mt-2">
+          {{ stateManager.addStateError }}
+        </p>
+      </div>
+    </Modal>
+    
+    <!-- Modal d'édition d'état -->
+    <Modal
+      v-model="stateManager.showEditStateModal"
+      title="Modifier l'état"
+      confirm-text="Enregistrer"
+      @confirm="stateManager.confirmEditState"
+    >
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nom de l'état</label>
+          <input
+            type="text"
+            v-model="stateManager.editStateName"
+            placeholder="Saisir le nom de l'état..."
+            class="w-full px-3 py-2 border rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+          />
+        </div>
+        
+        <p v-if="stateManager.editStateError" class="text-sm text-red-600 dark:text-red-400 mt-2">
+          {{ stateManager.editStateError }}
+        </p>
+      </div>
+    </Modal>
+    
+    <!-- Modal de suppression d'état -->
+    <Modal
+      v-model="stateManager.showRemoveStateModal"
+      title="Supprimer l'état ?"
+      confirm-text="Supprimer"
+      variant="danger"
+      @confirm="stateManager.confirmRemoveState"
+    >
+      <p class="text-gray-700 dark:text-gray-300">
+        Êtes-vous sûr de vouloir supprimer cet état ?
+      </p>
+      <div v-if="stateManager.stateUsedInEdges" class="mt-4 p-3 bg-yellow-50 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-300 text-sm rounded-md">
+        <p class="flex items-center">
+          <LucideAlertTriangle class="w-4 h-4 mr-2 flex-shrink-0" />
+          <span>Attention : Cet état est utilisé dans des transitions. Les supprimer également ?</span>
+        </p>
+      </div>
+    </Modal>
+    
+    <!-- Modal de suppression de transition -->
+    <Modal
+      v-model="transitionManager.showRemoveTransitionModal"
+      title="Supprimer la transition ?"
+      confirm-text="Supprimer"
+      variant="danger"
+      @confirm="transitionManager.confirmRemoveTransition"
+    >
+      <p class="text-gray-700 dark:text-gray-300">
+        Êtes-vous sûr de vouloir supprimer cette transition ? Cette action est irréversible.
+      </p>
+    </Modal>
+    
+    <!-- Modal d'inversion de transition -->
+    <Modal
+      v-model="transitionManager.showInvertTransitionModal"
+      title="Inverser la transition"
+      confirm-text="Inverser"
+      variant="warning"
+      @confirm="transitionManager.confirmInvertTransition"
+    >
+      <div class="space-y-4">
+        <p class="text-gray-700 dark:text-gray-300">
+          Voulez-vous inverser le sens de la transition ?
+        </p>
+        <div class="flex items-center justify-center space-x-2 bg-gray-100 dark:bg-gray-700 p-3 rounded-lg">
+          <span class="font-medium text-gray-700 dark:text-gray-300">{{ getNodeName(transitionManager.invertingTransition.source) }}</span>
+          <LucideArrowRight class="mx-2 text-blue-500" />
+          <span class="font-medium text-gray-700 dark:text-gray-300">{{ getNodeName(transitionManager.invertingTransition.target) }}</span>
+        </div>
+        <div class="flex items-center justify-center">
+          <LucideArrowDown class="my-2 text-yellow-500" />
+        </div>
+        <div class="flex items-center justify-center space-x-2 bg-yellow-50 dark:bg-yellow-900/20 p-3 rounded-lg">
+          <span class="font-medium text-gray-700 dark:text-gray-300">{{ getNodeName(transitionManager.invertingTransition.target) }}</span>
+          <LucideArrowRight class="mx-2 text-blue-500" />
+          <span class="font-medium text-gray-700 dark:text-gray-300">{{ getNodeName(transitionManager.invertingTransition.source) }}</span>
+        </div>
+      </div>
+    </Modal>
+    
+    <!-- Modal de mise à jour des connexions -->
+    <Modal
+      v-model="transitionManager.showEdgeUpdateModal"
+      title="Modifier la transition"
+      @confirm="transitionManager.confirmEdgeUpdate"
+    >
+      <div class="space-y-3">
+        <div class="flex items-center">
+          <span class="font-medium w-32 text-gray-700 dark:text-gray-300">Nouvelle origine:</span>
+          <span class="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-md">
+            {{ transitionManager.edgeUpdateSourceName }}
+          </span>
+        </div>
+        <div class="flex items-center">
+          <span class="font-medium w-32 text-gray-700 dark:text-gray-300">Nouvelle destination:</span>
+          <span class="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 rounded-md">
+            {{ transitionManager.edgeUpdateTargetName }}
+          </span>
+        </div>
+      </div>
+    </Modal>
+    
+    <!-- Modal de gestion des automates -->
+    <Modal
+      v-model="automateManager.showAutomateModal"
+      title="Gestion de l'automate"
+      confirm-text="Enregistrer"
+      @confirm="automateManager.confirmAutomateEdit"
+    >
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            Nom de l'automate
+          </label>
+          <input
+            type="text"
+            v-model="automateManager.editingAutomateName"
+            placeholder="Saisir le nom de l'automate..."
+            class="w-full px-3 py-2 border rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+          />
+        </div>
+        
+        <p v-if="automateManager.automateModalError" class="text-sm text-red-600 dark:text-red-400 mt-2">
+          {{ automateManager.automateModalError }}
+        </p>
+      </div>
+    </Modal>
+    
+    <!-- Modal d'ajout de transition -->
+    <Modal
+      v-model="transitionManager.showAddTransitionModal"
+      title="Ajouter une transition"
+      confirm-text="Ajouter"
+      @confirm="transitionManager.confirmAddTransition"
+    >
+      <div class="space-y-4">
+        <!-- Source -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            État source
+          </label>
+          <select 
+            v-model="transitionManager.editingTransition.source"
+            class="block w-full px-3 py-2 border rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+          >
+            <option value="">Sélectionner un état source</option>
+            <option v-for="node in currentNodes" :key="node.id" :value="node.id">
+              {{ node.data.label }}
+            </option>
+          </select>
+        </div>
+        
+        <!-- Destination -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            État destination
+          </label>
+          <select 
+            v-model="transitionManager.editingTransition.target"
+            class="block w-full px-3 py-2 border rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+          >
+            <option value="">Sélectionner un état destination</option>
+            <option v-for="node in currentNodes" :key="node.id" :value="node.id">
+              {{ node.data.label }}
+            </option>
+          </select>
+        </div>
+        
+        <!-- Fonction -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            Fonction
+          </label>
+          <select 
+            v-model="transitionManager.editingTransition.function"
+            class="block w-full px-3 py-2 border rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+          >
+            <option value="">Sélectionner une fonction</option>
+            <option v-for="func in availableFunctions" :key="func.value" :value="func.value">
+              {{ func.label }}
+            </option>
+          </select>
+        </div>
+        
+        <p v-if="transitionManager.editTransitionError" class="text-sm text-red-600 dark:text-red-400 mt-2">
+          {{ transitionManager.editTransitionError }}
+        </p>
+      </div>
+    </Modal>
+    
+    <!-- Modal d'édition de transition -->
+    <Modal
+      v-model="transitionManager.showEditTransitionModal"
+      title="Modifier la transition"
+      confirm-text="Enregistrer"
+      @confirm="transitionManager.confirmEditTransition"
+    >
+      <div class="space-y-4">
+        <!-- Source -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            État source
+          </label>
+          <select 
+            v-model="transitionManager.editingTransition.source"
+            class="block w-full px-3 py-2 border rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+          >
+            <option v-for="node in currentNodes" :key="node.id" :value="node.id">
+              {{ node.data.label }}
+            </option>
+          </select>
+        </div>
+        
+        <!-- Destination -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            État destination
+          </label>
+          <select 
+            v-model="transitionManager.editingTransition.target"
+            class="block w-full px-3 py-2 border rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+          >
+            <option v-for="node in currentNodes" :key="node.id" :value="node.id">
+              {{ node.data.label }}
+            </option>
+          </select>
+        </div>
+        
+        <!-- Fonction -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            Fonction
+          </label>
+          <select 
+            v-model="transitionManager.editingTransition.function"
+            class="block w-full px-3 py-2 border rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+          >
+            <option value="">Sélectionner une fonction</option>
+            <option v-for="func in availableFunctions" :key="func.value" :value="func.value">
+              {{ func.label }}
+            </option>
+          </select>
+        </div>
+        
+        <p v-if="transitionManager.editTransitionError" class="text-sm text-red-600 dark:text-red-400 mt-2">
+          {{ transitionManager.editTransitionError }}
+        </p>
+      </div>
+    </Modal>
+    
+    <!-- Modal d'édition de transition -->
+    <Modal
+      v-model="transitionManager.showEditTransitionModal"
+      title="Modifier la transition"
+      confirm-text="Enregistrer"
+      @confirm="transitionManager.confirmEditTransition"
+    >
+      <div class="space-y-4">
+        <!-- Source -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            État source
+          </label>
+          <select 
+            v-model="transitionManager.editingTransition.source"
+            class="block w-full px-3 py-2 border rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+          >
+            <option v-for="node in currentNodes" :key="node.id" :value="node.id">
+              {{ node.data.label }}
+            </option>
+          </select>
+        </div>
+        
+        <!-- Destination -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            État destination
+          </label>
+          <select 
+            v-model="transitionManager.editingTransition.target"
+            class="block w-full px-3 py-2 border rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+          >
+            <option v-for="node in currentNodes" :key="node.id" :value="node.id">
+              {{ node.data.label }}
+            </option>
+          </select>
+        </div>
+        
+        <!-- Fonction -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            Fonction
+          </label>
+          <select 
+            v-model="transitionManager.editingTransition.function"
+            class="block w-full px-3 py-2 border rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+          >
+            <option v-for="func in availableFunctions" :key="func.value" :value="func.value">
+              {{ func.label }}
+            </option>
+          </select>
+        </div>
+        
+        <p v-if="transitionManager.editTransitionError" class="text-sm text-red-600 dark:text-red-400 mt-2">
+          {{ transitionManager.editTransitionError }}
+        </p>
+      </div>
+    </Modal>
+  </div>
+</template>
+
+<script setup>
+import { ref, computed, watch, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+import { storeToRefs } from 'pinia';
+import { VueFlow, useVueFlow, MarkerType } from '@vue-flow/core';
+import { useThemeStore } from '@/stores/theme';
+import { useContractStore } from '@/stores/contractStore';
+
+import { Background } from '@vue-flow/background';
+import { MiniMap } from '@vue-flow/minimap';
+
+
+// Composants
+import Modal from '@/components/ui/UiModal.vue';
+import TransitionModal from '@/components/ui/UiTransitionModal.vue';
+import AutomateList from '@/components/fsm/AutomateList.vue';
+import StateList from '@/components/fsm/StateList.vue';
+import FunctionList from '@/components/fsm/FunctionList.vue';
+import EditorToolbar from '@/components/contract/EditorToolbar.vue';
+import AutomatonAnalyzer from '@/components/contract/AutomatonAnalyzer.vue';
+import DeploymentSummaryPanel from '@/components/contract/DeploymentSummaryPanel.vue';
+
+// Icônes
+import {
+  LucideUndo2,
+  LucideRedo2,
+  LucideSave,
+  LucideLoader,
+  LucideRocket,
+  LucideFileWarning,
+  LucidePencil,
+  LucideTrash2,
+  LucideCheckSquare,
+  LucideAlertTriangle,
+  LucideRefreshCcw,
+  LucideX,
+  LucideCheck,
+  LucideArrowDownUp,
+  LucideArrowRight,
+  LucideArrowDown,
+  LucideChevronsDown,
+  LucideChevronsRight
+} from 'lucide-vue-next';
+
+// Composables
+import useNodeStyles from '@/composables/contract/useNodeStyles';
+import useStateManagement from '@/composables/contract/useStateManagement';
+import useTransitionManagement from '@/composables/contract/useTransitionManagement';
+import useAutomateManagement from '@/composables/contract/useAutomateManagement';
+import useHistoryManager from '@/composables/contract/useHistoryManager';
+import useEditorControls from '@/composables/contract/useEditorControls';
+import useSimulation from '@/composables/contract/useSimulation';
+import useValidation from '@/composables/contract/useValidation';
+import useContractActions from '@/composables/contract/useContractActions';
+
+// Router
+const router = useRouter();
+
+// Theme
+const themeStore = useThemeStore();
+const { darkMode } = storeToRefs(themeStore);
+const isDarkMode = darkMode;
+
+// Contract Store
+const contractStore = useContractStore();
+
+// État du contrat
+const contractName = ref('');
+const contractStatus = ref('Brouillon');
+const isSaved = ref(false);
+const contractAutomates = ref([
+  {
+    id: '01',
+    name: 'Processus d\'approbation',
+    states: [
+      { 
+        id: 'state-1', 
+        label: 'Soumission', 
+        position: { x: 100, y: 150 },
+        type: 'initial'
+      },
+      { 
+        id: 'state-2', 
+        label: 'Validation', 
+        position: { x: 300, y: 150 },
+        type: 'standard'
+      },
+      { 
+        id: 'state-3', 
+        label: 'Approuvé', 
+        position: { x: 500, y: 100 },
+        type: 'final'
+      },
+      { 
+        id: 'state-4', 
+        label: 'Rejeté', 
+        position: { x: 500, y: 200 },
+        type: 'final'
+      }
+    ],
+    transitions: [
+      { 
+        id: 'edge-1', 
+        source: 'state-1', 
+        target: 'state-2', 
+        label: 'valider', 
+        markerEnd: MarkerType.ArrowClosed
+      },
+      { 
+        id: 'edge-2', 
+        source: 'state-2', 
+        target: 'state-3', 
+        label: 'approuver', 
+        markerEnd: MarkerType.ArrowClosed
+      },
+      { 
+        id: 'edge-3', 
+        source: 'state-2', 
+        target: 'state-4', 
+        label: 'rejeter', 
+        markerEnd: MarkerType.ArrowClosed
+      }
+    ]
+  }
+]);
+const activeAutomateId = ref('01');
+const currentNodes = ref([]);
+const currentEdges = ref([]);
+const activeStateId = ref(null);
+const activeTransitionId = ref(null);
+const isFullScreen = ref(false);
+
+// Liste des fonctions disponibles (transitions)
+const availableFunctions = ref([
+  { value: 'valider', label: 'Valider' },
+  { value: 'refuser', label: 'Refuser' },
+  { value: 'reporter', label: 'Reporter' },
+  { value: 'annuler', label: 'Annuler' },
+  { value: 'terminer', label: 'Terminer' },
+  { value: 'suspendre', label: 'Suspendre' },
+  { value: 'reprendre', label: 'Reprendre' },
+  { value: 'commenter', label: 'Commenter' },
+  { value: 'approuver', label: 'Approuver' },
+  { value: 'rejeter', label: 'Rejeter' }
+]);
+
+// Initialisation des composables
+// 1. Styles des noeuds et arêtes
+const nodeStyles = useNodeStyles({ isDarkMode });
+
+// 2. Historique des actions
+const historyManager = useHistoryManager({
+  nodes: currentNodes,
+  edges: currentEdges,
+  activeStateId,
+  activeTransitionId,
+  updateNodeStyles: nodeStyles.updateNodeStyles,
+  updateEdgeStyles: nodeStyles.updateEdgeStyles
+});
+
+// 3. Validation de l'automate
+const validation = useValidation({
+  currentNodes,
+  currentEdges
+});
+
+// 4. Gestion des états
+const stateManager = useStateManagement({
+  nodes: currentNodes,
+  edges: currentEdges,
+  activeStateId,
+  saveToHistory: historyManager.saveToHistory,
+  validateAutomate: validation.validateAutomate,
+  getBaseNodeStyle: nodeStyles.getBaseNodeStyle,
+  getSelectedNodeStyle: nodeStyles.getSelectedNodeStyle,
+  getNodeConfig: getNodeConfig
+});
+
+// 5. Gestion des transitions
+const transitionManager = useTransitionManagement({
+  nodes: currentNodes,
+  edges: currentEdges,
+  activeTransitionId,
+  saveToHistory: historyManager.saveToHistory,
+  validateAutomate: validation.validateAutomate,
+  detectCycle: validation.detectCycle,
+  getBaseEdgeStyle: nodeStyles.getBaseEdgeStyle,
+  getSelectedEdgeStyle: nodeStyles.getSelectedEdgeStyle
+});
+
+// 6. Contrôles de l'éditeur
+const editorControls = useEditorControls();
+
+// 7. Simulation de l'automate
+const simulation = useSimulation(
+  currentNodes, 
+  currentEdges, 
+  nodeStyles.getBaseEdgeStyle,
+  stateManager.updateNodeStyles
+);
+
+// 8. Actions du contrat
+const contractActions = useContractActions({
+  contractName,
+  contractStatus,
+  contractAutomates,
+  activeAutomateId,
+  isSaved,
+  hasValidationErrors: validation.hasValidationErrors,
+  saveCurrentAutomateState: saveCurrentAutomateState,
+  validateAutomate: validation.validateAutomate
+});
+
+// 9. Gestion des automates
+const automateManager = useAutomateManagement({
+  contractAutomates,
+  activeAutomateId,
+  currentNodes,
+  currentEdges,
+  activeStateId,
+  activeTransitionId,
+  historyStack: historyManager.historyStack,
+  historyIndex: historyManager.historyIndex,
+  canUndo: historyManager.canUndo,
+  canRedo: historyManager.canRedo,
+  updateNodeStyles: stateManager.updateNodeStyles,
+  updateEdgeStyles: transitionManager.updateEdgeStyles,
+  validateAutomate: validation.validateAutomate,
+  getNodeConfig,
+  getBaseNodeStyle: nodeStyles.getBaseNodeStyle,
+  getBaseEdgeStyle: nodeStyles.getBaseEdgeStyle
+});
+
+// Fonction pour basculer en mode plein écran
+const toggleFullScreen = () => {
+  isFullScreen.value = !isFullScreen.value;
+  // Ajuster la vue après le passage en plein écran
+  setTimeout(() => {
+    editorControls.centerGraph();
+  }, 100);
+};
+
+// Fonction pour obtenir le nom d'un nœud par son ID
+const getNodeName = (nodeId) => {
+  const node = currentNodes.value.find(n => n.id === nodeId);
+  return node ? node.data.label : nodeId;
+};
+
+// Configuration pour les nœuds
+function getNodeConfig(type) {
+  const baseConfig = {
+    sourcePosition: 'bottom',
+    targetPosition: 'top',
+  };
+  
+  switch (type) {
+    case 'initial':
+      return {
+        ...baseConfig,
+        type: 'default',
+        sourcePosition: 'bottom',
+        targetPosition: null // Initial nodes don't have target handles
+      };
+    case 'final':
+      return {
+        ...baseConfig,
+        type: 'default',
+        sourcePosition: null, // Final nodes don't have source handles
+        targetPosition: 'top',
+      };
+    default:
+      return {
+        ...baseConfig,
+        type: 'default',
+      };
+  }
+}
+
+// Sauvegarde l'état de l'automate actif
+function saveCurrentAutomateState() {
+  if (!activeAutomateId.value) return;
+  
+  const automate = contractAutomates.value.find(a => a.id === activeAutomateId.value);
+  
+  if (!automate) return;
+  
+  // Convertir les nœuds en états
+  automate.states = currentNodes.value.map(node => {
+    // Déterminer le type de nœud
+    let type = 'standard';
+    if (!currentEdges.value.some(e => e.target === node.id)) type = 'initial';
+    if (!currentEdges.value.some(e => e.source === node.id)) type = 'final';
+    
+    return {
+      id: node.id,
+      label: node.data.label,
+      position: { x: node.position.x, y: node.position.y },
+      type,
+      sourcePosition: node.sourcePosition,
+      targetPosition: node.targetPosition,
+    };
+  });
+  
+  // Sauvegarder les transitions
+  automate.transitions = currentEdges.value.map(edge => ({
+    id: edge.id,
+    source: edge.source,
+    target: edge.target,
+    label: edge.label,
+    markerEnd: edge.markerEnd
+  }));
+}
+
+// Initialisation
+onMounted(() => {
+  // Charger l'automate initial
+  automateManager.loadAutomateState(activeAutomateId.value);
+  
+  // Initialiser l'historique
+  historyManager.saveToHistory();
+
+  // Valider l'automate après le chargement
+  validation.validateAutomate();
+
+  // Centrer le graphe
+  setTimeout(() => {
+    editorControls.centerGraph();
+  }, 100);
+});
+
+// Observer les changements dans currentNodes et currentEdges pour valider l'automate
+watch([currentNodes, currentEdges], () => {
+  validation.validateAutomate();
+  isSaved.value = false;
+}, { deep: true });
+</script>
+
+
+<style scoped>
+/* Animations pour les transitions actives en mode simulation */
+@keyframes pulse-line {
+  0% {
+    stroke-dashoffset: 1000;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+.animated-edge {
+  stroke: #facc15; /* jaune vif */
+  stroke-width: 3px;
+  stroke-dasharray: 10;
+  animation: pulse-line 1s ease forwards;
+}
+
+.ring-highlight {
+  transition: all 0.3s ease;
+  box-shadow: 0 0 0 4px #fde047; /* ring-yellow-400 */
+  background-color: #fef3c7; /* bg-yellow-100 */
+}
+</style>

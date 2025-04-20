@@ -115,6 +115,7 @@ export default function useContractActions({
   return {
     isSaving,
     saveContract,
-    deployContract
+    deployContract,
+    
   };
 }

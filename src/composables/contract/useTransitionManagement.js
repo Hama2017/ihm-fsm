@@ -31,6 +31,7 @@ export default function useTransitionManagement({
 
   // --- États pour les modals ---
   const showAddTransitionModal = ref(false);
+  const showAddTransitionModalOnConnect = ref(null);
   const showEditTransitionModal = ref(false);
   const showRemoveTransitionModal = ref(false);
   const showInvertTransitionModal = ref(false);
@@ -76,6 +77,7 @@ export default function useTransitionManagement({
     editTransitionError.value = '';
     showAddTransitionModal.value = true;
   };
+
 
   /**
    * Ouvre le modal d'édition de transition
@@ -580,6 +582,9 @@ export default function useTransitionManagement({
     const sourceName = sourceNode ? sourceNode.data.label : source;
     const targetName = targetNode ? targetNode.data.label : target;
     
+    // Ouvrir le modal d'ajout de transition
+    showAddTransitionModalOnConnect.value.open(source, target, sourceName, targetName);
+
     // Retourner les informations pour ouvrir le modal dans le composant parent
     return { 
       success: true, 
@@ -693,6 +698,7 @@ export default function useTransitionManagement({
     invertingTransition,
     removeTransitionId,
     editTransitionError,
+    showAddTransitionModalOnConnect,
     
     // États pour la mise à jour des arêtes
     edgeUpdateData,
@@ -741,4 +747,9 @@ export default function useTransitionManagement({
     invertTransitionFromContext,
     hideContextMenu
   };
+
+
+
+
+  
 }
