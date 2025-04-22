@@ -1,6 +1,6 @@
 import { ref, computed } from 'vue';
 import { useVueFlow } from '@vue-flow/core';
-import toast from '@/components/ui/ToastService';
+import toast from '@/composables/Toast/useToast';
 
 /**
  * Composable pour gérer tout ce qui est relatif aux états (nodes) dans l'éditeur de contrat
@@ -16,7 +16,7 @@ import toast from '@/components/ui/ToastService';
  * @param {Function} options.getNodeConfig Fonction pour obtenir la configuration d'un nœud selon son type
  * @returns {Object} Fonctions et états pour la gestion des états
  */
-export default function useStateManagement({
+export default function useState({
   nodes,
   edges,
   activeStateId,
@@ -27,7 +27,7 @@ export default function useStateManagement({
   getNodeConfig
 }) {
   // --- Récupérer les méthodes de VueFlow ---
-  const { findNode, setSelectedElements } = useVueFlow();
+  const { findNode, addSelectedNodes, removeSelectedNodes } = useVueFlow();
 
   // --- États pour les modals ---
   const showAddStateModal = ref(false);
@@ -223,7 +223,7 @@ export default function useStateManagement({
       // Désélectionner
       activeStateId.value = null;
       updateNodeStyles(null);
-      setSelectedElements({ nodes: [], edges: [] });
+      removeSelectedNodes(nodes.value.filter(n => n.id === stateId));
     } else {
       // Sélectionner le nouvel état
       activeStateId.value = stateId;
@@ -233,7 +233,7 @@ export default function useStateManagement({
       if (stateId) {
         const node = findNode(stateId);
         if (node) {
-          setSelectedElements({ nodes: [node], edges: [] });
+          addSelectedNodes([node]);
         }
       }
     }
@@ -329,7 +329,6 @@ export default function useStateManagement({
     }
   };
 
-  // --- Méthodes pour l'ajout de types d'états spécifiques ---
   /**
    * Ajoute un état initial
    * @returns {Object} Résultat de l'opération
@@ -375,7 +374,6 @@ export default function useStateManagement({
     return addState(newState);
   };
 
-  // --- Méthodes pour le menu contextuel ---
   /**
    * Gestionnaire pour le clic droit sur un nœud
    * @param {Object} params - Informations sur l'événement

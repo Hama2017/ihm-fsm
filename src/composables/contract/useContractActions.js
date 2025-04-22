@@ -1,6 +1,7 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import toast from '@/components/ui/ToastService';
+import toast from '@/composables/Toast/useToast';
+import { useContractStore } from '@/stores/contractStore';
 
 /**
  * Composable pour gérer les actions liées au contrat (sauvegarde, déploiement)
@@ -28,6 +29,10 @@ export default function useContractActions({
 }) {
   const router = useRouter();
   
+// Importer le store Pinia
+  const contractStore = useContractStore();
+
+
   // État réactif
   const isSaving = ref(false);
   
@@ -40,32 +45,29 @@ export default function useContractActions({
   
   // Fonction pour sauvegarder le contrat complet
   const saveContract = () => {
-    // Indiquer que la sauvegarde est en cours
     isSaving.value = true;
-
-    // Validation
+  
     if (!contractName.value.trim()) {
       toast.error('Veuillez saisir un nom de contrat');
       isSaving.value = false;
       return;
     }
-    
+  
     if (contractAutomates.value.length === 0) {
       toast.error('Veuillez créer au moins un automate');
       isSaving.value = false;
       return;
     }
-    
-    // Sauvegarder l'automate courant si nécessaire
+  
     if (activeAutomateId.value) {
       saveCurrentAutomateState();
     }
-
-    // Construire l'objet contrat selon la structure spécifiée
+  
     const contract = {
       id: generateContractId(),
       name: contractName.value.trim(),
       status: contractStatus.value,
+      createdAt: new Date(),
       automates: contractAutomates.value.map(automate => ({
         id: automate.id,
         name: automate.name,
@@ -74,25 +76,26 @@ export default function useContractActions({
         transitions: automate.transitions
       }))
     };
-    
-    // Dans un cas réel, nous ferions une requête API ici
-    // Pour cet exemple, nous simulons un délai de sauvegarde
+  
+    //  Sauvegarde dans Pinia
+    contractStore.setCurrentContract(contract);
+  
+    const existing = contractStore.getContractById(contract.id);
+    if (!existing) {
+      contractStore.addContract(contract);
+    }
+  
     setTimeout(() => {
-      // Afficher l'objet en console
       console.log('Contrat sauvegardé:', JSON.stringify(contract, null, 2));
-      
-      // Afficher un toast de succès
       toast.success('Contrat sauvegardé avec succès!');
-      
-      // Fin de la sauvegarde
       isSaving.value = false;
       isSaved.value = true;
-      
-      // Naviguer vers la liste des contrats après un court délai
+  
       setTimeout(() => {
         router.push({ name: 'contracts' });
       }, 1000);
     }, 800);
+
   };
 
   // Fonction pour déployer le contrat

@@ -1,6 +1,6 @@
 import { ref } from 'vue';
 import { MarkerType } from '@vue-flow/core';
-import toast from '@/components/ui/ToastService';
+import toast from '@/composables/Toast/useToast';
 
 /**
  * Composable pour gérer les automates (ajout, édition, suppression, sélection)
@@ -24,7 +24,7 @@ import toast from '@/components/ui/ToastService';
  * @param {Function} options.getBaseEdgeStyle Fonction pour obtenir le style de base d'une arête
  * @returns {Object} Fonctions et états pour la gestion des automates
  */
-export default function useAutomateManagement({
+export default function useAutomate({
   contractAutomates,
   activeAutomateId,
   currentNodes,
@@ -153,7 +153,7 @@ export default function useAutomateManagement({
       selectAutomate(contractAutomates.value[0].id);
     }
     
-    toast.success('Automate supprimé avec succès');
+    toast.success('Clause supprimé avec succès');
   };
   
   /**
@@ -173,7 +173,7 @@ export default function useAutomateManagement({
     );
     
     if (nameExists) {
-      automateModalError.value = 'Un automate avec ce nom existe déjà';
+      automateModalError.value = 'Une clause avec ce nom existe déjà';
       return;
     }
     
@@ -216,7 +216,7 @@ export default function useAutomateManagement({
       };
       
       contractAutomates.value.push(newAutomate);
-      toast.success(`Automate "${newAutomate.name}" créé avec succès`);
+      toast.success(`Clause "${newAutomate.name}" créé avec succès`);
       
       // Sélectionner le nouvel automate
       selectAutomate(newId);

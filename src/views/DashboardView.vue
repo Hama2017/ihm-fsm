@@ -26,17 +26,12 @@
   
       <!-- Grid layout pour les composants FSM -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <AutomateList />
-        <FunctionList />
-        <StateList />
+
       </div>
     </div>
   </template>
   
   <script setup>
-  import AutomateList from '../components/fsm/AutomateList.vue';
-  import FunctionList from '../components/fsm/FunctionList.vue';
-  import StateList from '../components/fsm/StateList.vue';
   import { LucideRocket, LucideCode, LucideCircuitBoard } from 'lucide-vue-next';
   import { useThemeStore } from '../stores/theme';
   import { storeToRefs } from 'pinia';

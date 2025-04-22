@@ -3,7 +3,7 @@
     <!-- En-tête -->
     <div class="flex justify-between items-center mb-5">
       <h2 class="text-lg font-semibold text-gray-900 dark:text-white tracking-wide">
-        Automates <span class="text-sm text-gray-400">({{ automates.length }})</span>
+        Clauses <span class="text-sm text-gray-400">({{ automates.length }})</span>
       </h2>
       <div class="flex items-center space-x-3">
         <!-- Bouton de tri -->
@@ -23,7 +23,7 @@
     
     <!-- Message si vide -->
     <div v-if="automates.length === 0" class="text-center text-sm text-gray-500 dark:text-gray-400 py-10">
-      Cliquer sur le bouton <strong>"Ajouter"</strong> pour créer un automate.
+      Cliquer sur le bouton <strong>"Ajouter"</strong> pour créer une clause.
     </div>
     
     <!-- Barre de recherche pour filtrer les automates -->
@@ -32,7 +32,7 @@
         <input
           type="text"
           v-model="searchQuery"
-          placeholder="Rechercher un automate..."
+          placeholder="Rechercher une clause..."
           class="w-full px-3 py-2 pr-10 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
         />
         <div class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 dark:text-gray-500">
@@ -76,19 +76,19 @@
     
     <!-- Message si aucun résultat après filtrage -->
     <div v-if="automates.length > 0 && filteredAutomates.length === 0" class="text-center text-sm text-gray-500 dark:text-gray-400 py-10">
-      Aucun automate ne correspond à votre recherche.
+      Aucune clause ne correspond à votre recherche.
     </div>
     
     <!-- Modal de confirmation de suppression -->
     <Modal
       v-model="showDeleteModal"
-      title="Supprimer cet automate ?"
+      title="Supprimer cette clause ?"
       confirm-text="Oui, supprimer"
       variant="danger"
       @confirm="confirmDelete"
     >
       <p class="text-gray-700 dark:text-gray-300">
-        Êtes-vous sûr de vouloir supprimer cet automate ? Cette action est irréversible.
+        Êtes-vous sûr de vouloir supprimer cette clause ? Cette action est irréversible.
       </p>
     </Modal>
   </div>
@@ -98,7 +98,7 @@
 import { ref, computed } from 'vue';
 import { LucidePlus, LucidePencil, LucideTrash2, LucideArrowDownUp, LucideSearch } from 'lucide-vue-next';
 import Modal from '@/components/ui/UiModal.vue';
-import toast from '@/components/ui/ToastService';
+import toast from '@/composables/Toast/useToast';
 
 // Props
 const props = defineProps({
@@ -165,7 +165,7 @@ const confirmDelete = () => {
     showDeleteModal.value = false;
     automateToDelete.value = null;
     
-    toast.success('Automate supprimé avec succès');
+    toast.success('Clause supprimé avec succès');
   } catch (error) {
     console.error('Erreur lors de la suppression de l\'automate:', error);
     toast.error('Erreur lors de la suppression de l\'automate');

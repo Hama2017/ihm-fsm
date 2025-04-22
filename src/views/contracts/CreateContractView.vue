@@ -318,24 +318,14 @@
             <span class="ml-2">Déployer</span>
           </button>
           
-          <!-- Boutons de la simulation -->
+          <!-- Message Simulation en cours -->
           <div v-if="isSimulating" class="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-white dark:bg-gray-700 rounded-full shadow-lg p-1 flex items-center">
-            <button 
-              @click="resetSimulation" 
-              class="p-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-full"
-              title="Réinitialiser"
-            >
-              <LucideRefreshCcw class="w-4 h-4" />
-            </button>
-            <span class="px-3 text-sm text-gray-600 dark:text-gray-300">Cliquez sur les états pour simuler le flux</span>
-            <button 
-              @click="toggleSimulation" 
-              class="p-2 text-red-700 dark:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-full"
-              title="Quitter la simulation"
-            >
-              <LucideX class="w-4 h-4" />
-            </button>
+            
+            <LucideLoader class="w-4 h-4 animate-spin text-blue-600 dark:text-blue-400" />
+            <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Simulation en cours</span> 
+
           </div>
+
         </div>
       </div>
 
@@ -352,13 +342,14 @@
             États
           </button>
           <button 
-            @click="setRightPanelTab('functions')" 
+            @click="setRightPanelTab('declencheurs')" 
             class="px-4 py-2 text-sm font-medium border-b-2 transition-colors focus:outline-none"
-            :class="rightPanelTab === 'functions' 
+            :class="rightPanelTab === 'declencheurs' 
               ? 'border-blue-600 text-blue-600 dark:border-blue-400 dark:text-blue-400' 
               : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'"
           >
-            Fonctions
+          Déclencheurs
+
           </button>
           <button 
             @click="setRightPanelTab('analyzer')" 
@@ -390,7 +381,7 @@
           </div>
           
           <!-- Onglet Fonctions -->
-          <div v-if="rightPanelTab === 'functions'" class="h-full">
+          <div v-if="rightPanelTab === 'declencheurs'" class="h-full">
             <FunctionList
               :edges="currentEdges"
               :nodes="currentNodes"
@@ -400,7 +391,7 @@
               @add-transition="addTransition"
               @edit-transition="editTransition"
               @remove-transition="removeTransition"
-              @reverse-transition="invertTransition"
+              @reverse-transition="openInvertTransitionModal"
             />
           </div>
           
@@ -435,12 +426,26 @@
     </Modal>
     
     <!-- Modal récapitulatif de déploiement -->
-    <DeploymentSummaryPanel
-      v-if="showDeploymentSummaryModal"
-      :deployedOrder="deploymentResult"
-      :nodes="currentNodes"
-      @close="closeDeploymentSummaryModal"
-    />
+    <Modal
+  v-model="showDeploymentSummaryModal"
+  title="Résumé de la simulation"
+  confirm-text="Fermer"
+  @confirm="closeDeploymentSummaryModal()"
+>
+  <div class="space-y-3">
+    <div class="text-green-700 dark:text-green-400 font-semibold">
+      Test de déploiement terminé avec succès 
+    </div>
+    <div class="text-sm text-gray-700 dark:text-gray-300">
+      Ordre de déploiement :
+    </div>
+    <ul class="list-decimal list-inside space-y-1 text-sm text-gray-800 dark:text-gray-200">
+      <li v-for="stateId in deploymentResult" :key="stateId">
+        {{ currentNodes.find(n => n.id === stateId)?.data.label || stateId }}
+      </li>
+    </ul>
+  </div>
+</Modal>
     
     <!-- Modal d'ajout d'état -->
     <Modal
@@ -540,7 +545,7 @@
   v-model="showInvertTransitionModal"
   title="Inverser la transition"
   confirm-text="Inverser"
-  variant="warning"
+  variant="danger"
   @confirm="confirmInvertTransition"
 >
   <div class="space-y-6">
@@ -611,19 +616,19 @@
     <!-- Modal de gestion des automates -->
     <Modal
       v-model="showAutomateModal"
-      title="Gestion de l'automate"
+      title="Gestion des clauses"
       confirm-text="Enregistrer"
       @confirm="confirmAutomateEdit"
     >
       <div class="space-y-4">
         <div>
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Nom de l'automate
+            Nom de la clause
           </label>
           <input
             type="text"
             v-model="editingAutomateName"
-            placeholder="Saisir le nom de l'automate..."
+            placeholder="Saisir le nom de la clause..."
             class="w-full px-3 py-2 border rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
           />
         </div>
@@ -677,13 +682,14 @@
         <!-- Fonction -->
         <div>
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Fonction
+            Déclencheur
+
           </label>
           <select 
             v-model="editingTransition.function"
             class="block w-full px-3 py-2 border rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
           >
-            <option value="">Sélectionner une fonction</option>
+            <option value="">Sélectionner un déclencheur</option>
             <option v-for="func in availableFunctions" :key="func.value" :value="func.value">
               {{ func.label }}
             </option>
@@ -737,7 +743,8 @@
         <!-- Fonction -->
         <div>
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Fonction
+            Déclencheur
+
           </label>
           <select 
             v-model="editingTransition.function"
@@ -755,7 +762,7 @@
       </div>
     </Modal>
        <!-- Container pour les toasts -->
-       <ToastContainer />
+       <UiToastContainer />
     <!-- Composant TransitionModal pour gérer les transitions -->
     <TransitionModal 
       ref="transitionModalRef"
@@ -774,20 +781,20 @@ import { Background } from '@vue-flow/background';
 import { MiniMap } from '@vue-flow/minimap';
 import { useThemeStore } from '@/stores/theme';
 import { useContractStore } from '@/stores/contractStore';
-import ToastContainer from '@/components/ui/ToastContainer.vue';
-import toast from '@/components/ui/ToastService';
+import UiToastContainer from '@/components/ui/UiToastContainer.vue';
+import toast from '@/composables/Toast/useToast';
 
+import '@vue-flow/core/dist/style.css' ;
 
 
 // Composants
 import Modal from '@/components/ui/UiModal.vue';
 import TransitionModal from '@/components/ui/UiTransitionModal.vue';
-import AutomateList from '@/components/fsm/AutomateList.vue';
-import StateList from '@/components/fsm/StateList.vue';
-import FunctionList from '@/components/fsm/FunctionList.vue';
+import AutomateList from '@/components/contract/AutomateList.vue';
+import StateList from '@/components/contract/StateList.vue';
+import FunctionList from '@/components/contract/FunctionList.vue';
 import EditorToolbar from '@/components/contract/EditorToolbar.vue';
 import AutomatonAnalyzer from '@/components/contract/AutomatonAnalyzer.vue';
-import DeploymentSummaryPanel from '@/components/contract/DeploymentSummaryPanel.vue';
 
 // Icônes
 import {
@@ -827,7 +834,6 @@ const transitionModalRef = ref(null);
 const contractName = ref('');
 const contractStatus = ref('Brouillon');
 const isSaved = ref(false);
-const isFullScreen = ref(false);
 
 // État des noeuds et transitions
 const contractAutomates = ref([
@@ -906,12 +912,12 @@ const availableFunctions = ref([
 ]);
 
 // Import et destructuration des composables
-import useNodeStyles from '@/composables/contract/useNodeStyles';
-import useStateManagement from '@/composables/contract/useStateManagement';
-import useTransitionManagement from '@/composables/contract/useTransitionManagement';
-import useAutomateManagement from '@/composables/contract/useAutomateManagement';
-import useHistoryManager from '@/composables/contract/useHistoryManager';
-import useEditorControls from '@/composables/contract/useEditorControls';
+import useGraphStyles from '@/composables/contract/useGraphStyles';
+import useState from '@/composables/contract/useState';
+import useTransition from '@/composables/contract/useTransition';
+import useAutomate from '@/composables/contract/useAutomate';
+import useHistory from '@/composables/contract/useHistory';
+import useEditorToolbar from '@/composables/contract/useEditorToolbar';
 import useSimulation from '@/composables/contract/useSimulation';
 import useValidation from '@/composables/contract/useValidation';
 import useContractActions from '@/composables/contract/useContractActions';
@@ -922,7 +928,7 @@ const {
   getSelectedNodeStyle, 
   getBaseEdgeStyle,
   getSelectedEdgeStyle
-} = useNodeStyles({ isDarkMode });
+} = useGraphStyles({ isDarkMode });
 
 // 2. Obtenir les fonctions VueFlow
 const { findNode,onNodeClick, addSelectedNodes, nodesSelectionActive  } = useVueFlow();
@@ -980,7 +986,7 @@ const {
   resetHistory,
   undo,
   redo
-} = useHistoryManager({
+} = useHistory({
   nodes: currentNodes,
   edges: currentEdges,
   activeStateId,
@@ -1022,7 +1028,7 @@ const {
   selectStateFromContext,
   editStateFromContext,
   deleteStateFromContext
-} = useStateManagement({
+} = useState({
   nodes: currentNodes,
   edges: currentEdges,
   activeStateId,
@@ -1067,8 +1073,9 @@ const {
   selectTransitionFromContext,
   editTransitionFromContext,
   invertTransitionFromContext,
-  deleteTransitionFromContext
-} = useTransitionManagement({
+  deleteTransitionFromContext,
+  openInvertTransitionModal
+} = useTransition({
   nodes: currentNodes,
   edges: currentEdges,
   activeTransitionId,
@@ -1094,8 +1101,10 @@ const {
   toggleLeftPanel,
   zoomIn,
   zoomOut,
-  setRightPanelTab
-} = useEditorControls();
+  setRightPanelTab,
+  isFullScreen,
+  toggleFullScreen,
+} = useEditorToolbar();
 
 // 8. Gestion de la simulation
 const {
@@ -1113,8 +1122,7 @@ const {
 } = useSimulation(
   currentNodes, 
   currentEdges, 
-  getBaseEdgeStyle,
-  updateNodeStyles
+  darkMode
 );
 
 
@@ -1133,7 +1141,7 @@ const {
   saveCurrentAutomateState,
   loadAutomateState,
   activeAutomateName
-} = useAutomateManagement({
+} = useAutomate({
   contractAutomates,
   activeAutomateId,
   currentNodes,
@@ -1170,14 +1178,7 @@ const {
   validateAutomate
 });
 
-// Fonction pour basculer en mode plein écran
-const toggleFullScreen = () => {
-  isFullScreen.value = !isFullScreen.value;
-  // Ajuster la vue après le passage en plein écran
-  setTimeout(() => {
-    centerGraph();
-  }, 100);
-};
+
 
 // Fonction pour obtenir le nom d'un nœud par son ID
 const getNodeName = (nodeId) => {

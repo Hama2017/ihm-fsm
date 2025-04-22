@@ -1,5 +1,5 @@
 import { ref, markRaw, reactive } from 'vue';
-import Toast from '@/components/ui/Toast.vue';
+import Toast from '@/components/ui/UiToast.vue';
 
 // ID incrémental pour les toasts
 let nextId = 0;

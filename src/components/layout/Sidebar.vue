@@ -1,9 +1,8 @@
-// src/components/layout/TheSidebar.vue
 <template>
     <aside
       :class="[
         'transition-all duration-300 ease-in-out flex flex-col',
-        isCollapsed ? 'w-20' : 'w-64',
+        isSidebarCollapsed  ? 'w-20' : 'w-64',
         isDarkMode 
           ? 'bg-gray-900 border-gray-800 text-white' 
           : 'bg-white border-gray-200 text-gray-900'
@@ -15,19 +14,19 @@
       >
 
       <img 
-  :src="isCollapsed ? logoCollapsed : logo" 
+  :src="isSidebarCollapsed  ? logoCollapsed : logo" 
   alt="SLC logo" 
-  :class="isCollapsed ? 'h-18 w-10' : 'h-25 w-200'" 
+  :class="isSidebarCollapsed  ? 'h-18 w-10' : 'h-25 w-200'" 
 />
         <div class="flex items-center gap-3">
    
          
         </div>
-        <button @click="$emit('toggleSidebar')" 
+        <button @click="toggleSidebarCollapsed" 
           class="hover:bg-gray-200 dark:hover:bg-gray-800 p-1 rounded"
           :class="isDarkMode ? 'text-gray-400 hover:text-white' : 'text-gray-500 hover:text-gray-700'"
         >
-          <LucideChevronsLeft v-if="!isCollapsed" class="w-5 h-5" />
+          <LucideChevronsLeft v-if="!isSidebarCollapsed " class="w-5 h-5" />
           <LucideChevronsRight v-else class="w-5 h-5" />
         </button>
       </div>
@@ -50,13 +49,13 @@
               ]"
             >
               <component :is="getIconComponent(item.meta.icon)" class="w-5 h-5" />
-              <span v-if="!isCollapsed">{{ item.meta.title }}</span>
+              <span v-if="!isSidebarCollapsed ">{{ item.meta.title }}</span>
             </router-link>
           </li>
           
           <!-- Menu Contrats avec sous-menus -->
           <li class="mt-4" v-if="contractsMenuItems.length > 0">
-            <div v-if="!isCollapsed" class="px-3 py-2 text-xs font-semibold uppercase tracking-wider" 
+            <div v-if="!isSidebarCollapsed " class="px-3 py-2 text-xs font-semibold uppercase tracking-wider" 
               :class="isDarkMode ? 'text-gray-400' : 'text-gray-500'">
               Contrats
             </div>
@@ -78,7 +77,7 @@
                   ]"
                 >
                   <component :is="getIconComponent(item.meta.icon)" class="w-5 h-5" />
-                  <span v-if="!isCollapsed">{{ item.meta.title }}</span>
+                  <span v-if="!isSidebarCollapsed ">{{ item.meta.title }}</span>
                 </router-link>
               </li>
             </ul>
@@ -89,19 +88,20 @@
       <div class="p-4 border-t text-xs flex items-center"
         :class="isDarkMode ? 'border-gray-800 text-gray-400' : 'border-gray-200 text-gray-500'"
       >
-        <span v-if="!isCollapsed">Réseau actif :</span>
+        <span v-if="!isSidebarCollapsed ">Réseau actif :</span>
         <span :class="isDarkMode ? 'text-green-400 ml-1' : 'text-green-600 ml-1'">Ethereum</span>
       </div>
     </aside>
   </template>
   
   <script setup>
-import { computed } from 'vue';
+import { computed,ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { storeToRefs } from 'pinia';
 import { useThemeStore } from '../../stores/theme';
 import logo from '@/assets/logo/logo.svg';
 import logoCollapsed from '@/assets/logo/logo-collapsed.svg';
+import { useLayoutStore } from '@/stores/layoutStore';
 
 import { 
   LucideRocket, 
@@ -114,15 +114,11 @@ import {
   LucideFilePlus
 } from 'lucide-vue-next';
 
-// Props
-const props = defineProps({
-  isCollapsed: {
-    type: Boolean,
-    default: false
-  }
-});
 
-defineEmits(['toggleSidebar']);
+const layoutStore = useLayoutStore();
+const { isSidebarCollapsed } = storeToRefs(layoutStore);
+const { toggleSidebarCollapsed } = layoutStore;
+
 
 // Router
 const router = useRouter();

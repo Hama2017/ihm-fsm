@@ -8,7 +8,7 @@ import { MarkerType } from '@vue-flow/core';
  * @param {Ref<Boolean>} options.isDarkMode État du mode sombre
  * @returns {Object} Fonctions pour la gestion des styles
  */
-export default function useNodeStyles({ isDarkMode }) {
+export default function useGraphStyles({ isDarkMode }) {
   // Styles de base pour les nœuds normaux
   const getBaseNodeStyle = () => {
     return {

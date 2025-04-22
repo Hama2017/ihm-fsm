@@ -1,15 +1,21 @@
 import { ref, onMounted, watch } from 'vue';
 import { useVueFlow } from '@vue-flow/core';
+import { useLayout } from '@/composables/Layout/useLayout';
+import { useLayoutStore } from '@/stores/layoutStore';
 
 /**
  * Composable pour gérer les contrôles de l'éditeur (zoom, grille, plein écran, etc.)
  * 
  * @returns {Object} Fonctions et états pour la gestion des contrôles de l'éditeur
  */
-export default function useEditorControls() {
+export default function useEditorToolbar() {
   // Récupérer les méthodes de VueFlow
   const { fitView, zoomTo, onViewportChange } = useVueFlow();
   
+
+  const layoutStore = useLayoutStore();
+  const { setSidebarCollapsed } = layoutStore;
+
   // États réactifs
   const zoomLevel = ref(1);
   const isFullScreen = ref(false);
@@ -42,11 +48,23 @@ export default function useEditorControls() {
   };
 
   const toggleFullScreen = () => {
+
     isFullScreen.value = !isFullScreen.value;
     // Ajuster la vue après le passage en plein écran
     setTimeout(() => {
       centerGraph();
     }, 100);
+
+    // Ajuster la taille de la barre latérale
+    // en fonction de l'état du plein écran
+    if (isFullScreen.value == true) {
+      setSidebarCollapsed(true);
+    }
+    else {
+      setSidebarCollapsed(false);
+    }
+
+
   };
 
   const toggleLeftPanel = () => {

@@ -3,7 +3,7 @@
     <!-- En-tête -->
     <div class="flex justify-between items-center mb-5">
       <h2 class="text-lg font-semibold text-gray-900 dark:text-white tracking-wide">
-        Fonctions <span class="text-sm text-gray-400">({{ edges.length }})</span>
+        Déclencheurs <span class="text-sm text-gray-400">({{ edges.length }})</span>
       </h2>
       <div class="flex items-center space-x-3">
         <!-- Bouton de tri (seulement icône) -->
@@ -23,7 +23,7 @@
     
     <!-- Message si vide -->
     <div v-if="edges.length === 0" class="text-center text-sm text-gray-500 dark:text-gray-400 py-10">
-      Cliquer sur le bouton <strong>"Ajouter"</strong> pour créer une transition.
+      Cliquer sur le bouton <strong>"Ajouter"</strong> pour créer un déclencheur.
     </div>
     
     <!-- Barre de recherche pour filtrer les fonctions -->
@@ -32,7 +32,7 @@
         <input
           type="text"
           v-model="searchQuery"
-          placeholder="Rechercher une fonction..."
+          placeholder="Rechercher un déclencheur..."
           class="w-full px-3 py-2 pr-10 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
         />
         <div class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 dark:text-gray-500">
@@ -117,7 +117,7 @@
               
               <!-- Bouton d'inversion -->
               <button 
-                @click.stop="$emit('inver-transition', edge)" 
+                @click.stop="$emit('reverse-transition', edge)" 
                 class="px-3 py-2 text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors"
                 title="Inverser"
               >
@@ -140,13 +140,13 @@
     
     <!-- Message si aucun résultat après filtrage -->
     <div v-if="edges.length > 0 && filteredEdges.length === 0" class="text-center text-sm text-gray-500 dark:text-gray-400 py-10">
-      Aucune fonction ne correspond à votre recherche.
+      Aucun déclencheur ne correspond à votre recherche.
     </div>
     
     <!-- Modal Ajouter Transition -->
     <Modal
       v-model="showAddTransitionModal"
-      title="Ajouter une transition"
+      title="Ajouter un déclencheur"
       confirm-text="Ajouter"
       @confirm="confirmAddTransition"
     >
@@ -208,7 +208,7 @@
     <!-- Modal Modifier Transition -->
     <Modal
       v-model="showEditModal"
-      title="Modifier la transition"
+      title="Modifier le déclencheur"
       confirm-text="Enregistrer"
       @confirm="confirmEdit"
     >
@@ -267,27 +267,27 @@
     <!-- Modal Supprimer Transition -->
     <Modal
       v-model="showRemoveModal"
-      title="Supprimer la transition ?"
+      title="Supprimer le déclencheur ?"
       confirm-text="Supprimer"
       variant="danger"
       @confirm="confirmRemove"
     >
       <p class="text-gray-700 dark:text-gray-300">
-        Êtes-vous sûr de vouloir supprimer cette transition ? Cette action est irréversible.
+        Êtes-vous sûr de vouloir supprimer ce déclencheur ? Cette action est irréversible.
       </p>
     </Modal>
     
     <!-- Modal Inverser la Transition -->
     <Modal
       v-model="showReverseModal"
-      title="Inverser la transition"
+      title="Inverser le déclencheur"
       confirm-text="Inverser"
       variant="warning"
       @confirm="confirmReverse"
     >
       <div class="space-y-4">
         <p class="text-gray-700 dark:text-gray-300">
-          Voulez-vous inverser le sens de la transition ?
+          Voulez-vous inverser le sens du déclencheur ?
         </p>
         <div class="flex items-center justify-center space-x-2 bg-gray-100 dark:bg-gray-700 p-3 rounded-lg">
           <span class="font-medium text-gray-700 dark:text-gray-300">{{ getNodeName(reversingTransition.source) }}</span>
@@ -311,7 +311,7 @@
 import { ref, computed } from 'vue';
 import { LucidePlus, LucidePencil, LucideTrash2, LucideArrowDownUp, LucideArrowRight, LucideArrowDown, LucideSearch } from 'lucide-vue-next';
 import Modal from '@/components/ui/UiModal.vue';
-import toast from '@/components/ui/ToastService';
+import toast from '@/composables/Toast/useToast';
 
 // Props - utilisez directement edges et nodes
 const props = defineProps({
@@ -337,7 +337,7 @@ const props = defineProps({
 });
 
 // Événements émis
-const emit = defineEmits(['select-transition', 'add-transition', 'edit-transition', 'remove-transition', 'reverse-transition', 'inver-transition']);
+const emit = defineEmits(['select-transition', 'add-transition', 'edit-transition', 'remove-transition', 'reverse-transition', 'reverse-transition']);
 
 // État pour le tri
 const sortAsc = ref(true);
@@ -466,7 +466,7 @@ const validateNewTransition = () => {
   );
   
   if (connectionExists) {
-    modalError.value = 'Cette transition existe déjà';
+    modalError.value = 'Ce déclencheur existe déjà';
     return false;
   }
   
@@ -503,9 +503,9 @@ const confirmAddTransition = () => {
     newTransition.value = { source: '', target: '', function: '' };
     modalError.value = '';
     
-    toast.success('Transition ajoutée avec succès');
+    toast.success('Déclencheur ajoutée avec succès');
   } catch (error) {
-    console.error('Erreur lors de l\'ajout de la transition:', error);
+    console.error('Erreur lors de l\'ajout du déclencheur:', error);
     modalError.value = 'Une erreur s\'est produite';
   }
 };
@@ -527,7 +527,7 @@ const confirmEdit = () => {
     );
     
     if (connectionExists) {
-      modalError.value = 'Cette transition existe déjà';
+      modalError.value = 'Ce déclencheur existe déjà';
       return;
     }
     
@@ -543,9 +543,9 @@ const confirmEdit = () => {
     showEditModal.value = false;
     modalError.value = '';
     
-    toast.success('Transition modifiée avec succès');
+    toast.success('Déclencheur modifiée avec succès');
   } catch (error) {
-    console.error('Erreur lors de la modification de la transition:', error);
+    console.error('Erreur lors de la modification du déclencheur:', error);
     modalError.value = 'Une erreur s\'est produite';
   }
 };
@@ -557,10 +557,10 @@ const confirmRemove = () => {
     showRemoveModal.value = false;
     removeTransitionId.value = null;
     
-    toast.success('Transition supprimée avec succès');
+    toast.success('Déclencheur supprimée avec succès');
   } catch (error) {
-    console.error('Erreur lors de la suppression de la transition:', error);
-    toast.error('Erreur lors de la suppression de la transition');
+    console.error('Erreur lors de la suppression du déclencheur:', error);
+    toast.error('Erreur lors de la suppression du déclencheur');
   }
 };
 
@@ -581,10 +581,10 @@ const confirmReverse = () => {
     // Fermer le modal
     showReverseModal.value = false;
     
-    toast.success('Transition inversée créée avec succès');
+    toast.success('Déclencheur inversé avec succès');
   } catch (error) {
-    console.error('Erreur lors de l\'inversion de la transition:', error);
-    toast.error('Erreur lors de l\'inversion de la transition');
+    console.error('Erreur lors de l\'inversion du déclencheur:', error);
+    toast.error('Erreur lors de l\'inversion du déclencheur');
   }
 };
 </script>

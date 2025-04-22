@@ -11,7 +11,7 @@
   </template>
   
   <script setup>
-  import { useToast } from '@/components/ui/ToastService';
+  import { useToast } from '@/composables/Toast/useToast';
   
   // Récupérer le service de toasts
   const { toasts, remove: removeToast } = useToast();

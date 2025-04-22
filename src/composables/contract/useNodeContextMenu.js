@@ -20,7 +20,7 @@ export default function useNodeContextMenu({
   openRemoveStateModal
 }) {
   // Récupérer les méthodes de VueFlow
-  const { setSelectedElements, findNode } = useVueFlow();
+  const { addSelectedNodes, removeSelectedNodes, findNode } = useVueFlow();
   
   // État réactif pour le menu contextuel
   const contextMenu = ref({ 
@@ -55,14 +55,16 @@ export default function useNodeContextMenu({
         // Désélectionner si déjà actif
         activeStateId.value = null;
         updateNodeStyles(null);
-        setSelectedElements({ nodes: [], edges: [] });
+        // Utiliser removeSelectedNodes au lieu de setSelectedElements
+        removeSelectedNodes(currentNodes.value.filter(n => n.id === nodeId));
       } else {
         // Sinon sélectionner
         activeStateId.value = nodeId;
         updateNodeStyles(nodeId);
         const node = findNode(nodeId);
         if (node) {
-          setSelectedElements({ nodes: [node], edges: [] });
+          // Utiliser addSelectedNodes au lieu de setSelectedElements
+          addSelectedNodes([node]);
         }
       }
     }

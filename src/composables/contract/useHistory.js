@@ -13,7 +13,7 @@ import { useVueFlow } from '@vue-flow/core';
  * @param {Function} options.updateEdgeStyles Fonction pour mettre à jour les styles des arêtes
  * @returns {Object} Fonctions et états pour la gestion de l'historique
  */
-export default function useHistoryManager({
+export default function useHistory({
   nodes,
   edges,
   activeStateId,
@@ -22,7 +22,7 @@ export default function useHistoryManager({
   updateEdgeStyles
 }) {
   // Récupérer les méthodes de VueFlow
-  const { setSelectedElements, findNode } = useVueFlow();
+  const { addSelectedNodes, removeSelectedNodes, addSelectedEdges, removeSelectedEdges, findNode } = useVueFlow();
   
   // État réactif pour la pile d'historique
   const historyStack = ref([]);
@@ -130,18 +130,20 @@ export default function useHistoryManager({
    * @param {String|null} transitionId - ID de la transition à sélectionner
    */
   const updateVueFlowSelection = (stateId, transitionId) => {
+    // D'abord, effacer toutes les sélections existantes
+    removeSelectedNodes(nodes.value);
+    removeSelectedEdges(edges.value);
+    
     if (stateId) {
       const node = findNode(stateId);
       if (node) {
-        setSelectedElements({ nodes: [node], edges: [] });
+        addSelectedNodes([node]);
       }
     } else if (transitionId) {
       const edge = edges.value.find(e => e.id === transitionId);
       if (edge) {
-        setSelectedElements({ nodes: [], edges: [edge] });
+        addSelectedEdges([edge]);
       }
-    } else {
-      setSelectedElements({ nodes: [], edges: [] });
     }
   };
   

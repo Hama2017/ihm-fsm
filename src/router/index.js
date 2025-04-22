@@ -1,7 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import MainLayout from '../layouts/MainLayout.vue';
 import DashboardView from '../views/DashboardView.vue';
-import AutomatesView from '../views/AutomatesView.vue';
 import SettingsView from '../views/SettingsView.vue';
 import LoadingView from '../views/LoadingView.vue';
 import SplashScreen from '../views/SplashScreen.vue';
@@ -23,24 +22,7 @@ const routes = [
           icon: 'dashboard'
         }
       },
-      {
-        path: 'automates',
-        name: 'automates',
-        component: AutomatesView,
-        meta: { 
-          title: 'Gestion des automates',
-          icon: 'automation'
-        }
-      },
-      {
-        path: 'new-automate',
-        name: 'new-automate',
-        component: AutomatesView,
-        meta: {
-          title: 'Nouvel automate',
-          icon: 'automation'
-        }
-      },
+     
       {
         path: 'contracts',
         name: 'contracts',

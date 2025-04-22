@@ -1,18 +1,45 @@
-import { defineStore } from 'pinia'
+import { defineStore } from 'pinia';
+import { ref } from 'vue';
 
-export const useContractStore = defineStore('contractStore', {
-  state: () => ({
-    contracts: []
-  }),
-  actions: {
-    addContract(contract) {
-      this.contracts.push(contract)
-    },
-    getContractById(id) {
-      return this.contracts.find(c => c.id === id)
-    },
-    deleteContract(id) {
-      this.contracts = this.contracts.filter(c => c.id !== id)
-    }
+export const useContractStore = defineStore('contractStore', () => {
+  // Liste des contrats
+  const contracts = ref([]);
+
+  // Contrat en cours d'édition
+  const currentContract = ref(null);
+
+  // Ajoute un contrat à la liste
+  function addContract(contract) {
+    contracts.value.push(contract);
   }
-})
+
+  // Récupère un contrat par son ID
+  function getContractById(id) {
+    return contracts.value.find(c => c.id === id);
+  }
+
+  // Supprime un contrat par son ID
+  function deleteContract(id) {
+    contracts.value = contracts.value.filter(c => c.id !== id);
+  }
+
+  // Définit le contrat actuellement ouvert/édité
+  function setCurrentContract(contract) {
+    currentContract.value = contract;
+  }
+
+  // Réinitialise le contrat en cours
+  function clearCurrentContract() {
+    currentContract.value = null;
+  }
+
+  return {
+    contracts,
+    currentContract,
+    addContract,
+    getContractById,
+    deleteContract,
+    setCurrentContract,
+    clearCurrentContract
+  };
+});

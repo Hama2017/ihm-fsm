@@ -1,6 +1,6 @@
 import { ref } from 'vue';
 import { useVueFlow, MarkerType } from '@vue-flow/core';
-import toast from '@/components/ui/ToastService';
+import toast from '@/composables/Toast/useToast';
 
 /**
  * Composable pour gérer tout ce qui est relatif aux transitions (edges) dans l'éditeur de contrat
@@ -16,7 +16,7 @@ import toast from '@/components/ui/ToastService';
  * @param {Function} options.getSelectedEdgeStyle Fonction pour obtenir le style d'une arête sélectionnée
  * @returns {Object} Fonctions et états pour la gestion des transitions
  */
-export default function useTransitionManagement({
+export default function useTransition({
   nodes,
   edges,
   activeTransitionId,
@@ -27,7 +27,9 @@ export default function useTransitionManagement({
   getSelectedEdgeStyle
 }) {
   // --- Récupérer les méthodes de VueFlow ---
-  const { setSelectedElements } = useVueFlow();
+  const {  addSelectedEdges    , 
+    removeSelectedEdges, 
+    findEdge  } = useVueFlow();
 
   // --- États pour les modals ---
   const showAddTransitionModal = ref(false);
@@ -352,7 +354,8 @@ export default function useTransitionManagement({
     if (activeTransitionId.value === id) {
       activeTransitionId.value = null;
       updateEdgeStyles(null);
-      setSelectedElements({ nodes: [], edges: [] });
+      // Utiliser les méthodes non dépréciées
+      removeSelectedEdges(edges.value.filter(e => e.id === id));
     } else {
       // Sinon, sélectionner la nouvelle transition
       activeTransitionId.value = id;
@@ -362,7 +365,15 @@ export default function useTransitionManagement({
       if (id) {
         const edge = edges.value.find(e => e.id === id);
         if (edge) {
-          setSelectedElements({ nodes: [], edges: [edge] });
+          // D'abord désélectionner les éléments précédents si nécessaire
+          if (activeTransitionId.value) {
+            const oldEdges = edges.value.filter(e => e.id === activeTransitionId.value);
+            if (oldEdges.length) {
+              removeSelectedEdges(oldEdges);
+            }
+          }
+          // Ajouter la nouvelle sélection avec la méthode non dépréciée
+          addSelectedEdges([edge]);
         }
       }
     }

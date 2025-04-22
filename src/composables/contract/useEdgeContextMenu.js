@@ -24,7 +24,7 @@ export default function useEdgeContextMenu({
   openInvertTransitionModal
 }) {
   // Récupérer les méthodes de VueFlow
-  const { setSelectedElements } = useVueFlow();
+  const { addSelectedEdges, removeSelectedEdges } = useVueFlow();
   
   // État réactif pour le menu contextuel
   const edgeContextMenu = ref({ 
@@ -60,14 +60,16 @@ export default function useEdgeContextMenu({
         // Désélectionner si déjà active
         activeTransitionId.value = null;
         updateEdgeStyles(null);
-        setSelectedElements({ nodes: [], edges: [] });
+        // Utiliser removeSelectedEdges au lieu de setSelectedElements
+        removeSelectedEdges(currentEdges.value.filter(e => e.id === edgeId));
       } else {
         // Sinon sélectionner
         activeTransitionId.value = edgeId;
         updateEdgeStyles(edgeId);
         const edge = currentEdges.value.find(e => e.id === edgeId);
         if (edge) {
-          setSelectedElements({ nodes: [], edges: [edge] });
+          // Utiliser addSelectedEdges au lieu de setSelectedElements
+          addSelectedEdges([edge]);
         }
       }
     }
