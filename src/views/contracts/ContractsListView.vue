@@ -13,7 +13,8 @@ import {
   LucideCalendar,
   LucideFileSearch,
   LucideDownload,
-  LucideUpload
+  LucideUpload,
+  LucideEye
 } from 'lucide-vue-next';
 
 import { useContractStore } from '@/stores/contractStore';
@@ -58,9 +59,8 @@ const filteredContracts = computed(() => {
                            contract.id.toLowerCase().includes(searchQuery.value.toLowerCase());
 
     const matchesStatus = statusFilter.value === 'all' ||
-                         (statusFilter.value === 'active' && contract.status === 'Actif') ||
-                         (statusFilter.value === 'inactive' && contract.status === 'Inactif') ||
-                         (statusFilter.value === 'draft' && contract.status === 'Brouillon');
+                         (statusFilter.value === 'draft' && contract.status === 'Brouillon') ||
+                         (statusFilter.value === 'deployed' && contract.status === 'Deployer');
 
     return matchesSearch && matchesStatus;
   });
@@ -68,8 +68,7 @@ const filteredContracts = computed(() => {
 
 // CSS classes pour les statuts
 const statusClasses = {
-  'Actif': 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-300',
-  'Inactif': 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300',
+  'Deployer': 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-300',
   'Brouillon': 'bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-300'
 };
 
@@ -87,7 +86,13 @@ const formatDate = (date) => {
 // Détails du contrat
 const viewContract = (contractId) => {
   console.log(`Voir les détails du contrat ${contractId}`);
-  // router.push({ name: 'contract-details', params: { id: contractId } });
+  router.push({ name: 'contract-details', params: { id: contractId } });
+};
+
+// Éditer le contrat
+const editContract = (contractId) => {
+  console.log(`Éditer le contrat ${contractId}`);
+  router.push({ name: 'edit-contract', params: { id: contractId } });
 };
 
 // Télécharger un contrat en .slc
@@ -172,6 +177,7 @@ const importContract = (event) => {
     });
   }, 2500); // Délai de 2.5 secondes pour voir l'animation complète
 };
+
 // Fonction pour activer l'animation SVG
 const activateSvgAnimation = () => {
   // Attendre que le DOM soit prêt
@@ -188,11 +194,6 @@ const activateSvgAnimation = () => {
     }
   }, 100);
 };
-
-// Surveillez les changements de isLoading
-onMounted(() => {
-  // Pas besoin d'un watcher ici, car on utilise onMounted
-});
 
 // Suppression d'un contrat
 const openDeleteModal = (contract) => {
@@ -236,6 +237,7 @@ const cancelDeleteContract = () => {
 /* Importer les styles d'animation du SVG */
 @import '../../assets/css/loading-animation.css';
 </style>
+
 <template>
   <div>
     <h1 class="text-2xl font-semibold text-gray-900 dark:text-white mb-6">{{ $route.meta.title }}</h1>
@@ -260,9 +262,8 @@ const cancelDeleteContract = () => {
           class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-300"
         >
           <option value="all">Tous les statuts</option>
-          <option value="active">Actif</option>
-          <option value="inactive">Inactif</option>
           <option value="draft">Brouillon</option>
+          <option value="deployed">Deployé</option>
         </select>
       </div>
 
@@ -288,7 +289,7 @@ const cancelDeleteContract = () => {
       </div>
     </div>
 
-    <!-- Liste des contrats améliorée -->
+    <!-- Liste des contrats -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       <div 
         v-for="contract in filteredContracts" 
@@ -298,9 +299,7 @@ const cancelDeleteContract = () => {
         <!-- Indicateur coloré (barre latérale suivant le statut) -->
         <div 
           :class="`absolute left-0 top-0 bottom-0 w-1 ${
-            contract.status === 'Actif' ? 'bg-green-500' : 
-            contract.status === 'Inactif' ? 'bg-gray-500' :
-            'bg-yellow-500'
+            contract.status === 'Deployer' ? 'bg-green-500' : 'bg-yellow-500'
           }`"
         ></div>
         
@@ -328,16 +327,29 @@ const cancelDeleteContract = () => {
           </div>
 
           <div class="flex justify-between items-center">
+            <!-- Actions disponibles selon le statut -->
             <div class="flex space-x-2">
-              <button class="p-2 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200">
-                <LucidePencil class="h-4 w-4" />
-              </button>
-              <button @click="openDeleteModal" class="p-2 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-red-100 dark:hover:bg-red-900 hover:text-red-600 dark:hover:text-red-300 transition-colors duration-200">
-                <LucideTrash2 class="h-4 w-4" />
-              </button>
+              <!-- Boutons d'édition et suppression uniquement pour les contrats en "Brouillon" -->
+              <template v-if="contract.status === 'Brouillon'">
+                <button 
+                  @click="editContract(contract.id)" 
+                  class="p-2 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200"
+                >
+                  <LucidePencil class="h-4 w-4" />
+                </button>
+                <button 
+                  @click="openDeleteModal(contract)" 
+                  class="p-2 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-red-100 dark:hover:bg-red-900 hover:text-red-600 dark:hover:text-red-300 transition-colors duration-200"
+                >
+                  <LucideTrash2 class="h-4 w-4" />
+                </button>
+              </template>
+              <!-- Pour les contrats deployés, juste un espace vide pour équilibrer -->
+              <div v-else class="w-12"></div>
             </div>
 
             <div class="flex items-center space-x-2">
+              <!-- Télécharger (disponible pour tous les contrats) -->
               <button
                 class="p-2 rounded-lg text-sm bg-blue-50 dark:bg-blue-900/50 text-blue-600 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-800 transition-colors duration-200 flex items-center"
                 @click="exportContract(contract)"
@@ -345,11 +357,15 @@ const cancelDeleteContract = () => {
               >
                 <LucideDownload class="h-4 w-4" />
               </button>
+              
+              <!-- Bouton Détails -->
               <button 
-                class="px-4 py-1.5 rounded-lg text-sm bg-blue-500 text-white hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-500 transition-colors duration-200 shadow-sm"
+              v-if="contract.status === 'Deployer'"
+                class="px-4 py-1.5 rounded-lg text-sm bg-blue-500 text-white hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-500 transition-colors duration-200 shadow-sm flex items-center space-x-1"
                 @click="viewContract(contract.id)"
               >
-                Détails
+                <LucideEye  class="h-3.5 w-3.5 mr-1" />
+                <span>Détails</span>
               </button>
             </div>
           </div>

@@ -8,7 +8,6 @@ import ContractsListView from '../views/contracts/ContractsListView.vue';
 import CreateContractView from '../views/contracts/CreateContractView.vue';
 
 const routes = [
-
   {
     path: '/',
     component: MainLayout,
@@ -17,19 +16,19 @@ const routes = [
         path: '',
         name: 'dashboard',
         component: DashboardView,
-        meta: { 
+        meta: {
           title: 'Tableau de bord',
           icon: 'dashboard'
         }
       },
-     
+      
       {
         path: 'contracts',
         name: 'contracts',
         component: ContractsListView,
-        meta: { 
+        meta: {
           title: 'Liste des contrats',
-          icon: 'contract',
+          icon: 'contractList',
           group: 'Contrats'
         }
       },
@@ -37,8 +36,28 @@ const routes = [
         path: 'contracts/create',
         name: 'create-contract',
         component: CreateContractView,
-        meta: { 
+        meta: {
           title: 'Créer un contrat',
+          icon: 'contractCreate',
+          group: 'Contrats'
+        }
+      },
+      {
+        path: 'contracts/edit/:id',
+        name: 'edit-contract',
+        component: CreateContractView, // On réutilise le même composant
+        meta: {
+          title: 'Modifier un contrat',
+          icon: 'contract',
+          group: 'Contrats'
+        }
+      },
+      {
+        path: 'contracts/:id',
+        name: 'contract-details',
+        component: ContractsListView,
+        meta: {
+          title: 'Détails du contrat',
           icon: 'contract',
           group: 'Contrats'
         }
@@ -47,7 +66,7 @@ const routes = [
         path: 'settings',
         name: 'settings',
         component: SettingsView,
-        meta: { 
+        meta: {
           title: 'Paramètres',
           icon: 'settings'
         }
@@ -83,7 +102,7 @@ router.beforeEach((to, from, next) => {
   
   // Vérifier si c'est la première visite
   const splashScreenSeen = localStorage.getItem('splash_screen_seen');
-
+  
   // Afficher le splash screen uniquement si:
   // - C'est la première visite (splashScreenSeen n'existe pas)
   // - L'utilisateur va à la page d'accueil (/)

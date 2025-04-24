@@ -298,7 +298,9 @@ export default function useAutomate({
       source: edge.source,
       target: edge.target,
       label: edge.label,
-      markerEnd: edge.markerEnd
+      markerEnd: edge.markerEnd,
+      conditions: edge.conditions || [] 
+
     }));
   };
   
@@ -350,6 +352,7 @@ export default function useAutomate({
       label: transition.label,
       markerEnd: MarkerType.ArrowClosed,
       style: getBaseEdgeStyle(),
+      conditions: transition.conditions || [] 
     }));
     
     // Mettre à jour les styles si une transition est active

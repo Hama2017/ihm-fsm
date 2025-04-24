@@ -19,11 +19,12 @@ export default function useEditorToolbar() {
   // États réactifs
   const zoomLevel = ref(1);
   const isFullScreen = ref(false);
-  const showMinimap = ref(true);
-  const snapToGrid = ref(true);
+  const showMinimap = ref(false);
+  const snapToGrid = ref(false);
   const showLeftPanel = ref(true);
   const isDesktop = ref(window.innerWidth >= 1280); // xl breakpoint
   const rightPanelTab = ref('states');
+  
   
   // Surveiller le changement de zoom
   onViewportChange(({ zoom }) => {

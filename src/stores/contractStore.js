@@ -28,6 +28,16 @@ export const useContractStore = defineStore('contractStore', () => {
     currentContract.value = contract;
   }
 
+  // Met à jour un contrat existant
+  function updateContract(updatedContract) {
+    const index = contracts.value.findIndex(c => c.id === updatedContract.id);
+    if (index !== -1) {
+      contracts.value[index] = updatedContract;
+      return true;
+    }
+    return false;
+  }
+
   // Réinitialise le contrat en cours
   function clearCurrentContract() {
     currentContract.value = null;
@@ -40,6 +50,7 @@ export const useContractStore = defineStore('contractStore', () => {
     getContractById,
     deleteContract,
     setCurrentContract,
-    clearCurrentContract
+    clearCurrentContract,
+    updateContract
   };
 });

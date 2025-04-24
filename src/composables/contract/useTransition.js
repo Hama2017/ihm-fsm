@@ -37,7 +37,7 @@ export default function useTransition({
   const showRemoveTransitionModal = ref(false);
   const showInvertTransitionModal = ref(false);
   const showEdgeUpdateModal = ref(false);
-  const editingTransition = ref({ id: '', source: '', target: '', function: '' });
+  const editingTransition = ref({ id: '', source: '', target: '', function: '' , conditions: []});
   const invertingTransition = ref({ id: '', source: '', target: '', label: '' });
   const removeTransitionId = ref(null);
   const editTransitionError = ref('');
@@ -89,7 +89,9 @@ export default function useTransition({
       id: edge.id,
       source: edge.source,
       target: edge.target,
-      function: edge.label // Le label est utilisé comme fonction
+      function: edge.label, 
+      conditions: edge.conditions || []
+
     };
     editTransitionError.value = '';
     showEditTransitionModal.value = true;
@@ -155,7 +157,8 @@ export default function useTransition({
         target: transition.target,
         label: transition.label,
         markerEnd: MarkerType.ArrowClosed,
-        style: getBaseEdgeStyle()
+        style: getBaseEdgeStyle(),
+        conditions: transition.conditions || [],
       };
       
       edges.value.push(newTransition);
@@ -214,7 +217,8 @@ export default function useTransition({
         id: transition.id,
         source: transition.source,
         target: transition.target,
-        label: transition.label
+        label: transition.label,
+        conditions: transition.conditions || [],
       };
       
       // Force la réactivité en créant un nouveau tableau
@@ -500,11 +504,14 @@ export default function useTransition({
         id: editingTransition.value.id,
         source: editingTransition.value.source,
         target: editingTransition.value.target,
-        label: editingTransition.value.function
+        label: editingTransition.value.function,
+        conditions: editingTransition.value.conditions
+
       });
       
       if (result.success) {
         showEditTransitionModal.value = false;
+        toast.success('Déclencheur modifié avec succès');
         return { success: true, message: 'Transition modifiée avec succès' };
       } else {
         editTransitionError.value = result.message;

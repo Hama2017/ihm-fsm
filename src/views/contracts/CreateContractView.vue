@@ -134,7 +134,13 @@
             @remove-automate="removeAutomate"
           />
         </div>
+   
+
       </div>
+
+
+
+
 
       <!-- Colonne centrale : Éditeur d'automate avec contrôles améliorés -->
       <div class="xl:h-full flex flex-col">
@@ -144,31 +150,33 @@
           </h2>
         </div>
         
-        <!-- Barre d'outils de l'éditeur -->
-        <EditorToolbar 
-          v-if="activeAutomateId"
-          :zoom-level="zoomLevel"
-          :show-minimap="showMinimap"
-          :snap-to-grid="snapToGrid"
-          :is-simulating="isSimulating"
-          :is-full-screen="isFullScreen"
-          :can-undo="canUndo"
-          :can-redo="canRedo"
-          @zoom-in="zoomIn"
-          @zoom-out="zoomOut"
-          @zoom-reset="resetZoom"
-          @center-graph="centerGraph"
-          @toggle-minimap="toggleMinimap"
-          @toggle-grid="toggleGrid"
-          @add-initial-state="addInitialState"
-          @add-state="addStandardState"
-          @add-final-state="addFinalState"
-          @toggle-edit-mode="isSimulating ? toggleSimulation() : null"
-          @toggle-simulation="toggleSimulation"
-          @toggle-fullscreen="toggleFullScreen"
-          @undo="undo"
-          @redo="redo"
-        />
+       <!--  createContractView.vue -->
+<EditorToolbar 
+  v-if="activeAutomateId"
+  :zoom-level="zoomLevel"
+  :show-minimap="showMinimap"
+  :snap-to-grid="snapToGrid"
+  :is-simulating="isSimulating"
+  :is-full-screen="isFullScreen"
+  :can-undo="canUndo"
+  :can-redo="canRedo"
+  :show-conditions="showConditionsOnGraph"
+  @zoom-in="zoomIn"
+  @zoom-out="zoomOut"
+  @zoom-reset="resetZoom"
+  @center-graph="centerGraph"
+  @toggle-minimap="toggleMinimap"
+  @toggle-grid="toggleGrid"
+  @add-initial-state="addInitialState"
+  @add-state="addStandardState"
+  @add-final-state="addFinalState"
+  @toggle-edit-mode="isSimulating ? toggleSimulation() : null"
+  @toggle-simulation="toggleSimulation"
+  @toggle-fullscreen="toggleFullScreen"
+  @toggle-conditions="toggleConditionsDisplay"
+  @undo="undo"
+  @redo="redo"
+/>
         
         <div 
           :class="[
@@ -216,6 +224,25 @@
                 {{ props.node.data.label }}
               </div>
             </template>
+
+
+              <!-- NOUVEAU: Template personnalisé pour les edges montrant les conditions -->
+  <template #edge-default="{ id, sourceX, sourceY, targetX, targetY, label, markerEnd, style }">
+    <CustomEdge 
+      :id="id"
+      :sourceX="sourceX"
+      :sourceY="sourceY" 
+      :targetX="targetX" 
+      :targetY="targetY"
+      :label="label"
+      :markerEnd="markerEnd"
+      :style="style"
+      :edge="currentEdges.find(e => e.id === id)"
+      :showConditions="showConditionsOnGraph"
+      :packetCondition="packetCondition"
+    />
+  </template>
+
           </VueFlow>
 
           <!-- Menu contextuel pour le clic droit sur un nœud -->
@@ -307,17 +334,7 @@
             </div>
           </div>
                
-          <!-- Bouton déployer (uniquement visible quand pas en plein écran) -->
-          <button
-            v-if="!isFullScreen && activeAutomateId && !isSimulating"
-            @click="deployContract"
-            :disabled="hasValidationErrors || contractStatus === 'Actif'"
-            class="absolute bottom-4 right-4 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white px-5 py-2 rounded-full font-medium flex items-center shadow-lg"
-          >
-            <LucideRocket class="w-4 h-4" />
-            <span class="ml-2">Déployer</span>
-          </button>
-          
+     
           <!-- Message Simulation en cours -->
           <div v-if="isSimulating" class="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-white dark:bg-gray-700 rounded-full shadow-lg p-1 flex items-center">
             
@@ -331,82 +348,65 @@
 
       <!-- Colonne droite : onglets pour États, Fonctions et Aide -->
       <div class="xl:h-full flex flex-col" v-if="activeAutomateId">
-        <div class="flex border-b border-gray-200 dark:border-gray-700 mb-2">
-          <button 
-            @click="setRightPanelTab('states')" 
-            class="px-4 py-2 text-sm font-medium border-b-2 transition-colors focus:outline-none"
-            :class="rightPanelTab === 'states' 
-              ? 'border-blue-600 text-blue-600 dark:border-blue-400 dark:text-blue-400' 
-              : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'"
-          >
-            États
-          </button>
-          <button 
-            @click="setRightPanelTab('declencheurs')" 
-            class="px-4 py-2 text-sm font-medium border-b-2 transition-colors focus:outline-none"
-            :class="rightPanelTab === 'declencheurs' 
-              ? 'border-blue-600 text-blue-600 dark:border-blue-400 dark:text-blue-400' 
-              : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'"
-          >
-          Déclencheurs
+    <SlidableTabs v-model="rightPanelTab" :tabs="rightPanelTabs" >
+      <!-- Chaque onglet a un slot correspondant à son ID -->
+      <template #states>
+        <div class="h-full">
+          <StateList
+            v-model:nodes="currentNodes"
+            :edges="currentEdges"
+            :selectedState="activeStateId"
+            @add-state="openAddStateModal"
+            @edit-state="openEditStateModal"
+            @remove-state="openRemoveStateModal"
+            @select-state="selectState"
+            @open-add-modal="openAddStateModal"
+            @open-edit-modal="openEditStateModal"
+            @open-remove-modal="openRemoveStateModal"
+          />
+        </div>
+      </template>
+      
+      <template #declencheurs>
+        <div class="h-full">
+          <FunctionList
+            :edges="currentEdges"
+            :nodes="currentNodes"
+            :availableFunctions="availableFunctions"
+            :packetCondition="packetCondition"
+            :activeTransition="activeTransitionId"
+            @select-transition="selectTransition"
+            @add-transition="addTransition"
+            @edit-transition="editTransition"
+            @remove-transition="removeTransition"
+            @reverse-transition="openInvertTransitionModal"
+            @update-transition-conditions="updateTransitionConditions"
+          />
+        </div>
+      </template>
+      
 
-          </button>
-          <button 
-            @click="setRightPanelTab('analyzer')" 
-            class="px-4 py-2 text-sm font-medium border-b-2 transition-colors focus:outline-none"
-            :class="rightPanelTab === 'analyzer' 
-              ? 'border-blue-600 text-blue-600 dark:border-blue-400 dark:text-blue-400' 
-              : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'"
-          >
-            Analyse
-          </button>
+      
+      <template #guide>
+        <div class="h-full">
+          <ConditionList :packetCondition="packetCondition" />
         </div>
-        
-        <!-- Contenu des onglets -->
-        <div class="flex-grow overflow-hidden">
-          <!-- Onglet États -->
-          <div v-if="rightPanelTab === 'states'" class="h-full">
-            <StateList
-              v-model:nodes="currentNodes"
-              :edges="currentEdges"
-              :selectedState="activeStateId"
-              @add-state="openAddStateModal"
-              @edit-state="openEditStateModal"
-              @remove-state="openRemoveStateModal"
-              @select-state="selectState"
-              @open-add-modal="openAddStateModal"
-              @open-edit-modal="openEditStateModal"
-              @open-remove-modal="openRemoveStateModal"
-            />
-          </div>
-          
-          <!-- Onglet Fonctions -->
-          <div v-if="rightPanelTab === 'declencheurs'" class="h-full">
-            <FunctionList
-              :edges="currentEdges"
-              :nodes="currentNodes"
-              :availableFunctions="availableFunctions"
-              :activeTransition="activeTransitionId"
-              @select-transition="selectTransition"
-              @add-transition="addTransition"
-              @edit-transition="editTransition"
-              @remove-transition="removeTransition"
-              @reverse-transition="openInvertTransitionModal"
-            />
-          </div>
-          
-          <!-- Onglet Analyse -->
-          <div v-if="rightPanelTab === 'analyzer'" class="h-full">
-            <AutomatonAnalyzer
-              :nodes="currentNodes"
-              :edges="currentEdges"
-              :validationErrors="validationErrors"
-              :cyclePath="cyclePath"
-              @analyze="validateAutomate"
-            />
-          </div>
+      </template>
+
+      <template #analyzer>
+        <div class="h-full">
+          <AutomatonAnalyzer
+  :nodes="currentNodes"
+  :edges="currentEdges"
+  :validationErrors="validationErrors"
+  :cyclePath="cyclePath"
+  :packetCondition="packetCondition"
+  @analyze="validateAutomate"
+/>
         </div>
-      </div>
+      </template>
+    </SlidableTabs>
+  </div>
     </div>
     
     <!-- Modals -->
@@ -703,78 +703,47 @@
     </Modal>
     
     <!-- Modal d'édition de transition -->
-    <Modal
-      v-model="showEditTransitionModal"
-      title="Modifier la transition"
-      confirm-text="Enregistrer"
-      @confirm="confirmEditTransition"
-    >
-      <div class="space-y-4">
-        <!-- Source -->
-        <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            État source
-          </label>
-          <select 
-            v-model="editingTransition.source"
-            class="block w-full px-3 py-2 border rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-          >
-            <option v-for="node in currentNodes" :key="node.id" :value="node.id">
-              {{ node.data.label }}
-            </option>
-          </select>
-        </div>
-        
-        <!-- Destination -->
-        <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            État destination
-          </label>
-          <select 
-            v-model="editingTransition.target"
-            class="block w-full px-3 py-2 border rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-          >
-            <option v-for="node in currentNodes" :key="node.id" :value="node.id">
-              {{ node.data.label }}
-            </option>
-          </select>
-        </div>
-        
-        <!-- Fonction -->
-        <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Déclencheur
 
-          </label>
-          <select 
-            v-model="editingTransition.function"
-            class="block w-full px-3 py-2 border rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-          >
-            <option v-for="func in availableFunctions" :key="func.value" :value="func.value">
-              {{ func.label }}
-            </option>
-          </select>
-        </div>
-        
-        <p v-if="editTransitionError" class="text-sm text-red-600 dark:text-red-400 mt-2">
-          {{ editTransitionError }}
-        </p>
-      </div>
-    </Modal>
+
+
+    <Modal 
+  v-model="showEditTransitionModal" 
+  title="Modifier le déclencheur" 
+  @confirm="confirmEditTransition"
+  confirm-text="Enregistrer"
+>
+  <TransitionForm
+    v-model="editingTransition"
+    :nodes="currentNodes"
+    :availableFunctions="availableFunctions"
+    :packetCondition="packetCondition"
+    :errorMessage="editTransitionError"
+  />
+</Modal>
+
+
+
+
+
+
+
+
        <!-- Container pour les toasts -->
        <UiToastContainer />
     <!-- Composant TransitionModal pour gérer les transitions -->
-    <TransitionModal 
-      ref="transitionModalRef"
-      :transitions="availableFunctions"
-      @confirm="onTransitionConfirmOnConnect"
-    />
+ <!-- Composant TransitionModal pour gérer les transitions -->
+<TransitionModal 
+  ref="transitionModalRef"
+  :transitions="availableFunctions"
+  :packetCondition="packetCondition"
+  @confirm="onTransitionConfirmOnConnect"
+/>
   </div>
 </template>
 
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import { storeToRefs } from 'pinia';
 import { VueFlow, useVueFlow, MarkerType } from '@vue-flow/core';
 import { Background } from '@vue-flow/background';
@@ -783,7 +752,10 @@ import { useThemeStore } from '@/stores/theme';
 import { useContractStore } from '@/stores/contractStore';
 import UiToastContainer from '@/components/ui/UiToastContainer.vue';
 import toast from '@/composables/Toast/useToast';
-
+import CustomEdge from '@/components/contract/CustomEdge.vue';
+import TransitionForm from '@/components/contract/TransitionForm.vue';
+import ConditionList from '@/components/contract/ConditionList.vue';
+import SlidableTabs from '@/components/ui/UiSlidableTabs.vue';
 import '@vue-flow/core/dist/style.css' ;
 
 
@@ -818,8 +790,17 @@ import {
   LucideChevronsRight
 } from 'lucide-vue-next';
 
-// Router
+
+const rightPanelTabs = [
+  { id: 'states', label: 'États' },
+  { id: 'declencheurs', label: 'Déclencheurs' },
+  { id: 'guide', label: 'Guide' },
+  { id: 'analyzer', label: 'Analyse' },
+];
+
+// Router et route
 const router = useRouter();
+const route = useRoute();
 
 // Stores 
 const themeStore = useThemeStore();
@@ -834,6 +815,86 @@ const transitionModalRef = ref(null);
 const contractName = ref('');
 const contractStatus = ref('Brouillon');
 const isSaved = ref(false);
+
+
+import packageService from '@/services/packageService';
+
+const { getAllPackages } = packageService;
+
+
+
+/*
+
+// Packages de conditions disponibles
+const packetCondition = ref([
+  {
+    "id": "package-1",
+    "label": "Conditions administratives",
+    "functions": [
+      {
+        "id": "condition-a1",
+        "label": "Signature utilisateur",
+        "description": "Vérifie que l'utilisateur a signé le document."
+      },
+      {
+        "id": "condition-a2",
+        "label": "Date d'échéance",
+        "description": "Vérifie que la date limite n'est pas dépassée."
+      },
+      {
+        "id": "condition-a3",
+        "label": "Validation manager",
+        "description": "Vérifie que le manager a validé la demande."
+      }
+    ]
+  },
+  {
+    "id": "package-2",
+    "label": "Conditions financières",
+    "functions": [
+      {
+        "id": "condition-b1",
+        "label": "Montant approuvé",
+        "description": "Vérifie que le montant est inférieur au seuil autorisé."
+      },
+      {
+        "id": "condition-b2",
+        "label": "Budget disponible",
+        "description": "Vérifie que le budget alloué est suffisant."
+      }
+    ]
+  },
+  {
+    "id": "package-3",
+    "label": "Conditions techniques",
+    "functions": [
+      {
+        "id": "condition-c1",
+        "label": "Conformité technique",
+        "description": "Vérifie que les spécifications techniques sont respectées."
+      },
+      {
+        "id": "condition-c2",
+        "label": "Tests validés",
+        "description": "Vérifie que tous les tests ont été passés avec succès."
+      }
+    ]
+  }
+]);
+*/
+const packetCondition = ref([]);
+
+
+onMounted(() => {
+getAllPackages()
+  .then((response) => {
+    console.log('Packages récupérés avec succès:', response);
+    packetCondition.value = response ;})
+  .catch((error) => {
+    console.error('Erreur lors de la récupération des packages:', error);
+  });
+
+});
 
 // État des noeuds et transitions
 const contractAutomates = ref([
@@ -872,21 +933,24 @@ const contractAutomates = ref([
         source: 'state-1', 
         target: 'state-2', 
         label: 'valider', 
-        markerEnd: MarkerType.ArrowClosed
+        markerEnd: MarkerType.ArrowClosed,
+        conditions: ['condition-a1', 'condition-a1'] // IDs des conditions associées
       },
       { 
         id: 'edge-2', 
         source: 'state-2', 
         target: 'state-3', 
         label: 'approuver', 
-        markerEnd: MarkerType.ArrowClosed
+        markerEnd: MarkerType.ArrowClosed,
+        conditions: ['condition-b2', 'condition-b1'] // IDs des conditions associées
       },
       { 
         id: 'edge-3', 
         source: 'state-2', 
         target: 'state-4', 
         label: 'rejeter', 
-        markerEnd: MarkerType.ArrowClosed
+        markerEnd: MarkerType.ArrowClosed,
+        conditions: ['condition-a1', 'condition-a1'] // IDs des conditions associées
       }
     ]
   }
@@ -922,7 +986,7 @@ import useSimulation from '@/composables/contract/useSimulation';
 import useValidation from '@/composables/contract/useValidation';
 import useContractActions from '@/composables/contract/useContractActions';
 
-// 1. Styles des noeuds
+//  Styles des noeuds
 const { 
   getBaseNodeStyle, 
   getSelectedNodeStyle, 
@@ -930,8 +994,8 @@ const {
   getSelectedEdgeStyle
 } = useGraphStyles({ isDarkMode });
 
-// 2. Obtenir les fonctions VueFlow
-const { findNode,onNodeClick, addSelectedNodes, nodesSelectionActive  } = useVueFlow();
+//  Obtenir les fonctions VueFlow
+const { findNode, onNodeClick, addSelectedNodes, nodesSelectionActive } = useVueFlow();
 
 // Fonction auxiliaire pour obtenir la configuration des noeuds
 function getNodeConfig(type) {
@@ -963,7 +1027,7 @@ function getNodeConfig(type) {
   }
 }
 
-// 3. Gestion de validation
+// Gestion de validation
 const {
   validateAutomate,
   detectCycle,
@@ -976,7 +1040,7 @@ const {
   currentEdges
 });
 
-// 4. Gestion d'historique
+//  Gestion d'historique
 const {
   historyStack, 
   historyIndex,
@@ -995,7 +1059,7 @@ const {
   updateEdgeStyles: (id) => updateEdgeStyles(id)
 });
 
-// 5. Gestion des états
+// Gestion des états
 const {
   contextMenu,
   showAddStateModal,
@@ -1039,7 +1103,7 @@ const {
   getNodeConfig
 });
 
-// 6. Gestion des transitions
+// Gestion des transitions
 const {
   edgeContextMenu,
   showAddTransitionModal,
@@ -1086,7 +1150,7 @@ const {
   getSelectedEdgeStyle
 });
 
-// 7. Gestion de l'éditeur
+// Gestion de l'éditeur
 const {
   zoomLevel,
   showMinimap,
@@ -1106,7 +1170,7 @@ const {
   toggleFullScreen,
 } = useEditorToolbar();
 
-// 8. Gestion de la simulation
+// Gestion de la simulation
 const {
   isSimulating,
   simulationCurrentState,
@@ -1125,9 +1189,7 @@ const {
   darkMode
 );
 
-
-
-// 10. Gestion des automates
+//  Gestion des automates
 const {
   showAutomateModal,
   editingAutomateId,
@@ -1160,9 +1222,7 @@ const {
   getBaseEdgeStyle
 });
 
-
-
-// 9. Gestion des actions du contrat
+// Gestion des actions du contrat
 const {
   isSaving,
   saveContract,
@@ -1178,20 +1238,79 @@ const {
   validateAutomate
 });
 
-
-
 // Fonction pour obtenir le nom d'un nœud par son ID
 const getNodeName = (nodeId) => {
   const node = currentNodes.value.find(n => n.id === nodeId);
   return node ? node.data.label : nodeId;
 };
 
+// Chargement du contrat lors de l'initialisation
+onMounted(async () => {
 
 
-// Initialisation
-onMounted(() => {
-  // Charger l'automate initial
-  loadAutomateState(activeAutomateId.value);
+
+
+  // Vérifier si on est en mode édition (l'URL contient un ID)
+  const editMode = route.name === 'edit-contract';
+  const contractId = route.params.id;
+  
+  if (editMode && contractId) {
+    console.log('Mode édition activé, chargement du contrat:', contractId);
+    
+    // Si le contrat n'est pas déjà chargé dans le store, le charger
+    if (!contractStore.currentContract || contractStore.currentContract.id !== contractId) {
+      const contract = contractStore.getContractById(contractId);
+      
+      if (contract) {
+        // Charger le contrat dans le composant
+        contractName.value = contract.name;
+        contractStatus.value = contract.status;
+        contractAutomates.value = contract.automates.map(automate => ({...automate}));
+        
+        if (contractAutomates.value.length > 0) {
+          // Activer le premier automate ou celui qui était actif précédemment
+          const activeAutomate = contractAutomates.value.find(a => a.active) || contractAutomates.value[0];
+          activeAutomateId.value = activeAutomate.id;
+          loadAutomateState(activeAutomate.id);
+        }
+        
+        // Mettre le contrat comme contrat courant
+        contractStore.setCurrentContract(contract);
+        
+        // Marquer comme sauvegardé initialement
+        isSaved.value = true;
+      } else {
+        console.error("Contrat non trouvé:", contractId);
+        toast.error("Impossible de trouver le contrat à éditer");
+        // Rediriger vers la liste des contrats après un délai
+        setTimeout(() => {
+          router.push({ name: 'contracts' });
+        }, 2000);
+      }
+    } else {
+      // Le contrat est déjà chargé dans le store, l'utiliser
+      const contract = contractStore.currentContract;
+      contractName.value = contract.name;
+      contractStatus.value = contract.status;
+      contractAutomates.value = contract.automates.map(automate => ({...automate}));
+      
+      if (contractAutomates.value.length > 0) {
+        const activeAutomate = contractAutomates.value.find(a => a.active) || contractAutomates.value[0];
+        activeAutomateId.value = activeAutomate.id;
+        loadAutomateState(activeAutomate.id);
+      }
+      
+      isSaved.value = true;
+    }
+  } else {
+    // Mode création
+    console.log('Mode création activé');
+    // Réinitialiser les valeurs par défaut au cas où
+    contractName.value = '';
+    contractStatus.value = 'Brouillon';
+    // Charger l'automate initial
+    loadAutomateState(activeAutomateId.value);
+  }
   
   // Initialiser l'historique
   saveToHistory();
@@ -1203,7 +1322,41 @@ onMounted(() => {
   setTimeout(() => {
     centerGraph();
   }, 100);
+  
+  // Ajout des gestionnaires d'événements pour les menus contextuels
+  window.addEventListener('click', () => (contextMenu.value.visible = false));
+  window.addEventListener('click', () => (edgeContextMenu.value.visible = false));
 });
+
+// Observer les changements de route pour gérer les transitions entre création et édition
+watch(
+  () => route.params.id,
+  (newId) => {
+    if (newId) {
+      // Mode édition - charger le contrat
+      const contract = contractStore.getContractById(newId);
+      if (contract) {
+        contractName.value = contract.name;
+        contractStatus.value = contract.status;
+        contractAutomates.value = contract.automates.map(automate => ({...automate}));
+        
+        if (contractAutomates.value.length > 0) {
+          const activeAutomate = contractAutomates.value.find(a => a.active) || contractAutomates.value[0];
+          activeAutomateId.value = activeAutomate.id;
+          loadAutomateState(activeAutomate.id);
+        }
+        
+        contractStore.setCurrentContract(contract);
+        isSaved.value = true;
+      }
+    } else {
+      // Mode création - réinitialiser
+      contractName.value = '';
+      contractStatus.value = 'Brouillon';
+      // Conserver ou non l'automate par défaut selon votre logique
+    }
+  }
+);
 
 // Observer les changements dans currentNodes et currentEdges pour valider l'automate
 watch([currentNodes, currentEdges], () => {
@@ -1211,17 +1364,8 @@ watch([currentNodes, currentEdges], () => {
   isSaved.value = false;
 }, { deep: true });
 
-
-
-
-
-
-
-
-
 // Sélection d'un nœud dans VueFlow
 onNodeClick(({ node }) => {
- 
   // Si le nœud cliqué est déjà le nœud actif, le désélectionner
   if (activeStateId.value === node.id) {
     activeStateId.value = null;
@@ -1233,19 +1377,17 @@ onNodeClick(({ node }) => {
   }
 });
 
-
-
 /**
  * Capturé depuis @connect de VueFlow.
  * Valide la connexion et, si OK, ouvre le modal en lui passant source/target.
  */
- function onNodeConnect(params) {
-  const { source, target } = params
-  const result = handleConnectNodes({ source, target })
+function onNodeConnect(params) {
+  const { source, target } = params;
+  const result = handleConnectNodes({ source, target });
 
   if (!result.success) {
-    toast.error(result.message)
-    return
+    toast.error(result.message);
+    return;
   }
 
   // ouvre le modal exposé par TransitionModal.vue
@@ -1254,41 +1396,61 @@ onNodeClick(({ node }) => {
     result.target,
     result.sourceName,
     result.targetName
-  )
+  );
 }
 
 /**
  * Capturé depuis @confirm du TransitionModal.
  * Ajoute vraiment la transition, affiche un toast et recentre si tout est OK.
  */
-function onTransitionConfirmOnConnect({ source, target, transition }) {
+function onTransitionConfirmOnConnect({ source, target, transition, conditions }) {
   const { success, message } = addTransition({
     source,
     target,
-    label: transition
-  })
+    label: transition,
+    conditions: conditions || [] 
+  });
 
   if (!success) {
-    toast.error(message)
+    toast.error(message);
   } else {
-    toast.success(message)
-    centerGraph()
+    toast.success(message);
+    centerGraph();
   }
-  
 }
 
+// Fonction pour mettre à jour les conditions d'une transition
+const updateTransitionConditions = (data) => {
+  const { id, conditions } = data;
+  
+  // Trouver la transition dans currentEdges et mettre à jour ses conditions
+  const edgeIndex = currentEdges.value.findIndex(edge => edge.id === id);
+  if (edgeIndex !== -1) {
+    // Créer une nouvelle référence pour que Vue détecte le changement
+    const updatedEdges = [...currentEdges.value];
+    updatedEdges[edgeIndex] = {
+      ...updatedEdges[edgeIndex],
+      conditions
+    };
+    
+    // Mettre à jour currentEdges
+    currentEdges.value = updatedEdges;
+    
+    // Mettre à jour l'historique
+    saveToHistory();
+    
+    // Mettre à jour l'état de sauvegarde
+    isSaved.value = false;
+    
+    toast.success('Conditions mises à jour avec succès');
+  }
+};
 
+const showConditionsOnGraph = ref(false); 
 
-onMounted(() => {
-
-  window.addEventListener('click', () => (contextMenu.value.visible = false))
-
-  window.addEventListener('click', () => (edgeContextMenu.value.visible = false))
-
-});
-
-
-
+const toggleConditionsDisplay = () => {
+  showConditionsOnGraph.value = !showConditionsOnGraph.value;
+};
 </script>
 
 <style scoped>

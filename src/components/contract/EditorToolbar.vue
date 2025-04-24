@@ -142,6 +142,28 @@
           <LucideMaximize v-if="!isFullScreen" class="w-4 h-4" />
           <LucideMinimize v-else class="w-4 h-4" />
         </button>
+
+<button
+  @click="$emit('toggle-conditions')" 
+  :title="showConditions ? 'Masquer les conditions' : 'Afficher les conditions'"
+  class="p-2 rounded-md transition-all duration-200 relative group flex items-center justify-center"
+  :class="showConditions 
+    ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 hover:bg-blue-200 dark:hover:bg-blue-800/40' 
+    : 'text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'"
+>
+  <div class="relative">
+    <Eye v-if="showConditions" class="w-4 h-4" />
+    <EyeOff v-else class="w-4 h-4" />
+    
+  </div>
+  <span 
+    class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 px-2 py-1 text-xs font-medium text-white bg-gray-800 dark:bg-gray-700 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap"
+  >
+    {{ showConditions ? 'Masquer les conditions' : 'Afficher les conditions' }}
+  </span>
+</button>
+
+
       </div>
       
       <!-- Boutons d'annulation / refaire -->
@@ -163,6 +185,8 @@
         >
           <LucideRedo2 class="w-4 h-4" />
         </button>
+
+
       </div>
     </div>
   </template>
@@ -181,7 +205,10 @@
     LucideMaximize,
     LucideMinimize,
     LucideUndo2,
-    LucideRedo2
+    LucideRedo2,
+    Eye,
+    EyeOff,
+    LucideList
   } from 'lucide-vue-next';
   
   defineProps({
@@ -212,7 +239,11 @@
     canRedo: {
       type: Boolean,
       default: false
-    }
+    },
+    showConditions: {
+    type: Boolean,
+    default: true
+  }
   });
   
   defineEmits([
@@ -229,6 +260,8 @@
     'toggle-simulation',
     'toggle-fullscreen',
     'undo',
-    'redo'
+    'redo',
+    'toggle-conditions'
+
   ]);
   </script>
