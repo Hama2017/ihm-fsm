@@ -240,6 +240,7 @@
       :edge="currentEdges.find(e => e.id === id)"
       :showConditions="showConditionsOnGraph"
       :packetCondition="packetCondition"
+      :contractAutomates="contractAutomates"
     />
   </template>
 
@@ -404,6 +405,7 @@
   :validationErrors="validationErrors"
   :cyclePath="cyclePath"
   :packetCondition="packetCondition"
+  :contractAutomates="contractAutomates"
   @analyze="validateAutomate"
 />
         </div>
@@ -1474,50 +1476,30 @@ const toggleConditionsDisplay = () => {
  * @param {string[]} data.automataDependencies - Liste des IDs des automates dépendants
  */
  const updateTransitionAutomataDependencies = (data) => {
-  // Mettre à jour currentEdges
+  // Trouver l'index de la transition dans la liste des transitions actuelles
   const edgeIndex = currentEdges.value.findIndex(edge => edge.id === data.id);
+  
   if (edgeIndex !== -1) {
+    // Créer une copie du tableau des transitions pour déclencher la réactivité de Vue
     const updatedEdges = [...currentEdges.value];
+    
+    // Mettre à jour la transition spécifique avec les nouvelles dépendances
     updatedEdges[edgeIndex] = {
       ...updatedEdges[edgeIndex],
-      automataDependencies: data.automataDependencies || null
+      automataDependencies: data.automataDependencies
     };
-    currentEdges.value = updatedEdges;
-  }
-
-  // Mettre à jour contractAutomates
-  const currentAutomateIndex = contractAutomates.value.findIndex(
-    automate => automate.id === activeAutomateId.value
-  );
-  
-  if (currentAutomateIndex !== -1) {
-    const updatedAutomates = [...contractAutomates.value];
-    const transitionIndex = updatedAutomates[currentAutomateIndex].transitions.findIndex(
-      transition => transition.id === data.id
-    );
     
-    if (transitionIndex !== -1) {
-      const currentTransition = updatedAutomates[currentAutomateIndex].transitions[transitionIndex];
-      
-      // Vérifier si la valeur a réellement changé avant de sauvegarder l'historique
-      const hasChanged = JSON.stringify(currentTransition.automataDependencies) !== 
-                         JSON.stringify(data.automataDependencies || null);
-      
-      if (hasChanged) {
-        updatedAutomates[currentAutomateIndex].transitions[transitionIndex] = {
-          ...currentTransition,
-          automataDependencies: data.automataDependencies || null
-        };
-        
-        contractAutomates.value = updatedAutomates;
-        
-        // Sauvegarder l'historique seulement si un changement est intervenu
-        saveToHistory();
-        
-        isSaved.value = false;
-        toast.success('Dépendances de clauses mises à jour avec succès');
-      }
-    }
+    // Remplacer le tableau de transitions par la nouvelle version
+    currentEdges.value = updatedEdges;
+    
+    // Sauvegarder l'état actuel dans l'historique pour permettre l'annulation/rétablissement
+    saveToHistory();
+    
+    // Indiquer que le contrat n'est pas sauvegardé
+    isSaved.value = false;
+    
+    // Afficher un message de confirmation
+    toast.success('Dépendances de clauses mises à jour avec succès');
   }
 };
 </script>

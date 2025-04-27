@@ -1285,11 +1285,8 @@ const openAddAutomataDependencyModal = (edge) => {
   currentEdgeForDependency.value = edge;
   
   // Initialiser les automates sélectionnés avec ceux déjà associés à cette transition
-  const currentDependencies = edge.automataDependencies || [];
-  selectedAutomates.value = currentDependencies.map(depId => {
-    // Extraire l'ID de l'automate depuis le format "Automata[id]"
-    return depId.replace('Automata', '');
-  });
+  // Utiliser directement les IDs sans manipulation
+  selectedAutomates.value = edge.automataDependencies || [];
   
   dependencyModalError.value = '';
   showAutomataDependencyModal.value = true;
@@ -1319,8 +1316,8 @@ const confirmAddAutomataDependency = () => {
       return;
     }
     
-    // Créer les dépendances avec le format spécifié
-    const dependencyIds = selectedAutomates.value.map(automateId => `Automata${automateId}`);
+    // Utiliser directement les IDs des automates sans préfixe
+    const dependencyIds = selectedAutomates.value;
     
     // Émettre un événement pour mettre à jour les dépendances d'automates
     emit('update-transition-automata-dependencies', {
@@ -1342,9 +1339,8 @@ const confirmAddAutomataDependency = () => {
 
 // Fonction pour obtenir le nom d'un automate à partir de son ID de dépendance
 const getAutomataName = (dependencyId) => {
-  // Format attendu: "Automata1", nous extrayons le "1"
-  const automataId = dependencyId.replace('Automata', '');
-  const automate = props.contractAutomates.find(a => a.id === automataId);
+  // Utiliser directement l'ID sans manipulation
+  const automate = props.contractAutomates.find(a => a.id === dependencyId);
   return automate ? automate.name : dependencyId;
 };
 

@@ -519,12 +519,8 @@ const getConditionLabel = (conditionId) => {
 
 // Fonction pour obtenir le nom d'une dépendance d'automate
 const getAutomataDependencyName = (dependencyId) => {
-
-  console.log(dependencyId)
-  // Format attendu: "Automata1", nous extrayons le "1"
-  const automataId = dependencyId.replace('Automata', '');
-  const automate = props.contractAutomates.find(a => a.id === automataId);
-  return automate ? automate.name : `Automate ${automataId}`;
+  const automate = props.contractAutomates.find(a => a.id === dependencyId);
+  return automate ? automate.name : dependencyId;
 };
 
 // Fonction pour définir la classe de couleur selon le nombre d'utilisations

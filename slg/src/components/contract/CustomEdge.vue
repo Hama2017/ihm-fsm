@@ -80,51 +80,51 @@
     </text>
   </g>
 
-  <!-- Dépendances d'automates (si présentes) -->
-  <g v-if="showConditions && edge && edge.automataDependencies && edge.automataDependencies.length > 0">
-    <!-- Cercle indicateur du nombre de dépendances -->
-    <circle
-      :cx="labelX + (labelWidth / 2) + 8"
-      :cy="labelY + 44"
-      r="8"
-      class="fill-green-500 dark:fill-green-600"
-    />
-    <text
-      :x="labelX + (labelWidth / 2) + 8"
-      :y="labelY + 44"
-      text-anchor="middle"
-      dominant-baseline="middle"
-      class="text-[8px] font-bold text-white select-none pointer-events-none"
-    >
-      {{ edge.automataDependencies.length }}
-    </text>
-    
-    <!-- Fond pour le texte des dépendances -->
-    <rect
-      :x="labelX - (dependenciesLabelWidth / 2) - 8"
-      :y="labelY + 34"
-      :width="dependenciesLabelWidth + 16"
-      :height="24"
-      rx="6"
-      ry="6"
-      class="fill-green-50 dark:fill-green-800/30 stroke-green-200 dark:stroke-green-700"
-      stroke-width="1"
-      :style="{ filter: 'drop-shadow(0 1px 1px rgba(0, 0, 0, 0.05))' }"
-      pointer-events="all"
-    />
-    
-    <!-- Texte des dépendances -->
-    <text
-      :x="labelX"
-      :y="labelY + 46"
-      text-anchor="middle"
-      dominant-baseline="middle"
-      class="vue-flow__edge-text select-none pointer-events-none text-[9px] font-medium"
-      :fill="isDarkMode ? '#86EFAC' : '#22C55E'"
-    >
-      {{ dependenciesText }}
-    </text>
-  </g>
+<!-- Dépendances d'automates (si présentes) -->
+<g v-if="showConditions && edge && edge.automataDependencies && edge.automataDependencies.length > 0">
+  <!-- Fond pour le texte des dépendances -->
+  <rect
+    :x="labelX - (dependenciesLabelWidth / 2) - 8"
+    :y="labelY + 34"
+    :width="dependenciesLabelWidth + 16"
+    :height="24"
+    rx="6"
+    ry="6"
+    class="fill-green-50 dark:fill-green-800/30 stroke-green-200 dark:stroke-green-700"
+    stroke-width="1"
+    :style="{ filter: 'drop-shadow(0 1px 1px rgba(0, 0, 0, 0.05))' }"
+    pointer-events="all"
+  />
+  
+  <!-- Texte des dépendances -->
+  <text
+    :x="labelX"
+    :y="labelY + 46"
+    text-anchor="middle"
+    dominant-baseline="middle"
+    class="vue-flow__edge-text select-none pointer-events-none text-[9px] font-medium"
+    :fill="isDarkMode ? '#86EFAC' : '#22C55E'"
+  >
+    {{ dependenciesText }}
+  </text>
+  
+  <!-- Cercle indicateur du nombre de dépendances (déplacé après le texte) -->
+  <circle
+    :cx="labelX + (labelWidth / 2) + 8"
+    :cy="labelY + 44"
+    r="8"
+    class="fill-green-500 dark:fill-green-600"
+  />
+  <text
+    :x="labelX + (labelWidth / 2) + 8"
+    :y="labelY + 44"
+    text-anchor="middle"
+    dominant-baseline="middle"
+    class="text-[8px] font-bold text-white select-none pointer-events-none"
+  >
+    {{ edge.automataDependencies.length }}
+  </text>
+</g>
 </template>
 
 <script setup>
@@ -143,7 +143,8 @@ const props = defineProps({
   style: { type: Object, default: () => ({}) },
   edge: { type: Object, default: null },
   showConditions: { type: Boolean, default: true },
-  packetCondition: { type: Array, default: () => [] }
+  packetCondition: { type: Array, default: () => [] },
+  contractAutomates: { type: Array, default: () => [] } // Ajout de cette prop
 });
 
 // Référence au thème
@@ -213,8 +214,6 @@ function getConditionLabel(conditionId) {
   return conditionId;
 }
 
-
-
 // Texte des dépendances d'automates
 const dependenciesText = computed(() => {
   if (!props.edge || !props.edge.automataDependencies || props.edge.automataDependencies.length === 0) {
@@ -246,15 +245,12 @@ const dependenciesLabelWidth = computed(() => {
 });
 
 // Fonction pour obtenir le libellé d'un automate à partir de son ID
-function getAutomataName(dependencyId) {
-  const automateId = dependencyId.replace('Automata', '');
-  const automate = props.packetCondition.find(a => a.id === automateId);
-  if (automate) {
-    return automate.name || automateId;
-  }
-  return dependencyId;
-}
+const getAutomataName = (dependencyId) => {
+  // Utiliser directement l'ID sans manipulation
+  const automate = props.contractAutomates.find(a => a.id === dependencyId);
 
+  return automate ? automate.name : dependencyId;
+};
 </script>
 
 <style scoped>

@@ -299,7 +299,8 @@ export default function useAutomate({
       target: edge.target,
       label: edge.label,
       markerEnd: edge.markerEnd,
-      conditions: edge.conditions || [] 
+      conditions: edge.conditions || [],
+      automataDependencies: edge.automataDependencies || null
 
     }));
   };
@@ -352,7 +353,8 @@ export default function useAutomate({
       label: transition.label,
       markerEnd: MarkerType.ArrowClosed,
       style: getBaseEdgeStyle(),
-      conditions: transition.conditions || [] 
+      conditions: transition.conditions || [] ,
+      automataDependencies: transition.automataDependencies || null
     }));
     
     // Mettre à jour les styles si une transition est active
