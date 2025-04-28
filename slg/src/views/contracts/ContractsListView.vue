@@ -1,59 +1,103 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { storeToRefs } from 'pinia';
+import toast from '@/composables/Toast/useToast';
+import ContractAutomatonService from '@/services/contractAutomaton';
+import Modal from '@/components/ui/UiModal.vue';
+import LoadingOverlay from '@/components/ui/UiLoadingOverlay.vue';
 
-import { 
-  LucideFilePlus, 
-  LucideSearch, 
-  LucidePencil, 
-  LucideTrash2, 
-  LucideBox, 
-  LucideHash, 
-  LucideCalendar,
-  LucideFileSearch,
-  LucideDownload,
-  LucideUpload,
-  LucideEye
+import {
+  LucideFilePlus, LucideSearch, LucidePencil, LucideTrash2, LucideBox,
+  LucideHash, LucideCalendar, LucideFileSearch, LucideDownload, LucideUpload, LucideEye
 } from 'lucide-vue-next';
 
-import { useContractStore } from '@/stores/contractStore';
-import { useThemeStore } from '@/stores/theme';
-import { 
-  downloadContractAsSlc, 
-  loadContractFromFile,
-  saveContractToPinia 
-} from '@/composables/contract/useContractIO';
-import toast from '@/composables/Toast/useToast';
-import UiToastContainer from '@/components/ui/UiToastContainer.vue';
-import Modal from '@/components/ui/UiModal.vue';
+// Formatage des dates
+const formatDate = (date) => {
+  const d = new Date(date);
+  if (isNaN(d.getTime())) return 'Date invalide';
+  return new Intl.DateTimeFormat('fr-FR', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric'
+  }).format(d);
+};
 
-// Stores
-const contractStore = useContractStore();
-const { contracts } = storeToRefs(contractStore);
+const statusClasses = {
+  'Deployer': 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-300',
+  'Brouillon': 'bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-300'
+};
+
+// Router
 const router = useRouter();
 
-// Theme
-const themeStore = useThemeStore();
-const { darkMode } = storeToRefs(themeStore);
+// Contrats locaux
+const contracts = ref([]);
 
-// Recherches et filtres
+// États
 const searchQuery = ref('');
 const statusFilter = ref('all');
-
-// Upload input ref
 const fileInputRef = ref(null);
-
-// État de chargement
 const isLoading = ref(false);
 const loadingMessage = ref('Veuillez patienter...');
-
-// État pour la modale de suppression
 const showDeleteModal = ref(false);
 const contractToDelete = ref(null);
 
-// Filtrage
+// --- Charger les contrats au montage ---
+const loadContractsAutomaton = async () => {
+  isLoading.value = true;
+  loadingMessage.value = 'Chargement des contrats...';
+  
+  try {
+    const response = await ContractAutomatonService.listContractAutomaton();
+    contracts.value = response.data.contracts
+    
+  } catch (error) {
+    console.error('Erreur lors du chargement des contrats:', error);
+    toast.error('Erreur lors du chargement des contrats');
+  } finally {
+    isLoading.value = false;
+  }
+};
+
+
+// --- Supprimer un contrat ---
+const confirmDeleteContract = async () => {
+  if (!contractToDelete.value) return;
+
+  try {
+    isLoading.value = true;
+    loadingMessage.value = 'Suppression du contrat...';
+
+    await ContractAutomatonService.deleteContractAutomaton(contractToDelete.value.id);
+
+    // Retirer le contrat supprimé du tableau
+    contracts.value = contracts.value.filter(c => c.id !== contractToDelete.value.id);
+
+    toast.success(`Contrat "${contractToDelete.value.name}" supprimé avec succès`);
+  } catch (error) {
+    console.error('Erreur lors de la suppression du contrat:', error);
+    toast.error('Erreur lors de la suppression du contrat.');
+  } finally {
+    isLoading.value = false;
+    showDeleteModal.value = false;
+    contractToDelete.value = null;
+  }
+};
+
+const openDeleteModal = (contract) => {
+  contractToDelete.value = contract;
+  showDeleteModal.value = true;
+};
+
+const cancelDeleteContract = () => {
+  showDeleteModal.value = false;
+  contractToDelete.value = null;
+};
+
+// --- Filtres ---
 const filteredContracts = computed(() => {
+  if (!contracts.value) return [];
+  
   return contracts.value.filter(contract => {
     const matchesSearch = contract.name.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
                            contract.id.toLowerCase().includes(searchQuery.value.toLowerCase());
@@ -66,174 +110,111 @@ const filteredContracts = computed(() => {
   });
 });
 
-// CSS classes pour les statuts
-const statusClasses = {
-  'Deployer': 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-300',
-  'Brouillon': 'bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-300'
-};
 
-// Affichage de date
-const formatDate = (date) => {
-  const d = new Date(date);
-  if (isNaN(d.getTime())) return 'Date invalide';
-  return new Intl.DateTimeFormat('fr-FR', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric'
-  }).format(d);
-};
+// --- Monté ---
+onMounted(() => {
+  loadContractsAutomaton();
+});
 
-// Détails du contrat
-const viewContract = (contractId) => {
-  console.log(`Voir les détails du contrat ${contractId}`);
-  router.push({ name: 'contract-details', params: { id: contractId } });
-};
 
-// Éditer le contrat
+// Modifier un contrat (naviguer vers la page d'édition)
 const editContract = (contractId) => {
-  console.log(`Éditer le contrat ${contractId}`);
   router.push({ name: 'edit-contract', params: { id: contractId } });
 };
 
-// Télécharger un contrat en .slc
-const exportContract = (contract) => {
-  isLoading.value = true;
-  loadingMessage.value = 'Téléchargement en cours...';
-  
-  // Activer l'animation immédiatement
-  activateSvgAnimation();
-  
-  // Simuler un délai pour voir l'écran de chargement (plus long pour voir l'animation complète)
-  setTimeout(() => {
-    try {
-      // Utilisation de la fonction downloadContractAsSlc définie dans useContractIO.js
-      downloadContractAsSlc(contract, `${contract.name}.slc`);
-      toast.success('Téléchargement effectué avec succès !');
-    } catch (error) {
-      console.error('Erreur lors du téléchargement:', error);
-      toast.error('Erreur lors du téléchargement du contrat');
-    } finally {
-      isLoading.value = false;
-    }
-  }, 2500); // Délai de 2.5 secondes pour voir l'animation complète
+// Télécharger un contrat
+const exportContract = async (contract) => {
+  try {
+    isLoading.value = true;
+    loadingMessage.value = 'Téléchargement du contrat...';
+
+    const blob = new Blob([JSON.stringify(contract, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${contract.name}.slc`; // nom du fichier .slc
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    URL.revokeObjectURL(url);
+
+    toast.success(`Contrat "${contract.name}" téléchargé avec succès !`);
+  } catch (error) {
+    console.error('Erreur lors du téléchargement du contrat:', error);
+    toast.error('Erreur lors du téléchargement du contrat.');
+  } finally {
+    isLoading.value = false;
+  }
 };
 
-// Importer un contrat depuis fichier
-const importContract = (event) => {
-  // Récupérer le fichier sélectionné
+// Voir les détails du contrat déployé
+const viewContract = (contractId) => {
+  router.push({ name: 'contract-details', params: { id: contractId } });
+};
+
+
+const importContract = async (event) => {
   const file = event.target.files[0];
-  if (!file) return;
-  
-  // Vérifier l'extension du fichier
-  const fileName = file.name.toLowerCase();
-  const fileExtension = fileName.split('.').pop();
-  
-  if (fileExtension !== 'slc') {
-    toast.error(`Extension de fichier non valide. Seuls les fichiers .slc sont acceptés.`);
-    // Réinitialiser l'input file pour permettre une nouvelle sélection du même fichier
-    event.target.value = '';
+  if (!file) {
+    toast.error('Aucun fichier sélectionné.');
     return;
   }
-  
-  // Vérifier la taille du fichier (optionnel - limite à 5MB par exemple)
-  const maxSize = 5 * 1024 * 1024; // 5MB en octets
-  if (file.size > maxSize) {
-    toast.error(`Fichier trop volumineux. La taille maximale est de 5MB.`);
-    event.target.value = '';
-    return;
-  }
-  
-  isLoading.value = true;
-  loadingMessage.value = 'Importation en cours...';
-  
-  // Activer l'animation immédiatement
-  activateSvgAnimation();
 
-  // Simuler un délai pour voir l'écran de chargement (plus long pour voir l'animation complète)
-  setTimeout(() => {
-    // Utilisation de la fonction loadContractFromFile définie dans useContractIO.js
-    loadContractFromFile(file, (contract) => {
-      isLoading.value = false;
-      
-      // Vérification que le contrat est valide
-      if (!contract) {
-        toast.error('Fichier invalide ou corrompu');
-        event.target.value = '';
-        return;
-      }
-      
-      // Vérifier que le contrat a les propriétés requises
-      if (!contract.id || !contract.name) {
-        toast.error('Format de contrat non valide');
-        event.target.value = '';
-        return;
-      }
-
-      // Utiliser saveContractToPinia au lieu de manipuler directement le store
-      saveContractToPinia(contract);
-      
-      toast.success(`Importation réussie : "${contract.name}"`);
-      event.target.value = ''; // Réinitialiser l'input après importation réussie
-    });
-  }, 2500); // Délai de 2.5 secondes pour voir l'animation complète
-};
-
-// Fonction pour activer l'animation SVG
-const activateSvgAnimation = () => {
-  // Attendre que le DOM soit prêt
-  setTimeout(() => {
-    const svgLogo = document.querySelector('.loading-logo');
-    if (svgLogo) {
-      svgLogo.classList.add('active');
-      
-      // Attendre que l'animation de traçage soit terminée avant de démarrer le pulse
-      // La dernière transition dure 1s et commence après 0.48s, donc attendre ~1.5s
-      setTimeout(() => {
-        svgLogo.classList.add('pulse-ready');
-      }, 1500);
-    }
-  }, 100);
-};
-
-// Suppression d'un contrat
-const openDeleteModal = (contract) => {
-  contractToDelete.value = contract;
-  showDeleteModal.value = true;
-};
-
-const confirmDeleteContract = () => {
-  if (!contractToDelete.value) return;
-  
-  isLoading.value = true;
-  loadingMessage.value = 'Suppression en cours...';
-  
-  // Activer l'animation immédiatement
-  activateSvgAnimation();
-  
-  // Simuler un délai pour voir l'écran de chargement
-  setTimeout(() => {
+  const reader = new FileReader();
+  reader.onload = async (e) => {
     try {
-      // Appel au store pour supprimer le contrat
-      contractStore.deleteContract(contractToDelete.value.id);
-      toast.success(`Le contrat "${contractToDelete.value.name}" a été supprimé`);
+      const importedData = JSON.parse(e.target.result);
+
+      if (!importedData.name || !importedData.automates) {
+        toast.error('Format de fichier invalide.');
+        return;
+      }
+
+      isLoading.value = true;
+      loadingMessage.value = 'Importation du contrat...';
+
+      const response = await ContractAutomatonService.createContractAutomaton({
+        name: importedData.name,
+        status: 'Brouillon',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        automates: importedData.automates.map(automate => ({
+          id: automate.id,
+          name: automate.name,
+          active: automate.active || false,
+          states: automate.states,
+          transitions: automate.transitions
+        }))
+      });
+
+      contracts.value.push({
+        id: response.data.contractId,
+        name: importedData.name,
+        status: 'Brouillon',
+        createdAt: new Date().toISOString(),
+        automates: importedData.automates
+      });
+
+      toast.success('Contrat importé et enregistré avec succès!');
     } catch (error) {
-      console.error('Erreur lors de la suppression:', error);
-      toast.error('Erreur lors de la suppression du contrat');
+      console.error('Erreur import:', error);
+      toast.error('Erreur lors de l\'import du contrat.');
     } finally {
       isLoading.value = false;
-      showDeleteModal.value = false;
-      contractToDelete.value = null;
     }
-  }, 2000);
+  };
+
+  reader.readAsText(file);
 };
 
-const cancelDeleteContract = () => {
-  showDeleteModal.value = false;
-  contractToDelete.value = null;
-};
 </script>
 
+
 <style scoped>
+
+
 /* Importer les styles d'animation du SVG */
 @import '../../assets/css/loading-animation.css';
 </style>
@@ -401,24 +382,8 @@ const cancelDeleteContract = () => {
   </Modal>
   
   <!-- Écran de chargement -->
-  <Transition name="fade">
-    <div v-if="isLoading" class="loading-overlay">
-      <svg width="105" height="126" viewBox="0 0 105 126" fill="none" xmlns="http://www.w3.org/2000/svg" class="loading-logo mb-6">
-        <path d="M52.4167 3L102.833 33V93L52.4167 123L2 93V33L52.4167 3Z" stroke="url(#paint0_linear_75_60)" stroke-width="4" class="svg-elem-1"></path>
-        <path d="M66.5333 38H38.3C34.9587 38 32.25 40.6863 32.25 44V82C32.25 85.3137 34.9587 88 38.3 88H66.5333C69.8747 88 72.5833 85.3137 72.5833 82V44C72.5833 40.6863 69.8747 38 66.5333 38Z" fill="#3A82F6" stroke="#3B82F6" stroke-width="1.5" class="svg-elem-2"></path>
-        <path d="M38.2998 48H66.5331" stroke="white" stroke-width="2" class="svg-elem-3"></path>
-        <path d="M38.2998 56H62.4998" stroke="white" stroke-width="2" class="svg-elem-4"></path>
-        <path d="M38.2998 64H58.4665" stroke="white" stroke-width="2" class="svg-elem-5"></path>
-        <defs>
-          <linearGradient id="paint0_linear_75_60" x1="2" y1="3" x2="10085.3" y2="3" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#3B82F6"></stop>
-            <stop offset="1" stop-color="#06B6D4"></stop>
-          </linearGradient>
-        </defs>
-      </svg>
-      <p class="text-lg font-medium text-gray-800 dark:text-gray-200">{{ loadingMessage }}</p>
-    </div>
-  </Transition>
+  <LoadingOverlay v-if="isLoading" :message="loadingMessage" />
+
   
   <!-- Container pour les toasts -->
   <UiToastContainer />

@@ -1,9 +1,7 @@
 <template>
-  
-
   <div class="h-full flex flex-col">
     <!-- En-tête avec nom du contrat et boutons d'action -->
-    <div v-if="!isFullScreen" class="flex items-center justify-between mb-6 px-1">
+    <div v-if="!isFullScreen && !isDeploymentView" class="flex items-center justify-between mb-6 px-1">
       <div class="flex items-center gap-3">
         <h1 class="text-2xl font-semibold text-gray-900 dark:text-white">
           {{ contractName.trim() || 'Nouveau contrat' }}
@@ -67,7 +65,7 @@
         </button>
         
         <button 
-          @click="deployContract"
+          @click="startDeploymentProcess"
           :disabled="hasValidationErrors || contractStatus === 'Actif'"
           class="px-4 py-2 rounded-lg font-medium flex items-center gap-2 transition duration-200
                  text-white
@@ -82,7 +80,7 @@
     </div>
       
     <!-- Champ pour le nom du contrat -->
-    <div v-if="!isFullScreen" class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700 mb-6">
+    <div v-if="!isFullScreen && !isDeploymentView" class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700 mb-6">
       <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div class="flex-grow">
           <label for="contract-name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -99,19 +97,31 @@
       </div>
     </div>
 
+    <!-- En-tête de déploiement - montré uniquement en mode déploiement -->
+    <div v-if="isDeploymentView" class="flex items-center justify-center mb-6 px-1">
+      <div class="bg-green-50 dark:bg-green-900/30 px-4 py-3 rounded-lg shadow-sm border border-green-200 dark:border-green-800 flex items-center">
+        <LucideRocket class="h-5 w-5 text-green-600 dark:text-green-400 mr-3" />
+        <h1 class="text-xl font-semibold text-green-800 dark:text-green-300">
+          Mode déploiement - Prévisualisation du flux de déploiement
+        </h1>
+      </div>
+    </div>
+
     <!-- Contenu principal avec mise en page responsive -->
     <div 
       :class="[
         'grid gap-6 h-[calc(100vh-230px)] transition-all duration-300',
         isFullScreen 
           ? 'grid-cols-1 xl:grid-cols-[1fr_320px]' 
-          : 'grid-cols-1 xl:grid-cols-[320px_1fr_320px]'
+          : isDeploymentView
+            ? 'grid-cols-1'
+            : 'grid-cols-1 xl:grid-cols-[320px_1fr_320px]'
       ]"
     >
       <!-- Colonne gauche : Liste des automates (collapsible sur mobile) -->
       <div :class="[
         'xl:h-full flex flex-col transition-all duration-300',
-        isFullScreen ? 'hidden' : ''
+        isFullScreen || isDeploymentView ? 'hidden' : ''
       ]">
         <div class="flex items-center justify-between mb-2">
           <!-- Bouton pour masquer/afficher sur mobile -->
@@ -134,49 +144,43 @@
             @remove-automate="removeAutomate"
           />
         </div>
-   
-
       </div>
-
-
-
-
 
       <!-- Colonne centrale : Éditeur d'automate avec contrôles améliorés -->
       <div class="xl:h-full flex flex-col">
-        <div class="flex items-center justify-between mb-2">
+        <div v-if="!isDeploymentView" class="flex items-center justify-between mb-2">
           <h2 class="text-lg font-semibold text-gray-900 dark:text-white w-full text-center">
             Automate <span v-if="activeAutomateName()"> : {{ activeAutomateName() }}</span>
           </h2>
         </div>
         
-       <!--  createContractView.vue -->
-<EditorToolbar 
-  v-if="activeAutomateId"
-  :zoom-level="zoomLevel"
-  :show-minimap="showMinimap"
-  :snap-to-grid="snapToGrid"
-  :is-simulating="isSimulating"
-  :is-full-screen="isFullScreen"
-  :can-undo="canUndo"
-  :can-redo="canRedo"
-  :show-conditions="showConditionsOnGraph"
-  @zoom-in="zoomIn"
-  @zoom-out="zoomOut"
-  @zoom-reset="resetZoom"
-  @center-graph="centerGraph"
-  @toggle-minimap="toggleMinimap"
-  @toggle-grid="toggleGrid"
-  @add-initial-state="addInitialState"
-  @add-state="addStandardState"
-  @add-final-state="addFinalState"
-  @toggle-edit-mode="isSimulating ? toggleSimulation() : null"
-  @toggle-simulation="toggleSimulation"
-  @toggle-fullscreen="toggleFullScreen"
-  @toggle-conditions="toggleConditionsDisplay"
-  @undo="undo"
-  @redo="redo"
-/>
+        <!-- Toolbar visible uniquement si pas en mode déploiement -->
+        <EditorToolbar 
+          v-if="activeAutomateId && !isDeploymentView"
+          :zoom-level="zoomLevel"
+          :show-minimap="showMinimap"
+          :snap-to-grid="snapToGrid"
+          :is-simulating="isSimulating"
+          :is-full-screen="isFullScreen"
+          :can-undo="canUndo"
+          :can-redo="canRedo"
+          :show-conditions="showConditionsOnGraph"
+          @zoom-in="zoomIn"
+          @zoom-out="zoomOut"
+          @zoom-reset="resetZoom"
+          @center-graph="centerGraph"
+          @toggle-minimap="toggleMinimap"
+          @toggle-grid="toggleGrid"
+          @add-initial-state="addInitialState"
+          @add-state="addStandardState"
+          @add-final-state="addFinalState"
+          @toggle-edit-mode="isSimulating ? toggleSimulation() : null"
+          @toggle-simulation="toggleSimulation"
+          @toggle-fullscreen="toggleFullScreen"
+          @toggle-conditions="toggleConditionsDisplay"
+          @undo="undo"
+          @redo="redo"
+        />
         
         <div 
           :class="[
@@ -185,7 +189,7 @@
           ]"
         >
           <!-- Message si aucun automate n'est sélectionné -->
-          <div v-if="!activeAutomateId" class="flex items-center justify-center h-full text-gray-500 dark:text-gray-400">
+          <div v-if="!activeAutomateId && !isDeploymentView" class="flex items-center justify-center h-full text-gray-500 dark:text-gray-400">
             <div class="text-center p-8">
               <LucideFileWarning class="w-12 h-12 mx-auto mb-4" />
               <p>Aucun automate sélectionné.</p>
@@ -195,24 +199,24 @@
           
           <!-- Éditeur VueFlow avec menu contextuel intégré -->
           <VueFlow 
-            v-if="activeAutomateId"
-            v-model:nodes="currentNodes" 
-            v-model:edges="currentEdges"
-            class="h-full w-full"
-            @connect="onNodeConnect"
-            @edgeUpdate="handleEdgeUpdate"
-            @edgeClick="onEdgeClick"
-            @nodeContextMenu="onNodeRightClick"
-            @edgeContextMenu="onEdgeContextMenu"
-            :snapToGrid="snapToGrid"
-            :snapGrid="[15, 15]"
-            :disabled="isSimulating"
-          >
-            <MiniMap v-if="showMinimap" pannable zoomable position="top-right" />
+  v-if="activeAutomateId || isDeploymentView"
+  v-model:nodes="currentNodes" 
+  v-model:edges="currentEdges"
+  class="h-full w-full"
+  @connect="(params) => { if (!isDeploymentView.value) onNodeConnect(params) }"
+  @edgeUpdate="(params) => { if (!isDeploymentView.value) handleEdgeUpdate(params) }"
+  @edgeClick="(event) => { if (!isDeploymentView.value) onEdgeClick(event) }"
+  @nodeContextMenu="(event) => { if (!isDeploymentView.value) onNodeRightClick(event) }"
+  @edgeContextMenu="(event) => { if (!isDeploymentView.value) onEdgeContextMenu(event) }"
+  :snapToGrid="snapToGrid"
+  :snapGrid="[15, 15]"
+  :disabled="isSimulating || isDeploymentView"
+>
+
+            <MiniMap v-if="showMinimap && !isDeploymentView" pannable zoomable position="top-right" />
             <Background :pattern-color="isDarkMode ? '#374151' : '#E5E7EB'" :gap="15" size="1" />
-            
-            <!-- Indication mode simulation -->
-            <template v-if="isSimulating" #node-default="props">
+                  <!-- Indication mode simulation -->
+                  <template v-if="isSimulating && !isDeploymentView" #node-default="props">
               <div
                 @click="simulateTransition(props.node)"
                 :class="[
@@ -225,30 +229,28 @@
               </div>
             </template>
 
-
-              <!-- NOUVEAU: Template personnalisé pour les edges montrant les conditions -->
-  <template #edge-default="{ id, sourceX, sourceY, targetX, targetY, label, markerEnd, style }">
-    <CustomEdge 
-      :id="id"
-      :sourceX="sourceX"
-      :sourceY="sourceY" 
-      :targetX="targetX" 
-      :targetY="targetY"
-      :label="label"
-      :markerEnd="markerEnd"
-      :style="style"
-      :edge="currentEdges.find(e => e.id === id)"
-      :showConditions="showConditionsOnGraph"
-      :packetCondition="packetCondition"
-      :contractAutomates="contractAutomates"
-    />
-  </template>
-
+            <!-- NOUVEAU: Template personnalisé pour les edges montrant les conditions -->
+            <template #edge-default="{ id, sourceX, sourceY, targetX, targetY, label, markerEnd, style }">
+              <CustomEdge 
+                :id="id"
+                :sourceX="sourceX"
+                :sourceY="sourceY" 
+                :targetX="targetX" 
+                :targetY="targetY"
+                :label="label"
+                :markerEnd="markerEnd"
+                :style="style"
+                :edge="currentEdges.find(e => e.id === id)"
+                :showConditions="showConditionsOnGraph"
+                :packetCondition="packetCondition"
+                :contractAutomates="contractAutomates"
+              />
+            </template>
           </VueFlow>
 
-          <!-- Menu contextuel pour le clic droit sur un nœud -->
+          <!-- Menu contextuel pour le clic droit sur un nœud (visible seulement si pas en mode déploiement) -->
           <div
-            v-if="contextMenu.visible"
+            v-if="contextMenu.visible && !isDeploymentView"
             :style="{ top: `${contextMenu.y}px`, left: `${contextMenu.x}px` }"
             class="fixed z-50 bg-white dark:bg-gray-800 shadow-lg border border-gray-200 dark:border-gray-600 rounded-lg text-sm overflow-hidden min-w-[180px]"
           >
@@ -281,9 +283,9 @@
             </div>
           </div>
                     
-          <!-- Menu contextuel pour le clic droit sur une transition -->
+          <!-- Menu contextuel pour le clic droit sur une transition (visible seulement si pas en mode déploiement) -->
           <div
-            v-if="edgeContextMenu.visible"
+            v-if="edgeContextMenu.visible && !isDeploymentView"
             :style="{ top: `${edgeContextMenu.y}px`, left: `${edgeContextMenu.x}px` }"
             class="fixed z-50 bg-white dark:bg-gray-800 shadow-lg border border-gray-200 dark:border-gray-600 rounded-lg text-sm overflow-hidden min-w-[180px]"
           >
@@ -327,91 +329,112 @@
             </div>
           </div>
 
-          <!-- Barre d'état avec les erreurs -->
-          <div v-if="hasValidationErrors" class="absolute bottom-0 left-0 right-0 bg-yellow-50 dark:bg-yellow-900/20 p-2 border-t border-yellow-200 dark:border-yellow-700">
+          <!-- Barre d'état avec les erreurs (visible seulement si pas en mode déploiement) -->
+          <div v-if="hasValidationErrors && !isDeploymentView" class="absolute bottom-0 left-0 right-0 bg-yellow-50 dark:bg-yellow-900/20 p-2 border-t border-yellow-200 dark:border-yellow-700">
             <div class="flex items-center text-sm text-yellow-800 dark:text-yellow-300">
               <LucideAlertTriangle class="w-4 h-4 mr-2" />
               <span>{{ validationErrorMessage }}</span>
             </div>
           </div>
                
-     
-          <!-- Message Simulation en cours -->
-          <div v-if="isSimulating" class="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-white dark:bg-gray-700 rounded-full shadow-lg p-1 flex items-center">
-            
+          <!-- Message Simulation en cours (visible seulement si pas en mode déploiement) -->
+          <div v-if="isSimulating && !isDeploymentView" class="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-white dark:bg-gray-700 rounded-full shadow-lg p-1 flex items-center">
             <LucideLoader class="w-4 h-4 animate-spin text-blue-600 dark:text-blue-400" />
             <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Simulation en cours</span> 
-
           </div>
 
+          <!-- Boutons de déploiement (visibles uniquement en mode déploiement) -->
+          <div v-if="isDeploymentView" class="absolute bottom-4 right-4 flex space-x-3">
+            <button 
+              @click="cancelDeployment" 
+              class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg shadow-md flex items-center"
+            >
+              <LucideX class="w-4 h-4 mr-2" />
+              Annuler
+            </button>
+            <button 
+  @click="simulateDeploymentFlow" 
+  class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg shadow-md flex items-center
+         disabled:bg-gray-400 disabled:cursor-not-allowed dark:disabled:bg-gray-700 transition duration-200"
+>
+  <LucidePlayCircle class="w-4 h-4 mr-2" />
+  Simuler Déploiement
+</button>
+
+            <button 
+              @click="confirmDeployment" 
+              class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg shadow-md flex items-center"
+            >
+              <LucideRocket class="w-4 h-4 mr-2" />
+              Lancer Déploiement
+            </button>
+          </div>
         </div>
       </div>
 
-      <!-- Colonne droite : onglets pour États, Fonctions et Aide -->
-      <div class="xl:h-full flex flex-col" v-if="activeAutomateId">
-    <SlidableTabs v-model="rightPanelTab" :tabs="rightPanelTabs" >
-      <!-- Chaque onglet a un slot correspondant à son ID -->
-      <template #states>
-        <div class="h-full">
-          <StateList
-            v-model:nodes="currentNodes"
-            :edges="currentEdges"
-            :selectedState="activeStateId"
-            @add-state="openAddStateModal"
-            @edit-state="openEditStateModal"
-            @remove-state="openRemoveStateModal"
-            @select-state="selectState"
-            @open-add-modal="openAddStateModal"
-            @open-edit-modal="openEditStateModal"
-            @open-remove-modal="openRemoveStateModal"
-          />
-        </div>
-      </template>
-      
-      <template #declencheurs>
-        <div class="h-full">
-          <FunctionList
-  :edges="currentEdges"
-  :nodes="currentNodes"
-  :availableFunctions="availableFunctions"
-  :packetCondition="packetCondition"
-  :activeTransition="activeTransitionId"
-  :contractAutomates="contractAutomates"
-  :activeAutomateId="activeAutomateId"
-  @select-transition="selectTransition"
-  @add-transition="addTransition"
-  @edit-transition="editTransition"
-  @remove-transition="removeTransition"
-  @reverse-transition="openInvertTransitionModal"
-  @update-transition-conditions="updateTransitionConditions"
-  @update-transition-automata-dependencies="updateTransitionAutomataDependencies"
-/>
-        </div>
-      </template>
-      
+      <!-- Colonne droite : onglets pour États, Fonctions et Aide (masquée en mode déploiement) -->
+      <div v-if="activeAutomateId && !isDeploymentView" class="xl:h-full flex flex-col">
+        <SlidableTabs v-model="rightPanelTab" :tabs="rightPanelTabs" >
+          <!-- Chaque onglet a un slot correspondant à son ID -->
+          <template #states>
+            <div class="h-full">
+              <StateList
+                v-model:nodes="currentNodes"
+                :edges="currentEdges"
+                :selectedState="activeStateId"
+                @add-state="openAddStateModal"
+                @edit-state="openEditStateModal"
+                @remove-state="openRemoveStateModal"
+                @select-state="selectState"
+                @open-add-modal="openAddStateModal"
+                @open-edit-modal="openEditStateModal"
+                @open-remove-modal="openRemoveStateModal"
+              />
+            </div>
+          </template>
+          
+          <template #declencheurs>
+            <div class="h-full">
+              <FunctionList
+                :edges="currentEdges"
+                :nodes="currentNodes"
+                :availableFunctions="availableFunctions"
+                :packetCondition="packetCondition"
+                :activeTransition="activeTransitionId"
+                :contractAutomates="contractAutomates"
+                :activeAutomateId="activeAutomateId"
+                @select-transition="selectTransition"
+                @add-transition="addTransition"
+                @edit-transition="editTransition"
+                @remove-transition="removeTransition"
+                @reverse-transition="openInvertTransitionModal"
+                @update-transition-conditions="updateTransitionConditions"
+                @update-transition-automata-dependencies="updateTransitionAutomataDependencies"
+              />
+            </div>
+          </template>
+          
+          <template #guide>
+            <div class="h-full">
+              <ConditionList :packetCondition="packetCondition" />
+            </div>
+          </template>
 
-      
-      <template #guide>
-        <div class="h-full">
-          <ConditionList :packetCondition="packetCondition" />
-        </div>
-      </template>
-
-      <template #analyzer>
-        <div class="h-full">
-          <AutomatonAnalyzer
-  :nodes="currentNodes"
-  :edges="currentEdges"
-  :validationErrors="validationErrors"
-  :cyclePath="cyclePath"
-  :packetCondition="packetCondition"
-  :contractAutomates="contractAutomates"
-  @analyze="validateAutomate"
-/>
-        </div>
-      </template>
-    </SlidableTabs>
-  </div>
+          <template #analyzer>
+            <div class="h-full">
+              <AutomatonAnalyzer
+                :nodes="currentNodes"
+                :edges="currentEdges"
+                :validationErrors="validationErrors"
+                :cyclePath="cyclePath"
+                :packetCondition="packetCondition"
+                :contractAutomates="contractAutomates"
+                @analyze="validateAutomate"
+              />
+            </div>
+          </template>
+        </SlidableTabs>
+      </div>
     </div>
     
     <!-- Modals -->
@@ -432,25 +455,25 @@
     
     <!-- Modal récapitulatif de déploiement -->
     <Modal
-  v-model="showDeploymentSummaryModal"
-  title="Résumé de la simulation"
-  confirm-text="Fermer"
-  @confirm="closeDeploymentSummaryModal()"
->
-  <div class="space-y-3">
-    <div class="text-green-700 dark:text-green-400 font-semibold">
-      Test de déploiement terminé avec succès 
-    </div>
-    <div class="text-sm text-gray-700 dark:text-gray-300">
-      Ordre de déploiement :
-    </div>
-    <ul class="list-decimal list-inside space-y-1 text-sm text-gray-800 dark:text-gray-200">
-      <li v-for="stateId in deploymentResult" :key="stateId">
-        {{ currentNodes.find(n => n.id === stateId)?.data.label || stateId }}
-      </li>
-    </ul>
-  </div>
-</Modal>
+      v-model="showDeploymentSummaryModal"
+      title="Résumé de la simulation"
+      confirm-text="Fermer"
+      @confirm="closeDeploymentSummaryModal()"
+    >
+      <div class="space-y-3">
+        <div class="text-green-700 dark:text-green-400 font-semibold">
+          Test de déploiement terminé avec succès 
+        </div>
+        <div class="text-sm text-gray-700 dark:text-gray-300">
+          Ordre de déploiement :
+        </div>
+        <ul class="list-decimal list-inside space-y-1 text-sm text-gray-800 dark:text-gray-200">
+          <li v-for="stateId in deploymentResult" :key="stateId">
+            {{ currentNodes.find(n => n.id === stateId)?.data.label || stateId }}
+          </li>
+        </ul>
+      </div>
+    </Modal>
     
     <!-- Modal d'ajout d'état -->
     <Modal
@@ -544,57 +567,55 @@
       </p>
     </Modal>
     
-      
     <!-- Modal d'inversion de transition -->
     <Modal
-  v-model="showInvertTransitionModal"
-  title="Inverser la transition"
-  confirm-text="Inverser"
-  variant="danger"
-  @confirm="confirmInvertTransition"
->
-  <div class="space-y-6">
-    <p class="text-gray-700 dark:text-gray-300 font-medium text-center">
-      Voulez-vous inverser le sens de cette transition ?
-    </p>
-    
-    <!-- Sens actuel -->
-    <div class="border border-gray-200 dark:border-gray-600 rounded-lg p-4 bg-gray-50 dark:bg-gray-800">
-      <div class="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2 font-medium">Sens actuel</div>
-      <div class="flex items-center justify-center space-x-3 p-3">
-        <div class="px-3 py-2 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 rounded-lg font-medium">
-          {{ getNodeLabelById(invertingTransition.source) }}
+      v-model="showInvertTransitionModal"
+      title="Inverser la transition"
+      confirm-text="Inverser"
+      variant="danger"
+      @confirm="confirmInvertTransition"
+    >
+      <div class="space-y-6">
+        <p class="text-gray-700 dark:text-gray-300 font-medium text-center">
+          Voulez-vous inverser le sens de cette transition ?
+        </p>
+        
+        <!-- Sens actuel -->
+        <div class="border border-gray-200 dark:border-gray-600 rounded-lg p-4 bg-gray-50 dark:bg-gray-800">
+          <div class="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2 font-medium">Sens actuel</div>
+          <div class="flex items-center justify-center space-x-3 p-3">
+            <div class="px-3 py-2 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 rounded-lg font-medium">
+              {{ getNodeLabelById(invertingTransition.source) }}
+            </div>
+            <LucideArrowRight class="h-6 w-6 text-blue-500 dark:text-blue-400" />
+            <div class="px-3 py-2 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 rounded-lg font-medium">
+              {{ getNodeLabelById(invertingTransition.target) }}
+            </div>
+          </div>
         </div>
-        <LucideArrowRight class="h-6 w-6 text-blue-500 dark:text-blue-400" />
-        <div class="px-3 py-2 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 rounded-lg font-medium">
-          {{ getNodeLabelById(invertingTransition.target) }}
+        
+        <!-- Flèche d'inversion -->
+        <div class="flex justify-center items-center">
+          <div class="w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
+            <LucideArrowDownUp class="h-6 w-6 text-amber-600 dark:text-amber-400 transform rotate-180" />
+          </div>
+        </div>
+        
+        <!-- Nouveau sens -->
+        <div class="border border-green-200 dark:border-green-800 rounded-lg p-4 bg-green-50 dark:bg-green-900/20">
+          <div class="text-xs uppercase tracking-wider text-green-600 dark:text-green-400 mb-2 font-medium">Nouveau sens</div>
+          <div class="flex items-center justify-center space-x-3 p-3">
+            <div class="px-3 py-2 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200 rounded-lg font-medium">
+              {{ getNodeLabelById(invertingTransition.target) }}
+            </div>
+            <LucideArrowRight class="h-6 w-6 text-green-500 dark:text-green-400" />
+            <div class="px-3 py-2 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200 rounded-lg font-medium">
+              {{ getNodeLabelById(invertingTransition.source) }}
+            </div>
+          </div>
         </div>
       </div>
-    </div>
-    
-    <!-- Flèche d'inversion -->
-    <div class="flex justify-center items-center">
-      <div class="w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
-        <LucideArrowDownUp class="h-6 w-6 text-amber-600 dark:text-amber-400 transform rotate-180" />
-      </div>
-    </div>
-    
-    <!-- Nouveau sens -->
-    <div class="border border-green-200 dark:border-green-800 rounded-lg p-4 bg-green-50 dark:bg-green-900/20">
-      <div class="text-xs uppercase tracking-wider text-green-600 dark:text-green-400 mb-2 font-medium">Nouveau sens</div>
-      <div class="flex items-center justify-center space-x-3 p-3">
-        <div class="px-3 py-2 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200 rounded-lg font-medium">
-          {{ getNodeLabelById(invertingTransition.target) }}
-        </div>
-        <LucideArrowRight class="h-6 w-6 text-green-500 dark:text-green-400" />
-        <div class="px-3 py-2 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200 rounded-lg font-medium">
-          {{ getNodeLabelById(invertingTransition.source) }}
-        </div>
-      </div>
-    </div>
- 
-  </div>
-</Modal>
+    </Modal>
     
     <!-- Modal de mise à jour des connexions -->
     <Modal
@@ -688,7 +709,6 @@
         <div>
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             Déclencheur
-
           </label>
           <select 
             v-model="editingTransition.function"
@@ -708,41 +728,31 @@
     </Modal>
     
     <!-- Modal d'édition de transition -->
-
-
-
     <Modal 
-  v-model="showEditTransitionModal" 
-  title="Modifier le déclencheur" 
-  @confirm="confirmEditTransition"
-  confirm-text="Enregistrer"
->
-  <TransitionForm
-    v-model="editingTransition"
-    :nodes="currentNodes"
-    :availableFunctions="availableFunctions"
-    :packetCondition="packetCondition"
-    :errorMessage="editTransitionError"
-  />
-</Modal>
+      v-model="showEditTransitionModal" 
+      title="Modifier le déclencheur" 
+      @confirm="confirmEditTransition"
+      confirm-text="Enregistrer"
+    >
+      <TransitionForm
+        v-model="editingTransition"
+        :nodes="currentNodes"
+        :availableFunctions="availableFunctions"
+        :packetCondition="packetCondition"
+        :errorMessage="editTransitionError"
+      />
+    </Modal>
 
-
-
-
-
-
-
-
-       <!-- Container pour les toasts -->
-       <UiToastContainer />
+    <!-- Container pour les toasts -->
+    <UiToastContainer />
+    
     <!-- Composant TransitionModal pour gérer les transitions -->
- <!-- Composant TransitionModal pour gérer les transitions -->
-<TransitionModal 
-  ref="transitionModalRef"
-  :transitions="availableFunctions"
-  :packetCondition="packetCondition"
-  @confirm="onTransitionConfirmOnConnect"
-/>
+    <TransitionModal 
+      ref="transitionModalRef"
+      :transitions="availableFunctions"
+      :packetCondition="packetCondition"
+      @confirm="onTransitionConfirmOnConnect"
+    />
   </div>
 </template>
 
@@ -761,9 +771,9 @@ import CustomEdge from '@/components/contract/CustomEdge.vue';
 import TransitionForm from '@/components/contract/TransitionForm.vue';
 import ConditionList from '@/components/contract/ConditionList.vue';
 import SlidableTabs from '@/components/ui/UiSlidableTabs.vue';
-import '@vue-flow/core/dist/style.css' ;
+import '@vue-flow/core/dist/style.css';
 import packageService from '@/services/packageService';
-
+import ContractAutomatonService from '@/services/contractAutomaton';
 
 // Composants
 import Modal from '@/components/ui/UiModal.vue';
@@ -793,9 +803,9 @@ import {
   LucideArrowRight,
   LucideArrowDown,
   LucideChevronsDown,
-  LucideChevronsRight
+  LucideChevronsRight,
+  LucidePlayCircle
 } from 'lucide-vue-next';
-
 
 const rightPanelTabs = [
   { id: 'states', label: 'États' },
@@ -822,72 +832,12 @@ const contractName = ref('');
 const contractStatus = ref('Brouillon');
 const isSaved = ref(false);
 
+// État pour le mode de déploiement
+const isDeploymentView = ref(false);
+const deploymentAutomateId = ref(null);
+const originalActiveAutomateId = ref(null);
 
-
-
-
-
-/*
-
-// Packages de conditions disponibles
-const packetCondition = ref([
-  {
-    "id": "package-1",
-    "label": "Conditions administratives",
-    "functions": [
-      {
-        "id": "condition-a1",
-        "label": "Signature utilisateur",
-        "description": "Vérifie que l'utilisateur a signé le document."
-      },
-      {
-        "id": "condition-a2",
-        "label": "Date d'échéance",
-        "description": "Vérifie que la date limite n'est pas dépassée."
-      },
-      {
-        "id": "condition-a3",
-        "label": "Validation manager",
-        "description": "Vérifie que le manager a validé la demande."
-      }
-    ]
-  },
-  {
-    "id": "package-2",
-    "label": "Conditions financières",
-    "functions": [
-      {
-        "id": "condition-b1",
-        "label": "Montant approuvé",
-        "description": "Vérifie que le montant est inférieur au seuil autorisé."
-      },
-      {
-        "id": "condition-b2",
-        "label": "Budget disponible",
-        "description": "Vérifie que le budget alloué est suffisant."
-      }
-    ]
-  },
-  {
-    "id": "package-3",
-    "label": "Conditions techniques",
-    "functions": [
-      {
-        "id": "condition-c1",
-        "label": "Conformité technique",
-        "description": "Vérifie que les spécifications techniques sont respectées."
-      },
-      {
-        "id": "condition-c2",
-        "label": "Tests validés",
-        "description": "Vérifie que tous les tests ont été passés avec succès."
-      }
-    ]
-  }
-]);
-*/
 const packetCondition = ref([]);
-
 
 onMounted(() => {
   packageService.getAllPackages()
@@ -960,7 +910,7 @@ const contractAutomates = ref([
         target: 'state-4', 
         label: 'rejeter', 
         markerEnd: MarkerType.ArrowClosed,
-        conditions: ['condition-a1', 'condition-a1'], // IDs des conditions associées
+        conditions: [],
         automataDependencies: null
       }
     ]
@@ -1237,7 +1187,9 @@ const {
 const {
   isSaving,
   saveContract,
-  deployContract
+  deployContract,
+  currentContractId,
+  currentCreatedAt
 } = useContractActions({
   contractName,
   contractStatus,
@@ -1246,8 +1198,97 @@ const {
   isSaved,
   hasValidationErrors,
   saveCurrentAutomateState,
-  validateAutomate
+  validateAutomate,
+
 });
+
+// Nouvelle fonction pour démarrer le processus de déploiement
+const startDeploymentProcess = () => {
+ /* if (hasValidationErrors) {
+    toast.error('Impossible de déployer le contrat. Veuillez corriger les erreurs.');
+    return;
+  }*/
+
+  // Sauvegarder l'automate actif actuel
+  if (activeAutomateId.value) {
+    saveCurrentAutomateState();
+  }
+  
+  // Générer l'automate de déploiement
+deployContract();
+  
+  // Stocker l'ID d'automate actif original pour pouvoir le restaurer si annulation
+  originalActiveAutomateId.value = activeAutomateId.value;
+  
+  // Trouver l'ID de l'automate de déploiement
+  const deploymentAutomate = contractAutomates.value.find(a => a.id === 'flow-deploiement');
+  if (deploymentAutomate) {
+    deploymentAutomateId.value = deploymentAutomate.id;
+    
+    // Basculer vers l'automate de déploiement
+    activeAutomateId.value = deploymentAutomate.id;
+    loadAutomateState(deploymentAutomate.id);
+    
+    // Activer le mode vue déploiement
+    isDeploymentView.value = true;
+    
+    // Ajuster la vue pour être sûr de tout voir
+    setTimeout(() => {
+      centerGraph();
+    }, 100);
+  }
+};
+
+// Fonction pour annuler le déploiement
+const cancelDeployment = () => {
+  // Supprimer l'automate de déploiement
+  const deploymentIndex = contractAutomates.value.findIndex(a => a.id === 'flow-deploiement');
+  if (deploymentIndex !== -1) {
+    contractAutomates.value.splice(deploymentIndex, 1);
+  }
+  
+  // Revenir à l'automate actif original
+  if (originalActiveAutomateId.value) {
+    activeAutomateId.value = originalActiveAutomateId.value;
+    loadAutomateState(originalActiveAutomateId.value);
+  }
+  
+  // Désactiver le mode vue déploiement
+  isDeploymentView.value = false;
+  
+  toast.info('Déploiement annulé');
+};
+
+// Fonction pour confirmer le déploiement
+const confirmDeployment = () => {
+  // Effectuer les actions de déploiement
+  console.log('Déploiement du contrat:', contractName.value);
+  console.log('Contrat complet:', JSON.stringify(contractAutomates.value, null, 2));
+  
+  // Déploiement simulé réussi
+  toast.success('Déploiement en cours...');
+  
+  // Sortir du mode déploiement après un délai
+  setTimeout(() => {
+    // Mettre à jour le statut du contrat
+    contractStatus.value = 'Actif';
+    
+    // Désactiver le mode vue déploiement
+    isDeploymentView.value = false;
+    
+    // Revenir à l'automate actif original (optionnel, selon le comportement souhaité)
+    if (originalActiveAutomateId.value) {
+      activeAutomateId.value = originalActiveAutomateId.value;
+      loadAutomateState(originalActiveAutomateId.value);
+    }
+    
+    // Mettre à jour le statut de sauvegarde
+    isSaved.value = false;
+    
+    // Afficher une confirmation
+    toast.success('Contrat déployé avec succès!');
+  }, 2000);
+};
 
 // Fonction pour obtenir le nom d'un nœud par son ID
 const getNodeName = (nodeId) => {
@@ -1255,120 +1296,79 @@ const getNodeName = (nodeId) => {
   return node ? node.data.label : nodeId;
 };
 
-// Chargement du contrat lors de l'initialisation
-onMounted(async () => {
 
+// ---- Chargement principal du contrat ----
+const loadContract = async (contractId) => {
+  try {
+    const response = await ContractAutomatonService.getContractAutomaton(contractId);
+    const contract = response.data;
 
+    contractName.value = contract.name;
+    contractStatus.value = contract.status;
+    contractAutomates.value = contract.automates.map(automate => ({ ...automate }));
 
+    currentContractId.value = contract.id;
+    currentCreatedAt.value = contract.createdAt;
 
-  // Vérifier si on est en mode édition (l'URL contient un ID)
-  const editMode = route.name === 'edit-contract';
-  const contractId = route.params.id;
-  
-  if (editMode && contractId) {
-    console.log('Mode édition activé, chargement du contrat:', contractId);
-    
-    // Si le contrat n'est pas déjà chargé dans le store, le charger
-    if (!contractStore.currentContract || contractStore.currentContract.id !== contractId) {
-      const contract = contractStore.getContractById(contractId);
-      
-      if (contract) {
-        // Charger le contrat dans le composant
-        contractName.value = contract.name;
-        contractStatus.value = contract.status;
-        contractAutomates.value = contract.automates.map(automate => ({...automate}));
-        
-        if (contractAutomates.value.length > 0) {
-          // Activer le premier automate ou celui qui était actif précédemment
-          const activeAutomate = contractAutomates.value.find(a => a.active) || contractAutomates.value[0];
-          activeAutomateId.value = activeAutomate.id;
-          loadAutomateState(activeAutomate.id);
-        }
-        
-        // Mettre le contrat comme contrat courant
-        contractStore.setCurrentContract(contract);
-        
-        // Marquer comme sauvegardé initialement
-        isSaved.value = true;
-      } else {
-        console.error("Contrat non trouvé:", contractId);
-        toast.error("Impossible de trouver le contrat à éditer");
-        // Rediriger vers la liste des contrats après un délai
-        setTimeout(() => {
-          router.push({ name: 'contracts' });
-        }, 2000);
-      }
-    } else {
-      // Le contrat est déjà chargé dans le store, l'utiliser
-      const contract = contractStore.currentContract;
-      contractName.value = contract.name;
-      contractStatus.value = contract.status;
-      contractAutomates.value = contract.automates.map(automate => ({...automate}));
-      
-      if (contractAutomates.value.length > 0) {
-        const activeAutomate = contractAutomates.value.find(a => a.active) || contractAutomates.value[0];
-        activeAutomateId.value = activeAutomate.id;
-        loadAutomateState(activeAutomate.id);
-      }
-      
-      isSaved.value = true;
+    if (contractAutomates.value.length > 0) {
+      const activeAutomate = contractAutomates.value.find(a => a.active) || contractAutomates.value[0];
+      activeAutomateId.value = activeAutomate.id;
+      loadAutomateState(activeAutomate.id);
     }
+
+    contractStore.setCurrentContract(contract);
+    isSaved.value = true;
+  } catch (error) {
+    console.error('Erreur lors du chargement du contrat :', error);
+    toast.error("Erreur lors du chargement du contrat. Redirection...");
+    setTimeout(() => {
+      router.push({ name: 'contracts' });
+    }, 2000);
+  }
+};
+
+// ---- Chargement à l'initialisation ----
+onMounted(async () => {
+  const contractId = route.params.id;
+  const isEditMode = route.name === 'edit-contract' && contractId;
+
+  if (isEditMode) {
+    console.log('Mode édition activé, contrat:', contractId);
+    await loadContract(contractId);
   } else {
-    // Mode création
     console.log('Mode création activé');
-    // Réinitialiser les valeurs par défaut au cas où
     contractName.value = '';
     contractStatus.value = 'Brouillon';
-    // Charger l'automate initial
     loadAutomateState(activeAutomateId.value);
   }
-  
-  // Initialiser l'historique
-  saveToHistory();
 
-  // Valider l'automate après le chargement
+  saveToHistory();
   validateAutomate();
 
-  // Centrer le graphe
   setTimeout(() => {
     centerGraph();
   }, 100);
-  
-  // Ajout des gestionnaires d'événements pour les menus contextuels
+
+  // Écouter les clics globaux pour fermer les menus contextuels
   window.addEventListener('click', () => (contextMenu.value.visible = false));
   window.addEventListener('click', () => (edgeContextMenu.value.visible = false));
 });
 
-// Observer les changements de route pour gérer les transitions entre création et édition
+// ---- Observer les changements de route (au cas où changement d'id sans recharger la page) ----
 watch(
   () => route.params.id,
-  (newId) => {
+  async (newId) => {
     if (newId) {
-      // Mode édition - charger le contrat
-      const contract = contractStore.getContractById(newId);
-      if (contract) {
-        contractName.value = contract.name;
-        contractStatus.value = contract.status;
-        contractAutomates.value = contract.automates.map(automate => ({...automate}));
-        
-        if (contractAutomates.value.length > 0) {
-          const activeAutomate = contractAutomates.value.find(a => a.active) || contractAutomates.value[0];
-          activeAutomateId.value = activeAutomate.id;
-          loadAutomateState(activeAutomate.id);
-        }
-        
-        contractStore.setCurrentContract(contract);
-        isSaved.value = true;
-      }
+      console.log('Changement de contrat détecté:', newId);
+      await loadContract(newId);
     } else {
-      // Mode création - réinitialiser
+      console.log('Changement vers création');
       contractName.value = '';
       contractStatus.value = 'Brouillon';
-      // Conserver ou non l'automate par défaut selon votre logique
+      contractAutomates.value = [];
     }
   }
 );
-
 // Observer les changements dans currentNodes et currentEdges pour valider l'automate
 watch([currentNodes, currentEdges], () => {
   validateAutomate();
@@ -1377,6 +1377,9 @@ watch([currentNodes, currentEdges], () => {
 
 // Sélection d'un nœud dans VueFlow
 onNodeClick(({ node }) => {
+  // Ne pas traiter les clics si en mode déploiement
+  if (isDeploymentView.value) return;
+  
   // Si le nœud cliqué est déjà le nœud actif, le désélectionner
   if (activeStateId.value === node.id) {
     activeStateId.value = null;
@@ -1391,8 +1394,11 @@ onNodeClick(({ node }) => {
 /**
  * Capturé depuis @connect de VueFlow.
  * Valide la connexion et, si OK, ouvre le modal en lui passant source/target.
+ * Ne pas traiter si en mode déploiement
  */
 function onNodeConnect(params) {
+  if (isDeploymentView.value) return;
+  
   const { source, target } = params;
   const result = handleConnectNodes({ source, target });
 
@@ -1457,16 +1463,11 @@ const updateTransitionConditions = (data) => {
   }
 };
 
-const showConditionsOnGraph = ref(false); 
+const showConditionsOnGraph = ref(false);
 
 const toggleConditionsDisplay = () => {
   showConditionsOnGraph.value = !showConditionsOnGraph.value;
 };
-
-
-
-
-
 
 /**
  * Met à jour les dépendances d'automates pour une transition spécifique
@@ -1475,7 +1476,14 @@ const toggleConditionsDisplay = () => {
  * @param {string} data.id - L'identifiant de la transition
  * @param {string[]} data.automataDependencies - Liste des IDs des automates dépendants
  */
- const updateTransitionAutomataDependencies = (data) => {
+/**
+ * Met à jour les dépendances d'automates pour une transition spécifique
+ * 
+ * @param {Object} data - Un objet contenant l'ID de la transition et ses nouvelles dépendances d'automates
+ * @param {string} data.id - L'identifiant de la transition
+ * @param {string[]} data.automataDependencies - Liste des IDs des automates dépendants
+ */
+const updateTransitionAutomataDependencies = (data) => {
   // Trouver l'index de la transition dans la liste des transitions actuelles
   const edgeIndex = currentEdges.value.findIndex(edge => edge.id === data.id);
   
@@ -1502,6 +1510,23 @@ const toggleConditionsDisplay = () => {
     toast.success('Dépendances de clauses mises à jour avec succès');
   }
 };
+
+// Fonction pour simuler le déploiement (utilise la fonction existante de simulation)
+const simulateDeploymentFlow = async () => {
+  try {
+    toast.info('Simulation du déploiement en cours...');
+    
+    // Utiliser la fonction de simulation existante qui parcourt l'ordre topologique
+    await toggleSimulation();
+    
+    // La fonction simulateDeployment s'occupe déjà d'afficher le modal de résultat
+    // et de gérer l'animation de l'automate
+  } catch (error) {
+    console.error('Erreur lors de la simulation:', error);
+    toast.error('Erreur lors de la simulation du déploiement');
+  }
+};
+          
 </script>
 
 <style scoped>
