@@ -1,0 +1,135 @@
+{
+  "id": "0bf570d6-7e52-412d-ba64-5f97b9ed728d",
+  "name": "tACKO",
+  "status": "Actif",
+  "createdAt": "2025-04-28 14:02:08.778000+00:00",
+  "updatedAt": "2025-04-28 14:02:12.237000+00:00",
+  "automates": [
+    {
+      "id": "01",
+      "name": "CLAUSE1",
+      "active": true,
+      "states": [
+        {
+          "id": "state-1",
+          "label": "\u00c9tat Initial",
+          "position": {
+            "x": 100.0,
+            "y": 150.0
+          },
+          "type": "standard",
+          "sourcePosition": "bottom",
+          "targetPosition": "top"
+        },
+        {
+          "id": "state-2",
+          "label": "\u00c9tat Final",
+          "position": {
+            "x": 399.0,
+            "y": 176.0
+          },
+          "type": "standard",
+          "sourcePosition": "bottom",
+          "targetPosition": "top"
+        }
+      ],
+      "transitions": [
+        {
+          "id": "edge-1",
+          "source": "state-1",
+          "target": "state-2",
+          "label": "terminer",
+          "markerEnd": "arrowclosed",
+          "conditions": [
+            "package__p1__c2",
+            "package__p2__c1",
+            "package__p2__c2"
+          ],
+          "automataDependencies": null
+        }
+      ]
+    },
+    {
+      "id": "02",
+      "name": "CLAUSE2",
+      "active": false,
+      "states": [
+        {
+          "id": "state-1",
+          "label": "\u00c9tat Initial",
+          "position": {
+            "x": 100.0,
+            "y": 150.0
+          },
+          "type": "standard",
+          "sourcePosition": "bottom",
+          "targetPosition": "top"
+        },
+        {
+          "id": "state-2",
+          "label": "\u00c9tat Final",
+          "position": {
+            "x": 300.0,
+            "y": 150.0
+          },
+          "type": "standard",
+          "sourcePosition": "bottom",
+          "targetPosition": "top"
+        }
+      ],
+      "transitions": [
+        {
+          "id": "edge-1",
+          "source": "state-1",
+          "target": "state-2",
+          "label": "terminer",
+          "markerEnd": "arrowclosed",
+          "conditions": [],
+          "automataDependencies": [
+            "01"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "flow-deploiement",
+      "name": "Flow D\u00e9ploiement",
+      "active": false,
+      "states": [
+        {
+          "id": "deployment-state-01",
+          "label": "CLAUSE1",
+          "position": {
+            "x": 200.0,
+            "y": 200.0
+          },
+          "type": "standard",
+          "sourcePosition": null,
+          "targetPosition": null
+        },
+        {
+          "id": "deployment-state-02",
+          "label": "CLAUSE2",
+          "position": {
+            "x": 500.0,
+            "y": 200.0
+          },
+          "type": "standard",
+          "sourcePosition": null,
+          "targetPosition": null
+        }
+      ],
+      "transitions": [
+        {
+          "id": "deployment-edge-01-to-02",
+          "source": "deployment-state-01",
+          "target": "deployment-state-02",
+          "label": "est termin\u00e9",
+          "markerEnd": "arrowclosed",
+          "conditions": [],
+          "automataDependencies": null
+        }
+      ]
+    }
+  ]
+}
