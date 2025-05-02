@@ -1,9 +1,9 @@
 {
-  "name": "Test",
-  "status": "deployer",
+  "name": "aaa",
+  "status": "deployed",
   "automatons": {
     "Automata0": {
-      "address": "0x70e0bA845a1A0F2DA3359C97E0285013525FFC49",
+      "address": "0x809d550fca64d94Bd9F66E60752A544199cfAC3D",
       "abi": [
         {
           "inputs": [],

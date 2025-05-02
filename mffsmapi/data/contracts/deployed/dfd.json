@@ -1,9 +1,9 @@
 {
-  "name": "Test",
-  "status": "deployer",
+  "name": "dfd",
+  "status": "deployed",
   "automatons": {
     "Automata0": {
-      "address": "0x70e0bA845a1A0F2DA3359C97E0285013525FFC49",
+      "address": "0x5f3f1dBD7B74C6B46e8c44f98792A1dAf8d69154",
       "abi": [
         {
           "inputs": [],
@@ -29,19 +29,6 @@
             }
           ],
           "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [],
-          "name": "package__p1__c2",
-          "outputs": [
-            {
-              "internalType": "bool",
-              "name": "",
-              "type": "bool"
-            }
-          ],
-          "stateMutability": "pure",
           "type": "function"
         },
         {
