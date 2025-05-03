@@ -1,4 +1,4 @@
-// src/services/contractDeploymentService.js
+// src/services/contractDeploymentService.js - Updated version
 
 import apiClient from './api.config';
 import { withMinDelay } from '@/utils/services/delayService';
@@ -17,21 +17,18 @@ const ContractDeploymentService = {
    */
   async deployContract(transformedContract) {
     try {
+      // Ajout du header auth en utilisant le système de simulation
+      const token = localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token');
+      const headers = token ? { 'x-user-id': token } : {};
+      
       // Valider le contrat transformé
       if (!transformedContract || !transformedContract.name || !transformedContract.automatons) {
         throw new Error('Format de contrat invalide');
       }
 
-      // Convertir en SpecificationModel attendu par l'API
-      const specificationModel = {
-        name: transformedContract.name,
-        automatons: transformedContract.automatons,
-        required_packages: transformedContract.required_packages || []
-      };
-
-      // Appel à l'API avec délai minimum
+      // Appel à l'API avec délai minimum et headers auth
       const response = await withMinDelay(
-        apiClient.post('/contract/deploy', specificationModel),
+        apiClient.post('/smart-contracts/deploy', transformedContract, { headers }),
         MIN_DEPLOYMENT_DELAY
       );
 
@@ -65,26 +62,30 @@ const ContractDeploymentService = {
     }
   },
 
-/**
- * Exécute une fonction sur un contrat déployé
- * @param {string} contractName - Nom du contrat
- * @param {string} clauseName - Nom de la clause (automaton)
- * @param {string} functionName - Nom de la fonction à exécuter
- * @param {Array} args - Arguments de la fonction
- * @returns {Promise} - Promesse contenant le résultat de l'exécution
- */
-
-async executeContractFunction(contractName, clauseName, functionName, args = []) {
+  /**
+   * Exécute une fonction sur un contrat déployé
+   * @param {string} contractName - Nom du contrat
+   * @param {string} clauseName - Nom de la clause (automaton)
+   * @param {string} functionName - Nom de la fonction à exécuter
+   * @param {Array} args - Arguments de la fonction
+   * @returns {Promise} - Promesse contenant le résultat de l'exécution
+   */
+  async executeContractFunction(contractName, clauseName, functionName, args = []) {
     try {
-      console.log(`Exécution de la fonction ${functionName} sur le contrat ${contractName}, clause ${clauseName} avec les arguments:`, args);
+      // Ajout du header auth en utilisant le système de simulation
+      const token = localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token');
+      const headers = token ? { 'x-user-id': token } : {};
+      
+      console.log(`Exécution de la fonction ${functionName} sur le contrat ${contractName}, clause ${clauseName}`);
   
       // S'assurer que args est bien un tableau
       const functionArgs = Array.isArray(args) ? args : [];
   
-      // Appel à l'API en utilisant POST et en envoyant les args dans un objet { args: [...] }
+      // Appel à l'API avec les headers d'auth
       const response = await apiClient.post(
-        `/contract/execute/${contractName}/clause/${clauseName}/function/${functionName}`,
-        { args: functionArgs }
+        `/smart-contracts/${contractName}/clause/${clauseName}/function/${functionName}/execute`,
+        { args: functionArgs },
+        { headers }
       );
   
       console.log("Réponse du serveur:", response.data);
@@ -101,7 +102,6 @@ async executeContractFunction(contractName, clauseName, functionName, args = [])
   
       if (error.response) {
         errorMessage = `Erreur ${error.response.status}: ${error.response.data?.detail || error.response.statusText}`;
-        console.error('Détails de l\'erreur API:', error.response.data);
       } else if (error.request) {
         errorMessage = 'Aucune réponse du serveur, veuillez vérifier la connexion';
       } else {
@@ -115,18 +115,16 @@ async executeContractFunction(contractName, clauseName, functionName, args = [])
       };
     }
   },
-  
-
 
   /**
- * Récupère les informations d'un contrat déployé
- * @param {string} contractName - Nom du contrat
- * @returns {Promise} - Promesse contenant les informations du contrat
- */
-async getContractInfo(contractName) {
+   * Récupère les informations d'un contrat déployé
+   * @param {string} contractName - Nom du contrat
+   * @returns {Promise} - Promesse contenant les informations du contrat
+   */
+  async getContractInfo(contractName) {
     try {
       // Appel à l'API pour récupérer les informations du contrat
-      const response = await apiClient.get(`/contract/deployed/${contractName}`);
+      const response = await apiClient.get(`/smart-contracts/${contractName}`);
       
       return {
         success: true,
@@ -136,17 +134,13 @@ async getContractInfo(contractName) {
     } catch (error) {
       console.error('Erreur lors de la récupération des informations du contrat:', error);
       
-      // Construire un message d'erreur détaillé
       let errorMessage = 'Erreur lors de la récupération des informations du contrat';
       
       if (error.response) {
-        // L'API a répondu avec un statut d'erreur
         errorMessage = `Erreur ${error.response.status}: ${error.response.data.detail || error.response.statusText}`;
       } else if (error.request) {
-        // La requête a été envoyée mais n'a pas reçu de réponse
         errorMessage = 'Aucune réponse du serveur, veuillez vérifier la connexion';
       } else {
-        // Erreur lors de la configuration de la requête
         errorMessage = error.message;
       }
       
@@ -156,12 +150,41 @@ async getContractInfo(contractName) {
         data: null
       };
     }
-
-    
-    
+  },
+  
+  /**
+   * Récupère la liste de tous les contrats déployés
+   * @returns {Promise} - Promesse contenant la liste des contrats
+   */
+  async getAllDeployedContracts() {
+    try {
+      const response = await apiClient.get('/smart-contracts/');
+      
+      return {
+        success: true,
+        data: response.data,
+        message: 'Liste des contrats récupérée avec succès'
+      };
+    } catch (error) {
+      console.error('Erreur lors de la récupération des contrats:', error);
+      
+      let errorMessage = 'Erreur lors de la récupération des contrats';
+      
+      if (error.response) {
+        errorMessage = `Erreur ${error.response.status}: ${error.response.data.detail || error.response.statusText}`;
+      } else if (error.request) {
+        errorMessage = 'Aucune réponse du serveur';
+      } else {
+        errorMessage = error.message;
+      }
+      
+      return {
+        success: false,
+        error: errorMessage,
+        data: []
+      };
+    }
   }
-
 };
-
 
 export default ContractDeploymentService;
