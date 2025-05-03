@@ -6,7 +6,7 @@ import LoadingView from '../views/LoadingView.vue';
 import SplashScreen from '../views/SplashScreen.vue';
 import ContractsListView from '../views/contracts/ContractsListView.vue';
 import CreateContractView from '../views/contracts/CreateContractView.vue';
-
+import ContractExecutionView from '../views/contracts/ContractExecutionView.vue'
 import PackageListView from '../views/packages/PackageListView.vue';
 import PackageEditorView from '../views/packages/PackageEditorView.vue';
 import PackageDetailsView from '../views/packages/PackageDetailsView.vue';
@@ -66,6 +66,16 @@ const routes = [
         }
       },
       {
+        path: 'contracts/:name/execute',
+        name: 'contract-execution',
+        component: ContractExecutionView,
+        meta: {
+          title: 'Exécution du contrat',
+          icon: 'contract',
+          group: 'Contrats'
+        }
+      },
+      {
         path: 'settings',
         name: 'settings',
         component: SettingsView,
@@ -106,6 +116,7 @@ const routes = [
           title: 'Détails du package'
         }
       },
+
     ]
   },
   {

@@ -13,7 +13,7 @@ const ContractAutomatonService = {
    */
   createContractAutomaton(contractData) {
     return withMinDelay(
-        apiClient.post('/contract-automaton/', contractData),
+        apiClient.post('/automaton-contracts/', contractData),
         MIN_OPERATION_DELAY
       );
   },
@@ -24,7 +24,7 @@ const ContractAutomatonService = {
    * @returns {Promise}
    */
   getContractAutomaton(contractId) {
-    return apiClient.get(`/contract-automaton/${contractId}`);
+    return apiClient.get(`/automaton-contracts/${contractId}`);
   },
 
   /**
@@ -34,7 +34,7 @@ const ContractAutomatonService = {
    * @returns {Promise}
    */
   updateContractAutomaton(contractId, contractData) {
-    return apiClient.put(`/contract-automaton/${contractId}`, contractData);
+    return apiClient.put(`/automaton-contracts/${contractId}`, contractData);
   },
 
   /**
@@ -43,7 +43,7 @@ const ContractAutomatonService = {
    * @returns {Promise}
    */
   deleteContractAutomaton(contractId) {
-    return apiClient.delete(`/contract-automaton/${contractId}`);
+    return apiClient.delete(`/automaton-contracts/${contractId}`);
   },
 
   /**
@@ -51,7 +51,7 @@ const ContractAutomatonService = {
    * @returns {Promise}
    */
   listContractAutomaton() {
-    return apiClient.get('/contract-automaton/');
+    return apiClient.get('/automaton-contracts/');
   }
 };
 

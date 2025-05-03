@@ -8,7 +8,7 @@ import LoadingOverlay from '@/components/ui/UiLoadingOverlay.vue';
 
 import {
   LucideFilePlus, LucideSearch, LucidePencil, LucideTrash2, LucideBox,
-  LucideHash, LucideCalendar, LucideFileSearch, LucideDownload, LucideUpload, LucideEye
+  LucideHash, LucideCalendar, LucideFileSearch, LucideDownload, LucideUpload, LucideEye,LucidePlay
 } from 'lucide-vue-next';
 
 // Formatage des dates
@@ -23,7 +23,7 @@ const formatDate = (date) => {
 };
 
 const statusClasses = {
-  'Deployer': 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-300',
+  'deployer': 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-300',
   'Brouillon': 'bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-300'
 };
 
@@ -104,7 +104,7 @@ const filteredContracts = computed(() => {
 
     const matchesStatus = statusFilter.value === 'all' ||
                          (statusFilter.value === 'draft' && contract.status === 'Brouillon') ||
-                         (statusFilter.value === 'deployed' && contract.status === 'Deployer');
+                         (statusFilter.value === 'deployed' && contract.status === 'deployer');
 
     return matchesSearch && matchesStatus;
   });
@@ -209,6 +209,15 @@ const importContract = async (event) => {
   reader.readAsText(file);
 };
 
+
+const executeContract = (name) => {
+  router.push({
+    name: 'contract-execution',
+    params: { name }
+  });
+};
+
+
 </script>
 
 
@@ -280,7 +289,7 @@ const importContract = async (event) => {
         <!-- Indicateur coloré (barre latérale suivant le statut) -->
         <div 
           :class="`absolute left-0 top-0 bottom-0 w-1 ${
-            contract.status === 'Deployer' ? 'bg-green-500' : 'bg-yellow-500'
+            contract.status === 'deployer' ? 'bg-green-500' : 'bg-yellow-500'
           }`"
         ></div>
         
@@ -311,7 +320,7 @@ const importContract = async (event) => {
             <!-- Actions disponibles selon le statut -->
             <div class="flex space-x-2">
               <!-- Boutons d'édition et suppression uniquement pour les contrats en "Brouillon" -->
-              <template v-if="contract.status === 'Brouillon'">
+              <template>
                 <button 
                   @click="editContract(contract.id)" 
                   class="p-2 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200"
@@ -324,12 +333,23 @@ const importContract = async (event) => {
                 >
                   <LucideTrash2 class="h-4 w-4" />
                 </button>
+
+
+
+
               </template>
-              <!-- Pour les contrats deployés, juste un espace vide pour équilibrer -->
-              <div v-else class="w-12"></div>
             </div>
 
             <div class="flex items-center space-x-2">
+              <button
+  v-if="contract.status === 'deployer'"
+  @click.stop="executeContract(contract.name)"
+  class="p-2 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-full transition-colors"
+  title="Exécuter le contrat"
+>
+  <LucidePlay class="w-5 h-5" />
+</button>
+
               <!-- Télécharger (disponible pour tous les contrats) -->
               <button
                 class="p-2 rounded-lg text-sm bg-blue-50 dark:bg-blue-900/50 text-blue-600 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-800 transition-colors duration-200 flex items-center"
@@ -341,7 +361,7 @@ const importContract = async (event) => {
               
               <!-- Bouton Détails -->
               <button 
-              v-if="contract.status === 'Deployer'"
+              v-if="contract.status === 'deployer'"
                 class="px-4 py-1.5 rounded-lg text-sm bg-blue-500 text-white hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-500 transition-colors duration-200 shadow-sm flex items-center space-x-1"
                 @click="viewContract(contract.id)"
               >

@@ -13,15 +13,15 @@ export default defineConfig({
       '@': '/src',
     },
   },
-  server: {
+  /*server: {
     host: false,
     proxy: {
-      '/api': {
+      '/api/v1': {
         target: 'http://localhost:8000', 
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, '')
       }
     }
-}
+}*/
 
 })

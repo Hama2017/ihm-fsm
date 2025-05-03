@@ -16,7 +16,7 @@ export default {
     try {
       // Utiliser withMinDelay pour assurer une durée minimale de chargement
       const response = await withMinDelay(
-        apiClient.get('/package/'),
+        apiClient.get('/packages/'),
         MIN_OPERATION_DELAY
       );
       return response.data;
@@ -34,7 +34,7 @@ export default {
   async getPackage(name) {
     try {
       const response = await withMinDelay(
-        apiClient.get(`/package/${name}`),
+        apiClient.get(`/packages/${name}`),
         MIN_OPERATION_DELAY
       );
       return response.data;
@@ -54,7 +54,7 @@ export default {
       // Si packageData a déjà le bon format (format API), l'utiliser directement
       if (typeof packageData.functions === 'object' && !Array.isArray(packageData.functions)) {
         const response = await withMinDelay(
-          apiClient.post('/package/', packageData),
+          apiClient.post('/packages/', packageData),
           MIN_OPERATION_DELAY
         );
         return response.data;
@@ -64,7 +64,7 @@ export default {
       const apiPackage = this.convertToApiFormat(packageData);
       
       const response = await withMinDelay(
-        apiClient.post('/package/', apiPackage),
+        apiClient.post('/packages/', apiPackage),
         MIN_OPERATION_DELAY
       );
       return response.data;
@@ -85,7 +85,7 @@ export default {
       // Si packageData a déjà le bon format (format API), l'utiliser directement
       if (typeof packageData.functions === 'object' && !Array.isArray(packageData.functions)) {
         const response = await withMinDelay(
-          apiClient.put(`/package/${name}`, packageData),
+          apiClient.put(`/packages/${name}`, packageData),
           MIN_OPERATION_DELAY
         );
         return response.data;
@@ -95,7 +95,7 @@ export default {
       const apiPackage = this.convertToApiFormat(packageData);
       
       const response = await withMinDelay(
-        apiClient.put(`/package/${name}`, apiPackage),
+        apiClient.put(`/packages/${name}`, apiPackage),
         MIN_OPERATION_DELAY
       );
       return response.data;
@@ -113,7 +113,7 @@ export default {
   async deletePackage(name) {
     try {
       await withMinDelay(
-        apiClient.delete(`/package/${name}`),
+        apiClient.delete(`/packages/${name}`),
         MIN_OPERATION_DELAY
       );
     } catch (error) {

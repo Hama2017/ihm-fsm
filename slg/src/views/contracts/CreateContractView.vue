@@ -468,7 +468,7 @@
           Ordre de déploiement :
         </div>
         <ul class="list-decimal list-inside space-y-1 text-sm text-gray-800 dark:text-gray-200">
-          <li v-for="stateId in deploymentResult" :key="stateId">
+          <li v-for="stateId in deploymentResult2" :key="stateId">
             {{ currentNodes.find(n => n.id === stateId)?.data.label || stateId }}
           </li>
         </ul>
@@ -743,6 +743,50 @@
       />
     </Modal>
 
+
+
+    <!-- Ajouter ce code à la section des modals dans le template -->
+<!-- Modal de résultat de déploiement -->
+<Modal
+  v-model="showDeploymentResultModal"
+  title="Résultat du déploiement"
+  confirm-text="Fermer"
+  size="lg"
+>
+  <div class="space-y-4">
+    <div class="p-3 bg-green-50 dark:bg-green-900/20 border border-green-100 dark:border-green-800 rounded-lg text-center">
+      <LucideCheck class="w-6 h-6 text-green-500 dark:text-green-400 mx-auto mb-2" />
+      <p class="text-green-700 dark:text-green-300 font-medium">
+        Contrat déployé avec succès sur la blockchain!
+      </p>
+    </div>
+    
+    <p class="text-gray-700 dark:text-gray-300">
+      Votre contrat intelligent a été correctement déployé sur la blockchain et est maintenant prêt à être utilisé.
+      Voici les informations détaillées du déploiement :
+    </p>
+    
+    <DeploymentInfo :deployment-info="deploymentResult" />
+
+    <div class="flex justify-center mt-4">
+  <button
+    @click="goToContractExecution"
+    class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors flex items-center"
+  >
+    <LucidePlay class="w-4 h-4 mr-2" />
+    Interagir avec le contrat
+  </button>
+</div>
+    
+    <div class="border-t border-gray-200 dark:border-gray-700 pt-4 mt-4">
+      <p class="text-sm text-gray-600 dark:text-gray-400">
+        Vous pouvez maintenant interagir avec ce contrat depuis l'interface d'administration.
+        Utilisez ces informations pour référencer votre contrat dans d'autres applications.
+      </p>
+    </div>
+  </div>
+</Modal>
+
     <!-- Container pour les toasts -->
     <UiToastContainer />
     
@@ -774,6 +818,8 @@ import SlidableTabs from '@/components/ui/UiSlidableTabs.vue';
 import '@vue-flow/core/dist/style.css';
 import packageService from '@/services/packageService';
 import ContractAutomatonService from '@/services/contractAutomaton';
+import ContractDeploymentService from '@/services/contractDeploymentService';
+import DeploymentInfo from '@/components/contract/DeploymentInfo.vue';
 
 // Composants
 import Modal from '@/components/ui/UiModal.vue';
@@ -804,7 +850,8 @@ import {
   LucideArrowDown,
   LucideChevronsDown,
   LucideChevronsRight,
-  LucidePlayCircle
+  LucidePlayCircle,
+  LucidePlay
 } from 'lucide-vue-next';
 
 const rightPanelTabs = [
@@ -813,6 +860,19 @@ const rightPanelTabs = [
   { id: 'guide', label: 'Guide' },
   { id: 'analyzer', label: 'Analyse' },
 ];
+
+
+const goToContractExecution = () => {
+  showDeploymentResultModal.value = false;
+  // Rediriger vers la page d'exécution du contrat
+  router.push({
+    name: 'contract-execution',
+    params: { id: currentContractId.value || 'temp' }
+  });
+};
+
+const showDeploymentResultModal = ref(false);
+const deploymentResult = ref(null);
 
 // Router et route
 const router = useRouter();
@@ -1138,7 +1198,7 @@ const {
   simulationVisitedStates,
   showSimulationModal,
   showDeploymentSummaryModal,
-  deploymentResult,
+  deploymentResult2,
   toggleSimulation,
   resetSimulation,
   simulateTransition,
@@ -1260,34 +1320,244 @@ const cancelDeployment = () => {
 };
 
 // Fonction pour confirmer le déploiement
-const confirmDeployment = () => {
-  // Effectuer les actions de déploiement
-  console.log('Déploiement du contrat:', contractName.value);
-  console.log('Contrat complet:', JSON.stringify(contractAutomates.value, null, 2));
-  
-  // Déploiement simulé réussi
-  toast.success('Déploiement en cours...');
-  
-  // Sortir du mode déploiement après un délai
-  setTimeout(() => {
-    // Mettre à jour le statut du contrat
-    contractStatus.value = 'Actif';
+const confirmDeployment = async () => {
+  try {
+    // Transformer le contrat au format requis
+    const transformedContract = transformContractToRequiredFormat();
     
-    // Désactiver le mode vue déploiement
-    isDeploymentView.value = false;
+    // Afficher dans la console pour vérification
+    console.log('Contrat transformé au format requis:');
+    console.log(JSON.stringify(transformedContract, null, 2));
     
-    // Revenir à l'automate actif original (optionnel, selon le comportement souhaité)
-    if (originalActiveAutomateId.value) {
-      activeAutomateId.value = originalActiveAutomateId.value;
-      loadAutomateState(originalActiveAutomateId.value);
+    // Afficher un toast de début de déploiement
+    toast.info('Déploiement en cours, veuillez patienter...');
+    
+    // Appeler le service de déploiement
+    const result = await ContractDeploymentService.deployContract(transformedContract);
+    
+    if (result.success) {
+      // Déploiement réussi
+      console.log('Résultat du déploiement:', result.data);
+      
+      // Stocker le résultat pour l'affichage dans le modal
+      deploymentResult.value = result.data;
+      
+      // Mettre à jour le statut du contrat
+      contractStatus.value = 'Actif';
+      
+      // Désactiver le mode vue déploiement
+      isDeploymentView.value = false;
+      
+      // Revenir à l'automate actif original
+      if (originalActiveAutomateId.value) {
+        activeAutomateId.value = originalActiveAutomateId.value;
+        loadAutomateState(originalActiveAutomateId.value);
+      }
+      
+      // Mettre à jour le statut de sauvegarde
+      isSaved.value = false;
+      
+      // Sauvegarder le contrat localement avec les informations de déploiement
+      saveContract();
+      
+      // Afficher un message de succès
+      toast.success('Contrat déployé avec succès sur la blockchain!');
+      
+      // Afficher le modal de résultat
+      showDeploymentResultModal.value = true;
+      
+      // Stocker localement les informations de déploiement
+      localStorage.setItem(`contract_deployment_${currentContractId.value || 'temp'}`, 
+        JSON.stringify(result.data));
+      
+      return { success: true, data: result.data };
+    } else {
+      // Gérer l'échec du déploiement
+      console.error('Échec du déploiement:', result.error);
+      
+      // Afficher un message d'erreur
+      toast.error(`Échec du déploiement: ${result.error}`);
+      
+      return { success: false, error: result.error };
+    }
+  } catch (error) {
+    // Gérer les erreurs générales
+    console.error('Erreur lors du déploiement:', error);
+    toast.error('Une erreur inattendue est survenue pendant le déploiement');
+    
+    return { success: false, error: error.message };
+  }
+};
+
+// Fonction pour transformer le contrat au format requis
+// Fonction pour normaliser un texte en nom de variable valide
+const normalizeVariableName = (text) => {
+  if (!text) return 'q0';
+  
+  // Convertir en minuscules
+  let result = text.toLowerCase();
+  
+  // Supprimer les accents
+  result = result.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  
+  // Remplacer les espaces et caractères spéciaux par des underscores
+  result = result.replace(/[^a-z0-9_]/g, '_');
+  
+  // S'assurer que le résultat ne commence pas par un chiffre
+  if (/^[0-9]/.test(result)) {
+    result = 'q' + result;
+  }
+  
+  // Si le résultat est vide (cas rare), utiliser un nom par défaut
+  if (!result) {
+    return 'q0';
+  }
+  
+  return result;
+};
+
+// Fonction pour transformer le contrat au format requis
+const transformContractToRequiredFormat = () => {
+  try {
+    // Structure de sortie
+    const transformedContract = {
+      name: contractName.value.trim() || "Test",
+      automatons: {},
+      required_packages: []
+    };
+
+    // Map pour suivre l'index des automates
+    const automateIndexMap = {};
+    let automateCounter = 0;
+
+    // Parcourir chaque automate du contrat pour créer le mapping des index
+    contractAutomates.value.forEach(automate => {
+      // Ignorer l'automate de déploiement
+      if (automate.id === 'flow-deploiement') return;
+      
+      // Attribuer un index séquentiel à cet automate
+      automateIndexMap[automate.id] = automateCounter++;
+    });
+
+    // Parcourir chaque automate du contrat
+    contractAutomates.value.forEach(automate => {
+      // Ignorer l'automate de déploiement
+      if (automate.id === 'flow-deploiement') return;
+      
+      // Obtenir l'index de cet automate
+      const automateIndex = automateIndexMap[automate.id];
+      
+      // Créer un objet pour cet automate
+      const automatonObj = {
+        states: [],
+        transitions: []
+      };
+      
+      // Map pour stocker la correspondance entre libellés originaux et noms normalisés
+      const stateNameMap = {};
+      
+      // Extraire les états et normaliser leurs noms
+      automate.states.forEach(state => {
+        const normalizedName = normalizeVariableName(state.label);
+        stateNameMap[state.id] = normalizedName;
+        automatonObj.states.push(normalizedName);
+      });
+      
+      // S'assurer que "completed" est dans les états si ce n'est pas déjà le cas
+      if (!automatonObj.states.includes("completed")) {
+        const finalState = automate.states.find(s => s.type === 'final');
+        if (finalState) {
+          // Remplacement du libellé de l'état final par "completed"
+          stateNameMap[finalState.id] = "completed";
+          const finalStateIndex = automatonObj.states.findIndex(name => name === normalizeVariableName(finalState.label));
+          if (finalStateIndex !== -1) {
+            automatonObj.states[finalStateIndex] = "completed";
+          } else {
+            automatonObj.states.push("completed");
+          }
+        } else {
+          // Ajouter "completed" s'il n'y a pas d'état final
+          automatonObj.states.push("completed");
+        }
+      }
+
+      // Extraire et transformer les transitions
+      automate.transitions.forEach(transition => {
+        if (transition.source && transition.target) {
+          let sourceLabel = stateNameMap[transition.source] || normalizeVariableName('state');
+          let targetLabel = stateNameMap[transition.target] || normalizeVariableName('state');
+          
+          // Si la cible est un état final, utiliser "completed"
+          const targetState = automate.states.find(s => s.id === transition.target);
+          if (targetState && targetState.type === 'final') {
+            targetLabel = "completed";
+          }
+          
+          // Créer un objet pour cette transition
+          const transitionObj = {
+            source: sourceLabel,
+            destination: targetLabel,
+            trigger: normalizeVariableName(transition.label),
+            conditions: []
+          };
+          
+          // Ajouter les conditions standard
+          if (Array.isArray(transition.conditions)) {
+            transitionObj.conditions = [...transition.conditions];
+          }
+          
+          // Ajouter les dépendances d'automates au format "automata__AutomataX__is_completed"
+          if (Array.isArray(transition.automataDependencies) && transition.automataDependencies.length > 0) {
+            const automataConditions = transition.automataDependencies.map(depId => {
+              const depIndex = automateIndexMap[depId];
+              return `automata__Automata${depIndex}__is_completed`;
+            });
+            transitionObj.conditions = [...transitionObj.conditions, ...automataConditions];
+          }
+          
+          // Ajouter cette transition à l'automate
+          automatonObj.transitions.push(transitionObj);
+        }
+      });
+      
+      // Ajouter cet automate à la structure de sortie
+      transformedContract.automatons[`Automata${automateIndex}`] = automatonObj;
+    });
+    
+    // Collecter les packages utilisés
+    const packagesUsed = new Set();
+    
+    // Parcourir toutes les conditions pour identifier les packages
+    contractAutomates.value.forEach(automate => {
+      automate.transitions.forEach(transition => {
+        if (Array.isArray(transition.conditions)) {
+          transition.conditions.forEach(conditionId => {
+            // Si la condition est au format package__pX__cY
+            if (conditionId.startsWith('package__')) {
+              const parts = conditionId.split('__');
+              if (parts.length >= 2) {
+                packagesUsed.add(parts[1]);
+              }
+            }
+          });
+        }
+      });
+    });
+    
+    // Si aucun package n'est détecté, ajouter les packages par défaut comme dans l'exemple
+    if (packagesUsed.size === 0) {
+      packagesUsed.add('p1');
+      packagesUsed.add('p2');
     }
     
-    // Mettre à jour le statut de sauvegarde
-    isSaved.value = false;
+    // Ajouter les packages utilisés
+    transformedContract.required_packages = Array.from(packagesUsed);
     
-    // Afficher une confirmation
-    toast.success('Contrat déployé avec succès!');
-  }, 2000);
+    return transformedContract;
+  } catch (error) {
+    console.error('Erreur lors de la transformation du contrat:', error);
+    return null;
+  }
 };
 
 // Fonction pour obtenir le nom d'un nœud par son ID
