@@ -1,3 +1,4 @@
+// src/components/layout/Header.vue (correction du problème de notification)
 <template>
   <header 
     class="py-4 px-6 flex justify-between items-center border-b transition-colors duration-300"
@@ -19,29 +20,40 @@
 
       <!-- Notifications Button -->
       <div class="relative">
+        <!-- Changement : ajout de l'attribut id et stopPropagation -->
         <button 
+          id="notifications-toggle"
           class="p-2 rounded transition-colors duration-200"
           :class="darkMode 
             ? 'bg-gray-800 hover:bg-gray-700 text-gray-300' 
             : 'bg-gray-100 hover:bg-gray-200 text-gray-800'"
-          @click="showNotifications = !showNotifications"
+          @click.stop="toggleNotifications"
         >
           <LucideBell class="w-5 h-5" />
-          <span class="absolute top-0 right-0 h-4 w-4 rounded-full text-xs flex items-center justify-center bg-red-500 text-white">
-            3
+          <span v-if="unreadNotifications > 0" class="absolute top-0 right-0 h-4 w-4 rounded-full text-xs flex items-center justify-center bg-red-500 text-white">
+            {{ unreadNotifications }}
           </span>
         </button>
 
         <!-- Notifications Dropdown -->
         <div 
           v-if="showNotifications"
-          class="absolute right-0 mt-2 w-80 rounded-md shadow-lg z-50 border transition-colors duration-300 notifications-dropdown"
+          id="notifications-dropdown"
+          class="absolute right-0 mt-2 w-80 rounded-md shadow-lg z-50 border transition-colors duration-300"
           :class="darkMode 
             ? 'bg-gray-900 border-gray-700' 
             : 'bg-white border-gray-200'"
+          @click.stop
         >
-          <div class="py-2 px-4 border-b" :class="darkMode ? 'border-gray-700' : 'border-gray-200'">
+          <div class="py-2 px-4 border-b flex justify-between items-center" 
+               :class="darkMode ? 'border-gray-700' : 'border-gray-200'">
             <h3 class="font-medium">Notifications</h3>
+            <button 
+              class="text-xs text-blue-600 dark:text-blue-400 hover:underline"
+              @click="markAllAsRead"
+            >
+              Tout marquer comme lu
+            </button>
           </div>
           <ul class="max-h-64 overflow-y-auto">
             <li 
@@ -67,156 +79,122 @@
               </div>
             </li>
           </ul>
-          <div class="py-2 px-4 text-center">
-            <a 
-              href="#" 
-              class="text-sm font-medium transition-colors duration-200"
-              :class="darkMode ? 'text-blue-400 hover:text-blue-300' : 'text-blue-600 hover:text-blue-700'"
-            >
-              Voir toutes les notifications
-            </a>
+          <div v-if="notifications.length === 0" class="py-6 text-center text-gray-500 dark:text-gray-400">
+            <p>Aucune notification</p>
           </div>
         </div>
       </div>
 
-      <!-- Profile Menu -->
-      <div class="relative">
-        <button 
-          class="flex items-center gap-3 px-3 py-2 rounded-lg transition-colors duration-200"
-          :class="darkMode 
-            ? 'bg-gray-800 hover:bg-gray-700' 
-            : 'bg-gray-100 hover:bg-gray-200'"
-          @click="showProfileMenu = !showProfileMenu"
-          ref="profileButton"
-        >
-          <img 
-            src="https://i.pravatar.cc/100?img=1" 
-            class="w-8 h-8 rounded-full border transition-colors duration-300"
-            :class="darkMode ? 'border-blue-700' : 'border-blue-500'" 
-            alt="User avatar"
-          />
-          <div class="leading-tight text-left">
-            <p class="text-sm font-medium m-0" :class="darkMode ? 'text-gray-200' : 'text-gray-900'">
-              Hamadou BA
-            </p>
-            <p class="text-xs m-0" :class="darkMode ? 'text-gray-400' : 'text-gray-500'">
-              Admin
-            </p>
-          </div>
-        </button>
-
-        <!-- Profile Dropdown -->
-        <div 
-          v-if="showProfileMenu" 
-          class="absolute right-0 mt-2 w-48 rounded-md shadow-lg border z-50 transition-colors duration-300"
-          :class="darkMode 
-            ? 'bg-gray-900 border-gray-700' 
-            : 'bg-white border-gray-200'"
-        >
-          <ul class="py-2 text-sm">
-            <li>
-              <a 
-                href="#" 
-                class="block px-4 py-2 transition-colors duration-200"
-                :class="darkMode 
-                  ? 'text-gray-300 hover:bg-gray-800 hover:text-white' 
-                  : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'"
-              >
-                <div class="flex items-center">
-                  <LucideUser class="w-4 h-4 mr-2" />
-                  Profil
-                </div>
-              </a>
-            </li>
-            <li>
-              <a 
-                href="#" 
-                class="block px-4 py-2 transition-colors duration-200"
-                :class="darkMode 
-                  ? 'text-gray-300 hover:bg-gray-800 hover:text-white' 
-                  : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'"
-              >
-                <div class="flex items-center">
-                  <LucideSettings class="w-4 h-4 mr-2" />
-                  Paramètres
-                </div>
-              </a>
-            </li>
-            <li>
-              <hr :class="darkMode ? 'border-gray-700' : 'border-gray-200'" />
-            </li>
-            <li>
-              <a 
-                href="#" 
-                class="block px-4 py-2 transition-colors duration-200"
-                :class="darkMode 
-                  ? 'text-red-400 hover:bg-gray-800 hover:text-red-300' 
-                  : 'text-red-600 hover:bg-gray-100 hover:text-red-700'"
-              >
-                <div class="flex items-center">
-                  <LucideLogOut class="w-4 h-4 mr-2" />
-                  Déconnexion
-                </div>
-              </a>
-            </li>
-          </ul>
-        </div>
-      </div>
+      <!-- Logout Button -->
+      <button
+        @click="logout"
+        class="p-2 rounded transition-colors duration-200 text-red-600 dark:text-red-400"
+        :class="darkMode 
+          ? 'bg-gray-800 hover:bg-red-900/20' 
+          : 'bg-gray-100 hover:bg-red-100'"
+        title="Déconnexion"
+      >
+        <LucideLogOut class="w-5 h-5" />
+      </button>
     </div>
   </header>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
-import { useRoute } from 'vue-router'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
+import { useThemeStore } from '@/stores/theme';
+import { useAuthStore } from '@/stores/auth';
+import { storeToRefs } from 'pinia';
+import toast from '@/composables/Toast/useToast';
 import {
   LucideSun,
   LucideMoon,
   LucideBell,
-  LucideUser,
-  LucideSettings,
   LucideLogOut
-} from 'lucide-vue-next'
+} from 'lucide-vue-next';
 
-import { useThemeStore } from '../../stores/theme'
-const theme = useThemeStore()
+// Router
+const router = useRouter();
 
-const darkMode = computed(() => theme.darkMode)
-const toggleTheme = () => theme.setDarkMode(!darkMode.value)
+// Theme store
+const themeStore = useThemeStore();
+const { darkMode } = storeToRefs(themeStore);
+const toggleTheme = () => themeStore.setDarkMode(!darkMode.value);
 
-const route = useRoute()
-const pageTitle = computed(() => route.meta.title || 'Dashboard')
+// Auth store
+const authStore = useAuthStore();
 
-const showProfileMenu = ref(false)
-const showNotifications = ref(false)
-const profileButton = ref(null)
+const route = useRoute();
+const pageTitle = computed(() => route.meta.title || 'Dashboard');
 
-const notifications = [
+const showNotifications = ref(false);
+
+// Notifications (exemple - à remplacer par des données réelles)
+const notifications = ref([
   { title: 'Nouvel automate déployé', time: 'Il y a 10 minutes', read: false },
   { title: 'Mise à jour du système disponible', time: 'Il y a 3 heures', read: false },
   { title: 'Automate #32 en erreur', time: 'Il y a 5 heures', read: false },
   { title: 'Rapport hebdomadaire disponible', time: 'Hier', read: true }
-]
+]);
 
+// Nombre de notifications non lues
+const unreadNotifications = computed(() => {
+  return notifications.value.filter(n => !n.read).length;
+});
+
+// Marquer toutes les notifications comme lues
+const markAllAsRead = () => {
+  notifications.value.forEach(notification => {
+    notification.read = true;
+  });
+  toast.success('Toutes les notifications ont été marquées comme lues');
+};
+
+// Méthode spécifique pour basculer l'affichage des notifications
+const toggleNotifications = () => {
+  showNotifications.value = !showNotifications.value;
+};
+
+// Gestionnaire de clic à l'extérieur amélioré
 const handleClickOutside = (event) => {
-  if (profileButton.value && !profileButton.value.contains(event.target)) {
-    showProfileMenu.value = false
+  // Vérifier si le clic est en dehors du bouton de notification et du menu déroulant
+  const notificationToggle = document.getElementById('notifications-toggle');
+  const notificationDropdown = document.getElementById('notifications-dropdown');
+  
+  // Si le menu est affiché et que le clic n'est ni sur le bouton ni sur le menu
+  if (showNotifications.value && 
+      event.target !== notificationToggle && 
+      !notificationToggle?.contains(event.target) &&
+      event.target !== notificationDropdown && 
+      !notificationDropdown?.contains(event.target)) {
+    showNotifications.value = false;
   }
-  if (!event.target.closest('.notifications-dropdown')) {
-    showNotifications.value = false
+};
+
+// Déconnexion
+const logout = async () => {
+  try {
+    await authStore.logout();
+    router.push({ name: 'login' });
+    toast.success('Vous avez été déconnecté avec succès');
+  } catch (error) {
+    console.error('Erreur lors de la déconnexion:', error);
+    toast.error('Erreur lors de la déconnexion');
   }
-}
+};
 
 onMounted(() => {
-  window.addEventListener('click', handleClickOutside)
-})
+  // Ajouter l'événement de clic sur document
+  document.addEventListener('click', handleClickOutside);
+});
 
 onUnmounted(() => {
-  window.removeEventListener('click', handleClickOutside)
-})
+  // Nettoyer l'événement
+  document.removeEventListener('click', handleClickOutside);
+});
 
 watch(() => route.path, () => {
-  showProfileMenu.value = false
-  showNotifications.value = false
-})
+  showNotifications.value = false;
+});
 </script>

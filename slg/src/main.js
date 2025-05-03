@@ -5,17 +5,22 @@ import router from './router';
 import './assets/style.css';
 import 'sweetalert2/dist/sweetalert2.min.css';
 
-import { useThemeStore } from './stores/theme'; // 👈 importer AVANT le mount
+import { useThemeStore } from './stores/theme';
+import { useAuthStore } from './stores/auth';
 
 const app = createApp(App);
 const pinia = createPinia();
 
-app.use(pinia); // appliquer Pinia avant d’utiliser le store
-app.use(router);
+app.use(pinia); // appliquer Pinia avant d'utiliser le store
 
-// ⬇️ IMPORTANT : appeler le store après avoir activé Pinia, mais AVANT le mount
+// Initialiser le theme
 const themeStore = useThemeStore();
-themeStore.setDarkMode(themeStore.darkMode);      // applique la classe .dark à <html>
-themeStore.updateCssVariables();                  // met à jour les couleurs CSS
+themeStore.setDarkMode(themeStore.darkMode);
+themeStore.updateCssVariables();
 
-app.mount('#app'); // 👈 doit être appelé en dernier
+// Initialiser l'authentification
+const authStore = useAuthStore();
+await authStore.init();
+
+app.use(router);
+app.mount('#app');
