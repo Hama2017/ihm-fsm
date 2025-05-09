@@ -3,13 +3,13 @@ Data models for the application.
 These are Pydantic models representing the domain entities.
 """
 
-from app.schemas.automaton_contract import ContractAutomaton, Automaton, State, Transition, Position
+from app.schemas.automaton_contract import AutomatonContract, Automaton, State, Transition, Position
 from app.schemas.package import PackageModel, FunctionModel, StructModel, VariableModel
-from app.schemas.smart_contract import DeployedContract, AutomatonInfo, ContractABI, ExecutionResult, ExecutionRequest
+from app.schemas.smart_contract import SmartContract, AutomatonInfo, ContractABI, ExecutionResult, ExecutionRequest
 
 __all__ = [
     # Contract Automaton Models
-    'ContractAutomaton',
+    'AutomatonContract',
     'Automaton',
     'State',
     'Transition',
@@ -22,7 +22,7 @@ __all__ = [
     'VariableModel',
     
     # Contract Models
-    'DeployedContract',
+    'SmartContract',
     'AutomatonInfo',
     'ContractABI',
     'ExecutionResult',

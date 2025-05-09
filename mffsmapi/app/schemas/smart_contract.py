@@ -1,12 +1,10 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Dict, List, Any, Optional
+from datetime import datetime, timezone
+
 
 class ContractABI(BaseModel):
-    """Contract ABI entry model.
-    
-    Represents an entry in a contract's ABI (Application Binary Interface),
-    which describes the methods and events of the contract.
-    """
+    """Contract ABI entry model."""
     inputs: List[Dict[str, str]] = []
     name: str
     outputs: List[Dict[str, str]] = []
@@ -14,38 +12,28 @@ class ContractABI(BaseModel):
     type: str
 
 class AutomatonInfo(BaseModel):
-    """Deployed automaton information model.
-    
-    Contains information about a deployed automaton, including its
-    Ethereum address and ABI.
-    """
+    """Deployed automaton information model."""
     address: str
     abi: List[ContractABI]
 
-class DeployedContract(BaseModel):
-    """Deployed contract information model.
-    
-    Contains information about a fully deployed contract, including all
-    its automatons.
-    """
+class SmartContract(BaseModel):
+    """Deployed smart contract model."""
     name: str
-    status: str = "deployed"
+    deployed_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    deployed_by: Optional[str] = None  # User ID who deployed the contract
+    source_contract: Optional[str] = None  # Reference to the original automaton contract
     automatons: Dict[str, AutomatonInfo]
+    description: Optional[str] = None
 
 class ExecutionRequest(BaseModel):
-    """Contract function execution request model.
-    
-    Used to specify arguments for a contract function execution.
-    """
+    """Contract function execution request model."""
     args: List[str] = []
 
 class ExecutionResult(BaseModel):
-    """Contract function execution result model.
-    
-    Contains the result of a contract function execution.
-    """
+    """Contract function execution result model."""
     contract: str
     automaton: str
     function: str
     args: List[Any]
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     result: Any

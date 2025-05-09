@@ -5,7 +5,7 @@ from app.services.package_service import PackageService
 from app.schemas.package import PackageModel
 from app.api.dependencies import get_package_service
 
-router = APIRouter(prefix="/package", tags=["package"])
+router = APIRouter(prefix="/packages", tags=["Packages"])
 
 @router.get(
     "/",

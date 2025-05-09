@@ -1,34 +1,38 @@
+# app/api/dependencies.py
 """
 Dependencies for FastAPI application.
 This module contains all the dependencies used in the application routes.
 """
 
-from app.services.smart_contract_service import ContractService
-from app.services.automaton_contract_service import ContractAutomatonService
+from fastapi import Header, HTTPException, status
+from typing import Optional
+
+from app.services.smart_contract_service import SmartContractService
+from app.services.automaton_contract_service import AutomatonContractService
 from app.services.package_service import PackageService
 
-from app.repositories.smart_contract_repository import DeployedContractRepository
-from app.repositories.automaton_contract_repository import ContractAutomatonRepository
+from app.repositories.smart_contract_repository import SmartContractRepository
+from app.repositories.automaton_contract_repository import AutomatonContractRepository
 from app.repositories.package_repository import PackageRepository
 
 # Repository dependencies
-def get_deployed_contract_repository() -> DeployedContractRepository:
+def get_smart_contract_repository() -> SmartContractRepository:
     """
-    Dependency for obtaining a DeployedContractRepository instance.
+    Dependency for obtaining a SmartContractRepository instance.
     
     Returns:
-        DeployedContractRepository: Repository for deployed contracts
+        SmartContractRepository: Repository for deployed smart contracts
     """
-    return DeployedContractRepository()
+    return SmartContractRepository()
 
-def get_contract_automaton_repository() -> ContractAutomatonRepository:
+def get_automaton_contract_repository() -> AutomatonContractRepository:
     """
-    Dependency for obtaining a ContractAutomatonRepository instance.
+    Dependency for obtaining a AutomatonContractRepository instance.
     
     Returns:
-        ContractAutomatonRepository: Repository for contract automatons
+        AutomatonContractRepository: Repository for automaton contracts
     """
-    return ContractAutomatonRepository()
+    return AutomatonContractRepository()
 
 def get_package_repository() -> PackageRepository:
     """
@@ -40,25 +44,25 @@ def get_package_repository() -> PackageRepository:
     return PackageRepository()
 
 # Service dependencies
-def get_contract_service() -> ContractService:
+def get_smart_contract_service() -> SmartContractService:
     """
-    Dependency for obtaining a ContractService instance.
+    Dependency for obtaining a SmartContractService instance.
     
     Returns:
-        ContractService: Service for managing deployed contracts
+        SmartContractService: Service for managing deployed smart contracts
     """
-    repository = get_deployed_contract_repository()
-    return ContractService(repository=repository)
+    repository = get_smart_contract_repository()
+    return SmartContractService(repository=repository)
 
-def get_contract_automaton_service() -> ContractAutomatonService:
+def get_automaton_contract_service() -> AutomatonContractService:
     """
-    Dependency for obtaining a ContractAutomatonService instance.
+    Dependency for obtaining a AutomatonContractService instance.
     
     Returns:
-        ContractAutomatonService: Service for managing contract automatons
+        AutomatonContractService: Service for managing automaton contracts
     """
-    repository = get_contract_automaton_repository()
-    return ContractAutomatonService(repository=repository)
+    repository = get_automaton_contract_repository()
+    return AutomatonContractService(repository=repository)
 
 def get_package_service() -> PackageService:
     """
@@ -69,3 +73,37 @@ def get_package_service() -> PackageService:
     """
     repository = get_package_repository()
     return PackageService(repository=repository)
+
+# User dependencies
+async def get_current_user(x_user_id: Optional[str] = Header(None)) -> Optional[str]:
+    """
+    Dependency for obtaining the current user ID from request headers.
+    In a real application, this would validate tokens or other auth mechanisms.
+    
+    Args:
+        x_user_id: User ID from request header
+        
+    Returns:
+        Optional[str]: User ID if provided, None otherwise
+    """
+    return x_user_id
+
+async def get_required_user(x_user_id: str = Header(...)) -> str:
+    """
+    Dependency for requiring a user ID in request headers.
+    
+    Args:
+        x_user_id: User ID from request header
+        
+    Returns:
+        str: User ID
+        
+    Raises:
+        HTTPException: If no user ID is provided
+    """
+    if not x_user_id:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="User authentication required for this operation"
+        )
+    return x_user_id

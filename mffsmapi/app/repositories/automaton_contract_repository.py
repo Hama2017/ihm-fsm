@@ -1,17 +1,20 @@
 from app.repositories.base_repository import FileSystemRepository
-from app.schemas.automaton_contract import ContractAutomaton
+from app.schemas.automaton_contract import AutomatonContract
 from app.core.config import settings
-from app.core.exceptions import ContractNotFoundException, ContractAlreadyExistsException
+from app.core.exceptions import AutomatonContractNotFoundException, AutomatonContractAlreadyExistsException
+from app.core.config import settings
+from app.core.enums import ContractStatus
 
-class ContractAutomatonRepository(FileSystemRepository[ContractAutomaton]):
-    """Repository for managing contract automatons."""
-    
+
+class AutomatonContractRepository(FileSystemRepository[AutomatonContract]):
+    """Repository for managing automaton contracts."""
+
     def __init__(self):
-        """Initialize with SLCA contracts directory."""
+        """Initialize with draft contracts directory."""
         super().__init__(
-            directory=settings.SLCA_CONTRACTS_DIR,
-            file_extension=".deployed",
-            model_class=ContractAutomaton,
-            not_found_exception=ContractNotFoundException,
-            already_exists_exception=ContractAlreadyExistsException
+            directory=settings.CONTRACT_STATUS_DIRS[ContractStatus.DRAFT],
+            file_extension=settings.AUTOMATON_CONTRACT_EXTENSION,  # Smart Legal Contract Automaton
+            model_class=AutomatonContract,
+            not_found_exception=AutomatonContractNotFoundException,
+            already_exists_exception=AutomatonContractAlreadyExistsException
         )
