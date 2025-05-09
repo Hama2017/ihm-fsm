@@ -6,7 +6,7 @@ from datetime import datetime
 from app.core.config import settings
 from app.core.exceptions import SmartContractNotFoundException
 from app.core.config import settings
-from app.core.enums import ContractStatus
+from app.enums.contract_status import ContractStatus
 
 class SmartContractRepository:
     """Repository for deployed smart contracts."""

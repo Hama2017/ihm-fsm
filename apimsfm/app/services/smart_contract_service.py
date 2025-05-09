@@ -15,7 +15,7 @@ from app.core.exceptions import (
 from app.repositories.smart_contract_repository import SmartContractRepository
 from app.schemas.smart_contract import ExecutionResult
 from app.utils.history_tracker import HistoryTracker
-from app.core.enums import HistoryTrackerEventType
+from app.enums.history_events import HistoryTrackerEventType
 
 
 class SmartContractService:

@@ -240,5 +240,27 @@
     "createdAt": "2025-05-09 01:28:47.415082",
     "refreshToken": "kZ71zkDpO394gRMQVt_DXutSXT4SNigDZopJzSUi5HTjR_54eYRMIPCM-PK6oBFdPxNywD27iAj66H5S5JrEiw",
     "refreshTokenExpiresAt": "2025-06-08 01:51:31.692651"
+  },
+  {
+    "firstName": "Hamadou",
+    "lastName": "Ba",
+    "email": "hamaba2016015@gmail.com",
+    "hashedPassword": "$2b$12$Gp2PNRal2XdWQD6LboLhb.a2sJpmVxHOqd6p6uAnW4uf7FFc3n2u6",
+    "role": "user",
+    "profilePicture": null,
+    "createdAt": "2025-05-09 04:46:20.206896",
+    "refreshToken": null,
+    "refreshTokenExpiresAt": null
+  },
+  {
+    "firstName": "Hamadou00",
+    "lastName": "Ba",
+    "email": "hamabaaaa692016@gmail.com",
+    "hashedPassword": "$2b$12$wuM.vPJBFFjSPET8937wF.LSdt2.MFltvAuZToCT1/wQu.VsA6TCW",
+    "role": "user",
+    "profilePicture": null,
+    "createdAt": "2025-05-09 04:47:06.405650",
+    "refreshToken": "cflI8QKD_gUzDaOrQzfoSlY3NOP3Vsi4B41vpev3aCw2Ryfl6OFRLAQltPu2amEOH_7Umv-xKPC80I35LcK68g",
+    "refreshTokenExpiresAt": "2025-05-16 04:47:09.195310"
   }
 ]

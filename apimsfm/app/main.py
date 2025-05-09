@@ -1,3 +1,4 @@
+# app/main.py (updated)
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -5,7 +6,7 @@ from app.api.routes.smart_contract import router as smart_contract_router
 from app.api.routes.automaton_contract import router as automaton_contract_router
 from app.api.routes.package import router as package_router
 from app.api.routes.history import router as history_router
-from app.auth.router import router as auth_router
+from app.auth.api.routes import router as auth_router  # Import the new auth router
 
 from app.core.config import settings
 
@@ -34,8 +35,12 @@ app.include_router(smart_contract_router, prefix=api_prefix, tags=["Smart Contra
 app.include_router(automaton_contract_router, prefix=api_prefix, tags=["Automaton Contracts"])
 app.include_router(package_router, prefix=api_prefix, tags=["Packages"])
 app.include_router(history_router, prefix=api_prefix, tags=["History"])
-app.include_router(auth_router, prefix=settings.API_PREFIX)
+app.include_router(auth_router, prefix=api_prefix)  # Include the auth router
 
 # Ensure required directories exist at startup
 settings.setup_directories()
 
+# Make sure auth directories also exist
+from app.auth.core.config import auth_settings
+auth_settings.PROFILE_PICTURES_DIR.mkdir(parents=True, exist_ok=True)
+auth_settings.USERS_FILE.parent.mkdir(parents=True, exist_ok=True)

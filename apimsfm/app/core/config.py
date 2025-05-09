@@ -2,7 +2,7 @@ import os
 from typing import List
 from pydantic_settings import BaseSettings
 from msfsm.solidity.config import ConfigEthereum, EthereumPlatform
-from app.core.enums import ContractStatus
+from app.enums.contract_status import ContractStatus
 from pathlib import Path
 
 class Settings(BaseSettings):

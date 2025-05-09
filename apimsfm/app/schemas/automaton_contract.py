@@ -1,7 +1,7 @@
 from pydantic import BaseModel, Field
 from typing import List, Optional
 from datetime import datetime, timezone
-from app.core.enums import ContractStatus
+from app.enums.contract_status import ContractStatus
 
 
 class Position(BaseModel):

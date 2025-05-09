@@ -5,7 +5,9 @@ from app.schemas.automaton_contract import AutomatonContract
 from app.repositories.automaton_contract_repository import AutomatonContractRepository
 from app.core.exceptions import AutomatonContractNotFoundException, AutomatonContractAlreadyExistsException
 from app.utils.history_tracker import HistoryTracker
-from app.core.enums import ContractStatus, HistoryTrackerEventType
+from app.enums.contract_status import ContractStatus
+from app.enums.history_events import  HistoryTrackerEventType
+
 from app.core.config import settings
 
 

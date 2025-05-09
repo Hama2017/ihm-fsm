@@ -3,7 +3,9 @@ from typing import Dict, List, Optional, Any
 
 from app.services.automaton_contract_service import AutomatonContractService
 from app.schemas.automaton_contract import AutomatonContract
-from app.api.dependencies import get_automaton_contract_service, get_current_user
+from app.api.dependencies import get_automaton_contract_service
+from app.auth.api.dependencies import get_current_user, get_optional_current_user
+from app.auth.schemas.user import User
 
 router = APIRouter(prefix="/automaton-contracts", tags=["Automaton Contracts"])
 
@@ -29,12 +31,13 @@ def list_automaton_contracts(
 )
 def create_automaton_contract(
     contract: AutomatonContract,
-    user_id: Optional[str] = Depends(get_current_user),
+    user: Optional[User] = Depends(get_optional_current_user),
     service: AutomatonContractService = Depends(get_automaton_contract_service)
 ) -> Dict[str, Any]:
     """
     Create a new automaton contract.
     """
+    user_id = user.email if user else None
     return service.create_contract(contract, user_id)
 
 @router.get(
@@ -59,12 +62,13 @@ def get_automaton_contract(
 def update_automaton_contract(
     contract_name: str,
     contract: AutomatonContract,
-    user_id: Optional[str] = Depends(get_current_user),
+    user: Optional[User] = Depends(get_optional_current_user),
     service: AutomatonContractService = Depends(get_automaton_contract_service)
 ) -> Dict[str, Any]:
     """
     Update an automaton contract.
     """
+    user_id = user.email if user else None
     return service.update_contract(contract_name, contract, user_id)
 
 @router.delete(
@@ -74,10 +78,11 @@ def update_automaton_contract(
 )
 def delete_automaton_contract(
     contract_name: str,
-    user_id: Optional[str] = Depends(get_current_user),
+    user: Optional[User] = Depends(get_optional_current_user),
     service: AutomatonContractService = Depends(get_automaton_contract_service)
 ) -> Dict[str, Any]:
     """
     Delete an automaton contract.
     """
+    user_id = user.email if user else None
     return service.delete_contract(contract_name, user_id)

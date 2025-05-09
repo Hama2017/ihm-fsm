@@ -3,7 +3,7 @@ from app.schemas.automaton_contract import AutomatonContract
 from app.core.config import settings
 from app.core.exceptions import AutomatonContractNotFoundException, AutomatonContractAlreadyExistsException
 from app.core.config import settings
-from app.core.enums import ContractStatus
+from app.enums.contract_status import ContractStatus
 
 
 class AutomatonContractRepository(FileSystemRepository[AutomatonContract]):
