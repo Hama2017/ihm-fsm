@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  hardhat:
+    build:
+      context: .
+      dockerfile: Dockerfile.hardhat
+    ports:
+      - "127.0.0.1:8545:8545"
+    volumes:
+      - ./hardhat.config.js:/app/hardhat.config.js
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "8545"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    command: ["npx", "hardhat", "node", "--hostname", "0.0.0.0"]
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    ports:
+      - "127.0.0.1:8000:8000"
+    environment:
+      - APP_ENV=${APP_ENV:-docker}  # Uses docker by default, can be overridden
+    volumes:
+      - ./app:/app/app
+      - ./data:/app/data
+      - ./msfsm:/msfsm
+      - ./.env.docker:/app/.env.docker
+    depends_on:
+      - hardhat

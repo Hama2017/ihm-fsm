@@ -1,0 +1,15 @@
+FROM node:18-alpine
+
+WORKDIR /app
+
+# Copy Hardhat configuration files
+COPY hardhat.config.js package.json package-lock.json* ./
+
+# Install dependencies
+RUN npm install
+
+# Expose port for the Hardhat node
+EXPOSE 8545
+
+# IMPORTANT: The service must listen on 0.0.0.0 inside the container
+CMD ["npx", "hardhat", "node", "--hostname", "0.0.0.0"]
