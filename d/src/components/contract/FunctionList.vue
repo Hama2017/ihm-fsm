@@ -1329,8 +1329,7 @@ const confirmAddAutomataDependency = () => {
     showAutomataDependencyModal.value = false;
     
     console.log(props.contractAutomates);
-    // Afficher un message de succès
-    toast.success('Dépendances de clauses ajoutées avec succès');
+ 
   } catch (error) {
     console.error('Erreur lors de l\'ajout des dépendances:', error);
     dependencyModalError.value = 'Une erreur s\'est produite';
@@ -1360,7 +1359,6 @@ const removeAutomataDependency = (edgeId, dependencyId) => {
         automataDependencies: updatedDependencies
       });
       
-      toast.success('Dépendance de clause supprimée');
     }
   } catch (error) {
     console.error('Erreur lors de la suppression de la dépendance:', error);

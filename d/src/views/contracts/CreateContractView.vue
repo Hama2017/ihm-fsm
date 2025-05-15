@@ -10,13 +10,13 @@
         <span 
           :class="[
             'px-2 py-0.5 text-xs font-medium rounded-full', 
-            contractStatus === 'Brouillon' 
+            contractStatus === ContractStatus.DRAFT 
               ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300'
               : 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
           ]"
         >
-          {{ contractStatus }}
-        </span>
+        {{ contractStatus }}
+      </span>
         <!-- Indicateur de sauvegarde -->
         <span v-if="isSaved" class="text-xs text-gray-500 dark:text-gray-400 flex items-center">
           <LucideCheck class="w-3 h-3 mr-1 text-green-500" />
@@ -66,7 +66,7 @@
         
         <button 
           @click="startDeploymentProcess"
-          :disabled="hasValidationErrors || contractStatus === 'Actif'"
+          :disabled="!canDeploy"
           class="px-4 py-2 rounded-lg font-medium flex items-center gap-2 transition duration-200
                  text-white
                  bg-green-600 hover:bg-green-700
@@ -745,13 +745,105 @@
 
 
 
-    <!-- Ajouter ce code à la section des modals dans le template -->
-<!-- Modal de résultat de déploiement -->
+
+
+
+
+
+
+
+
+
+     <!-- Modal d'animation de déploiement -->
+     <Modal
+    v-model="showDeployAnimation"
+    title="Déploiement du contrat en cours"
+    showCancel="false"
+    showConfirm="false"
+    size="lg"
+  >
+    <DeploymentAnimation 
+      :step="deploymentAnimationStep"
+      :progress="deploymentProgress"
+      :animationTexts="deploymentAnimationTexts"
+      @complete="onDeploymentAnimationComplete"
+    />
+  </Modal>
+    <!-- Modal de résultat de simulation du déploiement -->
+    <Modal
+      v-model="showDeploymentSimulationResultModal"
+      title="Résultat de la simulation de déploiement"
+      confirm-text="Fermer"
+      @confirm="closeDeploymentSimulationResultModal"
+    >
+      <div class="space-y-4">
+        <div class="p-3 bg-green-50 dark:bg-green-900/20 border border-green-100 dark:border-green-800 rounded-lg text-center">
+          <LucideCheck class="w-6 h-6 text-green-500 dark:text-green-400 mx-auto mb-2" />
+          <p class="text-green-700 dark:text-green-300 font-medium">
+            Simulation de déploiement terminée avec succès!
+          </p>
+        </div>
+        
+        <h3 class="font-medium text-gray-800 dark:text-gray-200">Ordre de déploiement:</h3>
+        <div class="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+          <ol class="list-decimal list-inside space-y-2">
+            <li v-for="(automateId, index) in deploymentOrderSimulation" :key="index" class="flex items-center py-1">
+              <span class="ml-2 text-gray-800 dark:text-gray-200">
+                {{ getAutomateName(automateId) }}
+              </span>
+            </li>
+          </ol>
+        </div>
+        
+        <div class="border-t border-gray-200 dark:border-gray-700 pt-4 mt-4">
+          <p class="text-sm text-gray-600 dark:text-gray-400">
+            Cette simulation montre l'ordre dans lequel les automates seront déployés en fonction de leurs dépendances.
+            Vous pouvez maintenant procéder au déploiement réel ou modifier vos automates si nécessaire.
+          </p>
+        </div>
+      </div>
+    </Modal>
+
+<!-- Modal de résultat de simulation du déploiement avec titre mis à jour -->
+<Modal
+  v-model="showDeploymentSimulationResultModal"
+  title="Simulation de déploiement terminée"
+  confirm-text="Fermer"
+  @confirm="closeDeploymentSimulationResultModal"
+>
+  <div class="space-y-4">
+    <div class="p-3 bg-green-50 dark:bg-green-900/20 border border-green-100 dark:border-green-800 rounded-lg text-center">
+      <LucideCheck class="w-6 h-6 text-green-500 dark:text-green-400 mx-auto mb-2" />
+      <p class="text-green-700 dark:text-green-300 font-medium">
+        Simulation de déploiement terminée avec succès!
+      </p>
+    </div>
+    
+    <h3 class="font-medium text-gray-800 dark:text-gray-200">Ordre de déploiement des clauses:</h3>
+    <div class="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+      <ol class="list-decimal list-inside space-y-2">
+        <li v-for="(automateId, index) in deploymentOrderSimulation" :key="index" class="flex items-center py-1">
+          <span class="ml-2 text-gray-800 dark:text-gray-200">
+            {{ getAutomateName(automateId) }}
+          </span>
+        </li>
+      </ol>
+    </div>
+    
+    <div class="border-t border-gray-200 dark:border-gray-700 pt-4 mt-4">
+      <p class="text-sm text-gray-600 dark:text-gray-400">
+        Cette simulation montre l'ordre dans lequel les clauses seront déployées en fonction de leurs dépendances.
+        Vous pouvez maintenant procéder au déploiement réel ou modifier vos clauses si nécessaire.
+      </p>
+    </div>
+  </div>
+</Modal>
+
+<!-- Modal de résultat de déploiement avec titre mis à jour -->
 <Modal
   v-model="showDeploymentResultModal"
-  title="Résultat du déploiement"
+  title="Déploiement réussi"
   confirm-text="Fermer"
-  size="lg"
 >
   <div class="space-y-4">
     <div class="p-3 bg-green-50 dark:bg-green-900/20 border border-green-100 dark:border-green-800 rounded-lg text-center">
@@ -769,14 +861,14 @@
     <DeploymentInfo :deployment-info="deploymentResult" />
 
     <div class="flex justify-center mt-4">
-  <button
-    @click="goToContractExecution"
-    class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors flex items-center"
-  >
-    <LucidePlay class="w-4 h-4 mr-2" />
-    Interagir avec le contrat
-  </button>
-</div>
+      <button
+        @click="goToContractExecution"
+        class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors flex items-center"
+      >
+        <LucidePlay class="w-4 h-4 mr-2" />
+        Interagir avec le contrat
+      </button>
+    </div>
     
     <div class="border-t border-gray-200 dark:border-gray-700 pt-4 mt-4">
       <p class="text-sm text-gray-600 dark:text-gray-400">
@@ -820,6 +912,7 @@ import packageService from '@/services/packageService';
 import ContractAutomatonService from '@/services/contractAutomaton';
 import ContractDeploymentService from '@/services/contractDeploymentService';
 import DeploymentInfo from '@/components/contract/DeploymentInfo.vue';
+import { ContractStatus } from '@/enums/ContractStatus.js';
 
 // Composants
 import Modal from '@/components/ui/UiModal.vue';
@@ -829,7 +922,8 @@ import StateList from '@/components/contract/StateList.vue';
 import FunctionList from '@/components/contract/FunctionList.vue';
 import EditorToolbar from '@/components/contract/EditorToolbar.vue';
 import AutomatonAnalyzer from '@/components/contract/AutomatonAnalyzer.vue';
-
+import DeploymentAnimation from '@/components/contract/DeploymentAnimation.vue';
+import { DotLottieVue } from '@lottiefiles/dotlottie-vue';
 // Icônes
 import {
   LucideUndo2,
@@ -862,6 +956,21 @@ const rightPanelTabs = [
 ];
 
 
+
+// Ajouter un état pour l'animation de déploiement
+const showDeployAnimation = ref(false);
+const deploymentAnimationStep = ref(0);
+const deploymentProgress = ref(0);
+const deploymentAnimationTexts = [
+"Préparation du déploiement...",
+"Lancement du déploiement...",
+"Déploiement des contrats intelligents...",
+"Déploiement terminé avec succès!"
+];
+const deploymentOrderSimulation = ref([]);
+const showDeploymentSimulationResultModal = ref(false);
+
+
 const goToContractExecution = () => {
   showDeploymentResultModal.value = false;
   // Rediriger vers la page d'exécution du contrat
@@ -889,7 +998,7 @@ const transitionModalRef = ref(null);
 
 // État du contrat
 const contractName = ref('');
-const contractStatus = ref('Brouillon');
+const contractStatus = ref(ContractStatus.DRAFT);
 const isSaved = ref(false);
 
 // État pour le mode de déploiement
@@ -915,68 +1024,8 @@ onMounted(() => {
 });
 
 // État des noeuds et transitions
-const contractAutomates = ref([
-  {
-    id: '01',
-    name: 'Processus d\'approbation',
-    states: [
-      { 
-        id: 'state-1', 
-        label: 'Soumission', 
-        position: { x: 100, y: 150 },
-        type: 'initial'
-      },
-      { 
-        id: 'state-2', 
-        label: 'Validation', 
-        position: { x: 300, y: 150 },
-        type: 'standard'
-      },
-      { 
-        id: 'state-3', 
-        label: 'Approuvé', 
-        position: { x: 500, y: 100 },
-        type: 'final'
-      },
-      { 
-        id: 'state-4', 
-        label: 'Rejeté', 
-        position: { x: 500, y: 200 },
-        type: 'final'
-      }
-    ],
-    transitions: [
-      { 
-        id: 'edge-1', 
-        source: 'state-1', 
-        target: 'state-2', 
-        label: 'valider', 
-        markerEnd: MarkerType.ArrowClosed,
-        conditions: ['condition-a1', 'condition-a1'], // IDs des conditions associées
-        automataDependencies: null
-      },
-      { 
-        id: 'edge-2', 
-        source: 'state-2', 
-        target: 'state-3', 
-        label: 'approuver', 
-        markerEnd: MarkerType.ArrowClosed,
-        conditions: ['condition-b2', 'condition-b1'], // IDs des conditions associées
-        automataDependencies: null
-      },
-      { 
-        id: 'edge-3', 
-        source: 'state-2', 
-        target: 'state-4', 
-        label: 'rejeter', 
-        markerEnd: MarkerType.ArrowClosed,
-        conditions: [],
-        automataDependencies: null
-      }
-    ]
-  }
-]);
-const activeAutomateId = ref('01');
+const contractAutomates = ref([]);
+const activeAutomateId = ref(null);
 const currentNodes = ref([]);
 const currentEdges = ref([]);
 const activeStateId = ref(null);
@@ -1104,7 +1153,7 @@ const {
   selectState,
   confirmAddState,
   confirmEditState,
-  confirmRemoveState,
+  //confirmRemoveState,
   addInitialState,
   addStandardState,
   addFinalState,
@@ -1262,42 +1311,7 @@ const {
 
 });
 
-// Nouvelle fonction pour démarrer le processus de déploiement
-const startDeploymentProcess = () => {
- /* if (hasValidationErrors) {
-    toast.error('Impossible de déployer le contrat. Veuillez corriger les erreurs.');
-    return;
-  }*/
 
-  // Sauvegarder l'automate actif actuel
-  if (activeAutomateId.value) {
-    saveCurrentAutomateState();
-  }
-  
-  // Générer l'automate de déploiement
-deployContract();
-  
-  // Stocker l'ID d'automate actif original pour pouvoir le restaurer si annulation
-  originalActiveAutomateId.value = activeAutomateId.value;
-  
-  // Trouver l'ID de l'automate de déploiement
-  const deploymentAutomate = contractAutomates.value.find(a => a.id === 'flow-deploiement');
-  if (deploymentAutomate) {
-    deploymentAutomateId.value = deploymentAutomate.id;
-    
-    // Basculer vers l'automate de déploiement
-    activeAutomateId.value = deploymentAutomate.id;
-    loadAutomateState(deploymentAutomate.id);
-    
-    // Activer le mode vue déploiement
-    isDeploymentView.value = true;
-    
-    // Ajuster la vue pour être sûr de tout voir
-    setTimeout(() => {
-      centerGraph();
-    }, 100);
-  }
-};
 
 // Fonction pour annuler le déploiement
 const cancelDeployment = () => {
@@ -1319,75 +1333,7 @@ const cancelDeployment = () => {
   toast.info('Déploiement annulé');
 };
 
-// Fonction pour confirmer le déploiement
-const confirmDeployment = async () => {
-  try {
-    // Transformer le contrat au format requis
-    const transformedContract = transformContractToRequiredFormat();
-    
-    // Afficher dans la console pour vérification
-    console.log('Contrat transformé au format requis:');
-    console.log(JSON.stringify(transformedContract, null, 2));
-    
-    // Afficher un toast de début de déploiement
-    toast.info('Déploiement en cours, veuillez patienter...');
-    
-    // Appeler le service de déploiement
-    const result = await ContractDeploymentService.deployContract(transformedContract);
-    
-    if (result.success) {
-      // Déploiement réussi
-      console.log('Résultat du déploiement:', result.data);
-      
-      // Stocker le résultat pour l'affichage dans le modal
-      deploymentResult.value = result.data;
-      
-      // Mettre à jour le statut du contrat
-      contractStatus.value = 'Actif';
-      
-      // Désactiver le mode vue déploiement
-      isDeploymentView.value = false;
-      
-      // Revenir à l'automate actif original
-      if (originalActiveAutomateId.value) {
-        activeAutomateId.value = originalActiveAutomateId.value;
-        loadAutomateState(originalActiveAutomateId.value);
-      }
-      
-      // Mettre à jour le statut de sauvegarde
-      isSaved.value = false;
-      
-      // Sauvegarder le contrat localement avec les informations de déploiement
-      saveContract();
-      
-      // Afficher un message de succès
-      toast.success('Contrat déployé avec succès sur la blockchain!');
-      
-      // Afficher le modal de résultat
-      showDeploymentResultModal.value = true;
-      
-      // Stocker localement les informations de déploiement
-      localStorage.setItem(`contract_deployment_${currentContractId.value || 'temp'}`, 
-        JSON.stringify(result.data));
-      
-      return { success: true, data: result.data };
-    } else {
-      // Gérer l'échec du déploiement
-      console.error('Échec du déploiement:', result.error);
-      
-      // Afficher un message d'erreur
-      toast.error(`Échec du déploiement: ${result.error}`);
-      
-      return { success: false, error: result.error };
-    }
-  } catch (error) {
-    // Gérer les erreurs générales
-    console.error('Erreur lors du déploiement:', error);
-    toast.error('Une erreur inattendue est survenue pendant le déploiement');
-    
-    return { success: false, error: error.message };
-  }
-};
+
 
 // Fonction pour transformer le contrat au format requis
 // Fonction pour normaliser un texte en nom de variable valide
@@ -1608,7 +1554,7 @@ onMounted(async () => {
   } else {
     console.log('Mode création activé');
     contractName.value = '';
-    contractStatus.value = 'Brouillon';
+    contractStatus.value = ContractStatus.DRAFT ;
     loadAutomateState(activeAutomateId.value);
   }
 
@@ -1634,7 +1580,7 @@ watch(
     } else {
       console.log('Changement vers création');
       contractName.value = '';
-      contractStatus.value = 'Brouillon';
+      contractStatus.value = ContractStatus.DRAFT ;
       contractAutomates.value = [];
     }
   }
@@ -1739,62 +1685,483 @@ const toggleConditionsDisplay = () => {
   showConditionsOnGraph.value = !showConditionsOnGraph.value;
 };
 
-/**
- * Met à jour les dépendances d'automates pour une transition spécifique
- * 
- * @param {Object} data - Un objet contenant l'ID de la transition et ses nouvelles dépendances d'automates
- * @param {string} data.id - L'identifiant de la transition
- * @param {string[]} data.automataDependencies - Liste des IDs des automates dépendants
- */
-/**
- * Met à jour les dépendances d'automates pour une transition spécifique
- * 
- * @param {Object} data - Un objet contenant l'ID de la transition et ses nouvelles dépendances d'automates
- * @param {string} data.id - L'identifiant de la transition
- * @param {string[]} data.automataDependencies - Liste des IDs des automates dépendants
- */
-const updateTransitionAutomataDependencies = (data) => {
-  // Trouver l'index de la transition dans la liste des transitions actuelles
-  const edgeIndex = currentEdges.value.findIndex(edge => edge.id === data.id);
-  
-  if (edgeIndex !== -1) {
-    // Créer une copie du tableau des transitions pour déclencher la réactivité de Vue
-    const updatedEdges = [...currentEdges.value];
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Vérifier si le contrat peut être déployé
+const canDeploy = computed(() => {
+  // Vérifier si tous les automates ont un état final
+  const allAutomatesHaveFinalState = contractAutomates.value.every(automate => {
+    if (automate.id === 'flow-deploiement') return true;
     
-    // Mettre à jour la transition spécifique avec les nouvelles dépendances
-    updatedEdges[edgeIndex] = {
-      ...updatedEdges[edgeIndex],
-      automataDependencies: data.automataDependencies
+    // Vérifier si l'automate a au moins un état final
+    return automate.states.some(state => {
+      // Un état est final s'il n'a pas de transitions sortantes
+      return !automate.transitions.some(transition => transition.source === state.id);
+    });
+  });
+  
+  // Vérifier s'il n'y a pas de dépendances cycliques entre automates
+  const noCyclicDependencies = !hasAutomataCyclicDependencies();
+  
+  // Le contrat peut être déployé s'il y a au moins un automate,
+  // tous les automates ont un état final, et il n'y a pas de dépendances cycliques
+  return contractAutomates.value.length > 0 && 
+         allAutomatesHaveFinalState && 
+         noCyclicDependencies &&
+         contractName.value.trim() !== '';
+});
+
+// Fonction pour vérifier si un état est le dernier état final d'un automate
+const isLastFinalState = (stateId) => {
+  if (!activeAutomateId.value) return false;
+  
+  const automate = contractAutomates.value.find(a => a.id === activeAutomateId.value);
+  if (!automate) return false;
+  
+  // Trouver tous les états finaux (états sans transitions sortantes)
+  const finalStates = automate.states.filter(state => 
+    !automate.transitions.some(transition => transition.source === state.id)
+  );
+  
+  // Si c'est le seul état final et que c'est l'état qu'on essaie de supprimer
+  return finalStates.length === 1 && finalStates[0].id === stateId;
+};
+
+// Fonction pour détecter les cycles dans les dépendances d'automates
+const hasAutomataCyclicDependencies = () => {
+  const graph = {};
+  const automateIds = contractAutomates.value.map(a => a.id);
+  
+  // Initialiser le graphe
+  automateIds.forEach(id => {
+    graph[id] = [];
+  });
+  
+  // Construire le graphe de dépendances
+  contractAutomates.value.forEach(automate => {
+    automate.transitions.forEach(transition => {
+      if (transition.automataDependencies && transition.automataDependencies.length > 0) {
+        // Pour chaque dépendance, ajouter un lien dans le graphe
+        transition.automataDependencies.forEach(dependencyId => {
+          if (!graph[dependencyId]) graph[dependencyId] = [];
+          graph[dependencyId].push(automate.id);
+        });
+      }
+    });
+  });
+  
+  // Fonction DFS pour détecter les cycles
+  const visited = new Set();
+  const recStack = new Set();
+  
+  const hasCycle = (node) => {
+    if (!visited.has(node)) {
+      visited.add(node);
+      recStack.add(node);
+      
+      for (const neighbor of graph[node] || []) {
+        if (!visited.has(neighbor) && hasCycle(neighbor)) {
+          return true;
+        } else if (recStack.has(neighbor)) {
+          return true;
+        }
+      }
+    }
+    
+    recStack.delete(node);
+    return false;
+  };
+  
+  // Vérifier chaque nœud
+  for (const node of automateIds) {
+    if (hasCycle(node)) {
+      return true;
+    }
+  }
+  
+  return false;
+};
+
+// Fonction pour vérifier si l'ajout d'une dépendance créerait un cycle
+const wouldCreateCycle = (sourceAutomateId, targetAutomateId) => {
+  // Créer une copie du graphe de dépendances actuel
+  const graph = {};
+  const automateIds = contractAutomates.value.map(a => a.id);
+  
+  // Initialiser le graphe
+  automateIds.forEach(id => {
+    graph[id] = [];
+  });
+  
+  // Construire le graphe de dépendances
+  contractAutomates.value.forEach(automate => {
+    automate.transitions.forEach(transition => {
+      if (transition.automataDependencies && transition.automataDependencies.length > 0) {
+        transition.automataDependencies.forEach(dependencyId => {
+          if (!graph[dependencyId]) graph[dependencyId] = [];
+          graph[dependencyId].push(automate.id);
+        });
+      }
+    });
+  });
+  
+  // Ajouter la nouvelle dépendance
+  if (!graph[targetAutomateId]) graph[targetAutomateId] = [];
+  graph[targetAutomateId].push(sourceAutomateId);
+  
+  // Fonction DFS pour détecter les cycles
+  const visited = new Set();
+  const recStack = new Set();
+  
+  const hasCycle = (node) => {
+    if (!visited.has(node)) {
+      visited.add(node);
+      recStack.add(node);
+      
+      for (const neighbor of graph[node] || []) {
+        if (!visited.has(neighbor) && hasCycle(neighbor)) {
+          return true;
+        } else if (recStack.has(neighbor)) {
+          return true;
+        }
+      }
+    }
+    
+    recStack.delete(node);
+    return false;
+  };
+  
+  // Vérifier s'il y a un cycle à partir du nœud cible
+  return hasCycle(targetAutomateId);
+};
+
+// Obtenir le nom d'un automate à partir de son ID
+const getAutomateName = (automateId) => {
+  const automate = contractAutomates.value.find(a => a.id === automateId);
+  return automate ? automate.name : `Automate ${automateId}`;
+};
+
+// Surcharger la fonction updateTransitionAutomataDependencies pour vérifier les cycles
+const updateTransitionAutomataDependencies = (data) => {
+  try {
+    // Pour chaque nouvelle dépendance, vérifier si elle créerait un cycle
+    const edge = currentEdges.value.find(edge => edge.id === data.id);
+    if (!edge) throw new Error('Transition non trouvée');
+    
+    const targetEdge = {
+      ...edge,
+      automataDependencies: data.automataDependencies || []
     };
     
-    // Remplacer le tableau de transitions par la nouvelle version
-    currentEdges.value = updatedEdges;
+    // Vérifier chaque nouvelle dépendance
+    for (const dependencyId of targetEdge.automataDependencies) {
+      if (wouldCreateCycle(activeAutomateId.value, dependencyId)) {
+        toast.error(`Impossible d'ajouter cette dépendance: créerait un cycle entre les automates`);
+        return; // Ne pas appliquer les modifications
+      }
+    }
     
-    // Sauvegarder l'état actuel dans l'historique pour permettre l'annulation/rétablissement
-    saveToHistory();
+    // Si on arrive ici, aucune dépendance ne crée de cycle
+    // Trouver l'index de la transition dans la liste des transitions actuelles
+    const edgeIndex = currentEdges.value.findIndex(edge => edge.id === data.id);
     
-    // Indiquer que le contrat n'est pas sauvegardé
-    isSaved.value = false;
-    
-    // Afficher un message de confirmation
-    toast.success('Dépendances de clauses mises à jour avec succès');
+    if (edgeIndex !== -1) {
+      // Créer une copie du tableau des transitions pour déclencher la réactivité de Vue
+      const updatedEdges = [...currentEdges.value];
+      
+      // Mettre à jour la transition spécifique avec les nouvelles dépendances
+      updatedEdges[edgeIndex] = {
+        ...updatedEdges[edgeIndex],
+        automataDependencies: data.automataDependencies
+      };
+      
+      // Remplacer le tableau de transitions par la nouvelle version
+      currentEdges.value = updatedEdges;
+      
+      // Sauvegarder l'état actuel dans l'historique pour permettre l'annulation/rétablissement
+      saveToHistory();
+      
+      // Indiquer que le contrat n'est pas sauvegardé
+      isSaved.value = false;
+      
+      // Afficher un message de confirmation
+      toast.success('Dépendances de clauses mises à jour avec succès');
+    }
+  } catch (error) {
+    console.error('Erreur lors de la mise à jour des dépendances:', error);
+    toast.error('Erreur lors de la mise à jour des dépendances d\'automates');
   }
 };
 
-// Fonction pour simuler le déploiement (utilise la fonction existante de simulation)
+// Surcharger la fonction confirmRemoveState pour empêcher la suppression du dernier état final
+const confirmRemoveState = () => {
+  try {
+    // Vérifier si c'est le dernier état final
+    if (isLastFinalState(removeStateId.value)) {
+      toast.error('Impossible de supprimer le dernier état final de l\'automate');
+      showRemoveStateModal.value = false;
+      return { success: false, message: 'Impossible de supprimer le dernier état final' };
+    }
+    
+    const result = removeState(removeStateId.value);
+    if (result.success) {
+      showRemoveStateModal.value = false;
+      return { success: true, message: 'État supprimé avec succès' };
+    } else {
+      return result;
+    }
+  } catch (error) {
+    console.error('Erreur lors de la suppression de l\'état:', error);
+    return { success: false, message: 'Erreur lors de la suppression de l\'état' };
+  }
+};
+
+// Surcharger la fonction startDeploymentProcess
+const startDeploymentProcess = async () => {
+  if (!canDeploy.value) {
+    toast.error('Le contrat ne peut pas être déployé. Vérifiez que chaque automate a un état final et qu\'il n\'y a pas de dépendances cycliques.');
+    return;
+  }
+
+  try {
+    // Sauvegarder d'abord le contrat (en brouillon)
+    await saveContract();
+    
+    // Stocker l'ID d'automate actif original pour pouvoir le restaurer si annulation
+    originalActiveAutomateId.value = activeAutomateId.value;
+    
+    // Générer l'automate de déploiement
+    await deployContract();
+    
+    // Trouver l'ID de l'automate de déploiement
+    const deploymentAutomate = contractAutomates.value.find(a => a.id === 'flow-deploiement');
+    if (deploymentAutomate) {
+      deploymentAutomateId.value = deploymentAutomate.id;
+      
+      // Basculer vers l'automate de déploiement
+      activeAutomateId.value = deploymentAutomate.id;
+      loadAutomateState(deploymentAutomate.id);
+      
+      // Activer le mode vue déploiement
+      isDeploymentView.value = true;
+      
+      // Ajuster la vue pour être sûr de tout voir
+      setTimeout(() => {
+        centerGraph();
+      }, 100);
+    }
+  } catch (error) {
+    console.error('Erreur lors du démarrage du déploiement:', error);
+    toast.error('Erreur lors de la préparation du déploiement');
+  }
+};
+
+// Fonction pour simuler le déploiement avec affichage des résultats
 const simulateDeploymentFlow = async () => {
   try {
     toast.info('Simulation du déploiement en cours...');
     
+    // Obtenir l'ordre de déploiement des automates
+    const deploymentOrder = getDeploymentOrder();
+    deploymentOrderSimulation.value = deploymentOrder;
+    
     // Utiliser la fonction de simulation existante qui parcourt l'ordre topologique
     await toggleSimulation();
     
-    // La fonction simulateDeployment s'occupe déjà d'afficher le modal de résultat
-    // et de gérer l'animation de l'automate
+    // Afficher le modal avec l'ordre de déploiement
+    showDeploymentSimulationResultModal.value = true;
   } catch (error) {
     console.error('Erreur lors de la simulation:', error);
     toast.error('Erreur lors de la simulation du déploiement');
   }
+};
+
+// Fonction pour calculer l'ordre de déploiement des automates
+const getDeploymentOrder = () => {
+  // Créer un graphe de dépendances
+  const graph = {};
+  const indegree = {};
+  
+  // Exclure l'automate de déploiement
+  const realAutomates = contractAutomates.value.filter(a => a.id !== 'flow-deploiement');
+  
+  // Initialiser
+  realAutomates.forEach(automate => {
+    graph[automate.id] = [];
+    indegree[automate.id] = 0;
+  });
+  
+  // Construire le graphe
+  realAutomates.forEach(automate => {
+    automate.transitions.forEach(transition => {
+      if (transition.automataDependencies && transition.automataDependencies.length > 0) {
+        transition.automataDependencies.forEach(dependencyId => {
+          // Ajouter une arête du automate dépendant au automate actuel
+          graph[dependencyId].push(automate.id);
+          indegree[automate.id]++;
+        });
+      }
+    });
+  });
+  
+  // Tri topologique
+  const queue = [];
+  const result = [];
+  
+  // Trouver les nœuds sans dépendances
+  for (const automateId in indegree) {
+    if (indegree[automateId] === 0) {
+      queue.push(automateId);
+    }
+  }
+  
+  // Parcourir le graphe
+  while (queue.length > 0) {
+    const automateId = queue.shift();
+    result.push(automateId);
+    
+    // Réduire le degré d'entrée des voisins
+    for (const neighbor of graph[automateId]) {
+      indegree[neighbor]--;
+      if (indegree[neighbor] === 0) {
+        queue.push(neighbor);
+      }
+    }
+  }
+  
+  return result;
+};
+
+// Fermer le modal de résultat de simulation
+const closeDeploymentSimulationResultModal = () => {
+  showDeploymentSimulationResultModal.value = false;
+};
+
+// Confirmer le déploiement avec animation
+const confirmDeployment = async () => {
+  try {
+    // Afficher l'animation de déploiement
+    showDeployAnimation.value = true;
+    deploymentAnimationStep.value = 0;
+    deploymentProgress.value = 0;
+    
+    // Étape 1: Préparation du déploiement
+    await new Promise(resolve => {
+      setTimeout(() => {
+        deploymentAnimationStep.value = 1;
+        deploymentProgress.value = 30;
+        resolve();
+      }, 2000); // Augmenter la durée pour voir l'animation
+    });
+    
+    // Étape 2: Lancement du déploiement
+    await new Promise(resolve => {
+      setTimeout(() => {
+        deploymentAnimationStep.value = 2;
+        deploymentProgress.value = 60;
+        resolve();
+      }, 2500); // Augmenter la durée pour voir l'animation
+    });
+    
+    // Transformer le contrat au format requis
+    const transformedContract = transformContractToRequiredFormat();
+    
+    // Appeler le service de déploiement
+    const result = await ContractDeploymentService.deployContract(transformedContract);
+    
+    // Étape 3: Déploiement terminé - Afficher l'animation de succès
+    await new Promise(resolve => {
+      setTimeout(() => {
+        deploymentAnimationStep.value = 3;
+        deploymentProgress.value = 100;
+        resolve();
+      }, 2000);
+    });
+    
+    // Laisser l'animation de succès visible un moment
+    await new Promise(resolve => {
+      setTimeout(resolve, 3000);
+    });
+    
+    // Fermer l'animation
+    showDeployAnimation.value = false;
+    
+    if (result.success) {
+      // Stocker le résultat pour l'affichage dans le modal
+      deploymentResult.value = result.data;
+      
+      // Mettre à jour le statut du contrat
+      contractStatus.value = 'Actif';
+      
+      // Désactiver le mode vue déploiement
+      isDeploymentView.value = false;
+      
+      // Revenir à l'automate actif original
+      if (originalActiveAutomateId.value) {
+        activeAutomateId.value = originalActiveAutomateId.value;
+        loadAutomateState(originalActiveAutomateId.value);
+      }
+      
+      // Sauvegarder le contrat localement avec les informations de déploiement
+      saveContract();
+      
+      // Afficher le modal de résultat
+      showDeploymentResultModal.value = true;
+      
+      // Stocker localement les informations de déploiement
+      localStorage.setItem(`contract_deployment_${currentContractId.value || 'temp'}`, 
+        JSON.stringify(result.data));
+    } else {
+      // Gérer l'échec du déploiement
+      console.error('Échec du déploiement:', result.error);
+      toast.error(`Échec du déploiement: ${result.error}`);
+    }
+  } catch (error) {
+    // Gérer les erreurs
+    console.error('Erreur lors du déploiement:', error);
+    toast.error('Une erreur inattendue est survenue pendant le déploiement');
+    
+    // Fermer l'animation
+    showDeployAnimation.value = false;
+  }
+};
+
+
+const onDeploymentAnimationComplete = () => {
+  // Cette fonction peut être utilisée pour déclencher des actions
+  // une fois l'animation de déploiement terminée
+  console.log('Animation de déploiement terminée');
 };
           
 </script>
@@ -1822,5 +2189,99 @@ const simulateDeploymentFlow = async () => {
   box-shadow: 0 0 0 4px #fde047; /* ring-yellow-400 */
   background-color: #fef3c7; /* bg-yellow-100 */
 }
+
+
+
+
+
+
+
+/* Animations pour les transitions actives en mode simulation */
+@keyframes pulse-line {
+  0% {
+    stroke-dashoffset: 1000;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+.animated-edge {
+  stroke: #facc15; /* jaune vif */
+  stroke-width: 3px;
+  stroke-dasharray: 10;
+  animation: pulse-line 1s ease forwards;
+}
+
+.ring-highlight {
+  transition: all 0.3s ease;
+  box-shadow: 0 0 0 4px #fde047; /* ring-yellow-400 */
+  background-color: #fef3c7; /* bg-yellow-100 */
+}
+
+/* Animation pour le lancement de la fusée */
+@keyframes rocket-launch {
+  0% {
+    transform: translateY(0) scale(1);
+  }
+  10% {
+    transform: translateY(5px) scale(1);
+  }
+  30% {
+    transform: translateY(0) scale(1);
+  }
+  60% {
+    transform: translateY(-40px) scale(0.8);
+  }
+  100% {
+    transform: translateY(-150px) scale(0.5);
+  }
+}
+
+@keyframes flame-flicker {
+  0%, 100% {
+    opacity: 0.8;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+}
+
+@keyframes smoke-rise {
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateY(-100px) scale(2);
+    opacity: 0;
+  }
+}
+
+.animate-rocket-launch {
+  animation: rocket-launch 4s ease-in forwards;
+}
+
+.flames {
+  opacity: 0;
+  transform-origin: center bottom;
+}
+
+.flames.visible {
+  opacity: 1;
+  animation: flame-flicker 0.3s infinite;
+}
+
+.smoke-particle {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  background-color: rgba(200, 200, 200, 0.6);
+  border-radius: 50%;
+  animation: smoke-rise 3s ease-out infinite;
+}
+
 </style>
 

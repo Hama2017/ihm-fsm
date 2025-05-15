@@ -1,6 +1,7 @@
 import { ref } from 'vue';
 import { useVueFlow, MarkerType } from '@vue-flow/core';
 import toast from '@/composables/Toast/useToast';
+import useDependencyChecker from '@/composables/contract/useDependencyChecker';
 
 /**
  * Composable pour gérer tout ce qui est relatif aux transitions (edges) dans l'éditeur de contrat
@@ -9,6 +10,8 @@ import toast from '@/composables/Toast/useToast';
  * @param {Ref<Array>} options.nodes Référence aux nœuds actuels
  * @param {Ref<Array>} options.edges Référence aux arêtes actuelles
  * @param {Ref<String|null>} options.activeTransitionId ID de la transition actuellement sélectionnée
+ * @param {Ref<Array>} options.contractAutomates Liste des automates du contrat
+ * @param {Ref<String|null>} options.activeAutomateId ID de l'automate actif
  * @param {Function} options.saveToHistory Fonction pour sauvegarder l'état dans l'historique
  * @param {Function} options.validateAutomate Fonction pour valider l'automate
  * @param {Function} options.detectCycle Fonction pour détecter les cycles dans l'automate
@@ -20,6 +23,8 @@ export default function useTransition({
   nodes,
   edges,
   activeTransitionId,
+  contractAutomates,
+  activeAutomateId,
   saveToHistory,
   validateAutomate,
   detectCycle,
@@ -30,6 +35,15 @@ export default function useTransition({
   const {  addSelectedEdges    , 
     removeSelectedEdges, 
     findEdge  } = useVueFlow();
+
+     // Utiliser le vérificateur de dépendances
+  const {
+    wouldCreateCycle,
+    hasAutomataCyclicDependencies
+  } = useDependencyChecker({
+    contractAutomates,
+    activeAutomateId
+  });
 
   // --- États pour les modals ---
   const showAddTransitionModal = ref(false);
@@ -689,6 +703,74 @@ export default function useTransition({
     edgeContextMenu.value.visible = false;
   };
 
+
+
+
+   /**
+   * Met à jour les dépendances d'automates pour une transition
+   * Vérifie d'abord si l'ajout créerait un cycle
+   * 
+   * @param {Object} data - Données de mise à jour
+   * @returns {Object} Résultat de l'opération
+   */
+   const updateTransitionAutomataDependencies = (data) => {
+    try {
+      const { id, automataDependencies } = data;
+      
+      // Trouver la transition
+      const edgeIndex = edges.value.findIndex(edge => edge.id === id);
+      if (edgeIndex === -1) {
+        return { success: false, message: 'Transition non trouvée' };
+      }
+      
+      // Vérifier chaque nouvelle dépendance
+      for (const dependencyId of automataDependencies || []) {
+        if (wouldCreateCycle(activeAutomateId.value, dependencyId)) {
+          toast.error(`Impossible d'ajouter la dépendance vers "${getAutomateName(dependencyId)}": créerait un cycle`);
+          return { success: false, message: 'Dépendance cyclique détectée' };
+        }
+      }
+      
+      // Mettre à jour la transition avec les nouvelles dépendances
+      const updatedEdges = [...edges.value];
+      updatedEdges[edgeIndex] = {
+        ...updatedEdges[edgeIndex],
+        automataDependencies: automataDependencies || []
+      };
+      
+      // Appliquer les changements
+      edges.value = updatedEdges;
+      
+      // Sauvegarder l'état pour l'historique
+      saveToHistory();
+      
+      // Marquer comme non sauvegardé
+      isSaved = false;
+      
+      // Valider l'automate après modification
+      validateAutomate();
+      
+      toast.success('Dépendances mises à jour avec succès');
+      return { success: true, message: 'Dépendances mises à jour avec succès' };
+    } catch (error) {
+      console.error('Erreur lors de la mise à jour des dépendances:', error);
+      toast.error('Une erreur s\'est produite lors de la mise à jour des dépendances');
+      return { success: false, message: 'Erreur lors de la mise à jour des dépendances' };
+    }
+  };
+  
+  /**
+   * Obtient le nom d'un automate à partir de son ID
+   * 
+   * @param {String} automateId - ID de l'automate
+   * @returns {String} Nom de l'automate
+   */
+  const getAutomateName = (automateId) => {
+    const automate = contractAutomates.value.find(a => a.id === automateId);
+    return automate ? automate.name : `Automate ${automateId}`;
+  };
+
+
   return {
     // États pour les modals
     showAddTransitionModal,
@@ -746,7 +828,11 @@ export default function useTransition({
     editTransitionFromContext,
     deleteTransitionFromContext,
     invertTransitionFromContext,
-    hideContextMenu
+    hideContextMenu,
+
+
+    updateTransitionAutomataDependencies,
+    getAutomateName,
   };
 
 

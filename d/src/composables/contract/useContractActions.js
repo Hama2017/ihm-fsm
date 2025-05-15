@@ -97,8 +97,6 @@ export default function useContractActions({
     const deploymentFlowAutomate = generateDeploymentFlowAutomate(contractAutomates.value);
     contractAutomates.value.push(deploymentFlowAutomate);
 
-    contractStatus.value = 'Déployé';
-
     await saveContract();
   };
 
