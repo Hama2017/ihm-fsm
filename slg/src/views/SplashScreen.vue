@@ -4,12 +4,14 @@
     :class="darkMode ? 'bg-loading-dark' : 'bg-loading-light'"
   >
     <div class="splash-container text-center">
-      <svg viewBox="0 0 500 60">
+      <!-- Animation initiale pour "Smart Legal Contract" -->
+      <svg v-if="!showUserName" viewBox="0 0 600 60">
         <g class="path">
           <text 
-            x="0" 
+            x="50%" 
             y="50" 
             font-size="40" 
+            text-anchor="middle"
             font-family="Orbitron"
             :class="darkMode ? 'text-stroke-light' : 'text-stroke-dark'"
           >
@@ -17,10 +19,28 @@
           </text>
         </g>
       </svg>
+      
+      <!-- Animation pour le nom d'utilisateur -->
+      <svg v-if="showUserName" viewBox="0 0 800 100">
+        <g class="path">
+          <text 
+            x="50%" 
+            y="70" 
+            font-size="60" 
+            text-anchor="middle"
+            font-family="Orbitron"
+            :class="darkMode ? 'text-stroke-light' : 'text-stroke-dark'"
+          >
+            {{ fullName }}
+          </text>
+        </g>
+      </svg>
+      
       <div class="loading-bar w-80 h-2 rounded-full overflow-hidden mx-auto my-5"
            :class="darkMode ? 'bg-white bg-opacity-10' : 'bg-gray-700 bg-opacity-10'">
         <div class="loading-bar-fill h-full rounded-full"></div>
       </div>
+      
       <div class="status-text text-base mt-4 opacity-0 animation-fade-in-text"
            :class="darkMode ? 'text-white' : 'text-gray-800'">
         {{ statusText }}
@@ -30,10 +50,10 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount, computed } from 'vue';
+import { ref, onMounted, onBeforeUnmount } from 'vue';
 import { useRouter } from 'vue-router';
 import { useThemeStore } from '@/stores/theme';
-import { useAuthStore } from '@/stores/auth';
+import { useAuthStore } from '@/stores/AuthStore';
 import { storeToRefs } from 'pinia';
 
 const router = useRouter();
@@ -42,58 +62,38 @@ const authStore = useAuthStore();
 const { darkMode } = storeToRefs(themeStore);
 const { user } = storeToRefs(authStore);
 
-// État pour le texte de statut
+// État pour contrôler l'affichage
 const statusText = ref('Initialisation...');
-const messages = ref([
-  'Initialisation de l\'application...',
-  'Chargement des modules...',
-  user.value 
-    ? `Bienvenue ${user.value.firstName} ${user.value.lastName} !` 
-    : 'Bienvenue !'
-]);
+const showUserName = ref(false);
 
-// Message personnalisé pour l'utilisateur connecté
-const welcomeMessage = computed(() => {
-  return user.value 
-    ? `Bienvenue ${user.value.firstName} ${user.value.lastName} !` 
-    : 'Bienvenue !';
-});
+// Nom complet de l'utilisateur
+const fullName = user.value 
+  ? `${user.value.firstName} ${user.value.lastName}` 
+  : 'Utilisateur';
 
-let currentMessage = 0;
-let statusInterval = null;
-
-// Fonction pour mettre à jour les messages de statut
-const updateStatus = () => {
-  if (currentMessage < messages.value.length - 1) {
-    statusText.value = messages.value[currentMessage];
-    currentMessage++;
-  } else {
-    // Pour le dernier message, utiliser le message personnalisé calculé
-    statusText.value = welcomeMessage.value;
-    clearInterval(statusInterval);
-    
-    // Marquer comme vu pour les prochaines visites
-    localStorage.setItem('splash_screen_seen', 'true');
-    
-    // Rediriger vers le dashboard après l'animation complète
-    setTimeout(() => {
-      router.push({ name: 'dashboard' });
-    }, 1500);
-  }
-};
-
-// Initialiser le cycle de messages
+// Séquence d'animation
 onMounted(() => {
-  // Démarrer la séquence de mise à jour des statuts
-  statusInterval = setInterval(updateStatus, 1500);
+  // Étape 1: Message initial
+  setTimeout(() => {
+    statusText.value = 'Chargement des modules...';
+  }, 1500);
+  
+  // Étape 2: Message de bienvenue
+  setTimeout(() => {
+    statusText.value = 'Bienvenue sur Smart Legal Contract';
+  }, 3000);
+  
+  // Étape 3: Transition vers le nom d'utilisateur
+  setTimeout(() => {
+    showUserName.value = true;
+  }, 5000);
+  
+  // Étape 4: Redirection vers le dashboard
+  setTimeout(() => {
+    router.push({ name: 'dashboard' });
+  }, 10000);
 });
 
-// Nettoyer l'intervalle à la destruction du composant
-onBeforeUnmount(() => {
-  if (statusInterval) {
-    clearInterval(statusInterval);
-  }
-});
 </script>
 
 <style scoped>
@@ -117,8 +117,8 @@ onBeforeUnmount(() => {
   fill: transparent;
   stroke: #00aaff;
   stroke-width: 2;
-  stroke-dasharray: 400;
-  stroke-dashoffset: 400;
+  stroke-dasharray: 800;
+  stroke-dashoffset: 800;
   animation: draw 4s ease forwards, fillLight 1s ease forwards 3.5s;
 }
 
@@ -126,8 +126,8 @@ onBeforeUnmount(() => {
   fill: transparent;
   stroke: #0284c7;
   stroke-width: 2;
-  stroke-dasharray: 400;
-  stroke-dashoffset: 400;
+  stroke-dasharray: 800;
+  stroke-dashoffset: 800;
   animation: draw 4s ease forwards, fillDark 1s ease forwards 3.5s;
 }
 

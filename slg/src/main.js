@@ -3,24 +3,31 @@ import { createPinia } from 'pinia';
 import App from './App.vue';
 import router from './router';
 import './assets/style.css';
-import 'sweetalert2/dist/sweetalert2.min.css';
-
-import { useThemeStore } from './stores/theme';
-import { useAuthStore } from './stores/auth';
 
 const app = createApp(App);
 const pinia = createPinia();
+app.use(pinia);
 
-app.use(pinia); // appliquer Pinia avant d'utiliser le store
+// Préparer les stores AVANT de monter l'app
+import { useThemeStore } from '@/stores/theme';
+import { useAuthStore } from '@/stores/AuthStore';
 
-// Initialiser le theme
 const themeStore = useThemeStore();
 themeStore.setDarkMode(themeStore.darkMode);
 themeStore.updateCssVariables();
 
-// Initialiser l'authentification
 const authStore = useAuthStore();
-await authStore.init();
 
-app.use(router);
-app.mount('#app');
+// Attendre que fetchUser se termine avant de monter l'app
+authStore.fetchUser().finally(() => {
+  app.use(router);
+
+  // Si l'utilisateur est déjà connecté : rediriger vers SplashScreen
+  if (authStore.user) {
+    router.replace({ name: 'splash' }); // splash redirigera vers dashboard
+  }
+
+  // Sinon on monte normalement, il tombera sur la route protégée (ou login normalemen)
+  app.mount('#app');
+  
+});

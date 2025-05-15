@@ -1,34 +1,79 @@
 import axios from 'axios';
+import authService from '@/services/authService';
+import router from '@/router';
+import { useAuthStore } from '@/stores/AuthStore';
 
-// Création d'une instance Axios avec une configuration de base
 const apiClient = axios.create({
-  baseURL:'http://localhost:8000/api/v1',
-  headers: {
-    'Content-Type': 'application/json',
-    'Accept': 'application/json'
-  },
-  timeout: 10000 // timeout de 10 secondes
+  baseURL: 'http://localhost:8000/api/v1',
+  withCredentials: true
 });
 
-// Intercepteurs pour gérer les erreurs globalement
+apiClient.interceptors.request.use(
+  config => {
+    config.headers['X-API-KEY'] = 'sk_master_admin'; 
+    return config;
+  },
+  error => Promise.reject(error)
+);
+
+let isRefreshing = false;
+let failedQueue = [];
+
+const noNeedToRefresh = [
+  '/auth/login',
+  '/auth/register',
+  '/auth/refresh',
+];
+
+function processQueue(error, token = null) {
+  failedQueue.forEach(p => {
+    if (error) p.reject(error);
+    else p.resolve(token);
+  });
+  failedQueue = [];
+}
+
 apiClient.interceptors.response.use(
   response => response,
-  error => {
-    // Gestion des erreurs globales (ex: logging, notification...)
-    console.error('API Error:', error);
-    
-    // Si l'erreur a une réponse du serveur
-    if (error.response) {
-      // Erreurs 4xx, 5xx
-      console.error('Server responded with error:', error.response.status, error.response.data);
-    } else if (error.request) {
-      // Pas de réponse reçue du serveur
-      console.error('No response received from server');
-    } else {
-      // Erreur de configuration de la requête
-      console.error('Request configuration error:', error.message);
+  async error => {
+    const originalRequest = error.config;
+
+    if (
+      error.response?.status === 401 &&
+      !noNeedToRefresh.some(path => originalRequest.url.includes(path)) &&
+      !originalRequest._retry
+    ) {
+      originalRequest._retry = true;
+
+      if (isRefreshing) {
+        return new Promise((resolve, reject) => {
+          failedQueue.push({ resolve, reject });
+        }).then(() => apiClient(originalRequest));
+      }
+
+      isRefreshing = true;
+
+      try {
+        await authService.refreshToken();
+        processQueue(null);
+        return apiClient(originalRequest);
+      } catch (refreshError) {
+        processQueue(refreshError);
+
+        try {
+          const authStore = useAuthStore();
+          authStore.user = null;
+        } catch (e) {
+          console.warn('authStore inaccessible, ignore.');
+        }
+
+        router.push({ name: 'login' });
+        return Promise.reject(refreshError);
+      } finally {
+        isRefreshing = false;
+      }
     }
-    
+
     return Promise.reject(error);
   }
 );

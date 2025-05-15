@@ -146,27 +146,27 @@
   };
   
   const handleResetPassword = async () => {
-    if (!validateForm()) return;
-  
-    try {
-      isLoading.value = true;
-  
-      // Simuler l'appel API pour réinitialiser le mot de passe (à remplacer par l'appel réel)
-      await new Promise(resolve => setTimeout(resolve, 1500));
-  
-      // Afficher un message de succès
-      successMessage.value = 'Votre mot de passe a été réinitialisé avec succès.';
-      toast.success('Mot de passe réinitialisé avec succès');
-  
-      // Rediriger vers la page de connexion après quelques secondes
-      setTimeout(() => {
-        router.push({ name: 'login' });
-      }, 3000);
-    } catch (error) {
-      console.error('Erreur lors de la réinitialisation du mot de passe:', error);
-      errorMessage.value = 'Une erreur est survenue lors de la réinitialisation du mot de passe. Veuillez réessayer.';
-    } finally {
-      isLoading.value = false;
-    }
-  };
+  if (!validateForm()) return;
+
+  try {
+    isLoading.value = true;
+
+    // Appel réel à l'API via le store
+    await useAuthStore().resetPassword(token, newPassword.value);
+
+    // Afficher un message de succès
+    successMessage.value = 'Votre mot de passe a été réinitialisé avec succès.';
+    toast.success('Mot de passe réinitialisé avec succès');
+
+    // Rediriger vers la page de connexion après quelques secondes
+    setTimeout(() => {
+      router.push({ name: 'login' });
+    }, 3000);
+  } catch (error) {
+    console.error('Erreur lors de la réinitialisation du mot de passe:', error);
+    errorMessage.value = 'Une erreur est survenue lors de la réinitialisation du mot de passe. Veuillez réessayer.';
+  } finally {
+    isLoading.value = false;
+  }
+};
   </script>

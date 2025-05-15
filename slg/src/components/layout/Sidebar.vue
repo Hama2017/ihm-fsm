@@ -112,16 +112,16 @@
     </nav>
 
     <!-- Footer -->
-  <div class="p-4 border-t text-xs flex items-center justify-center"
-       :class="isDarkMode ? 'border-gray-800 text-gray-400' : 'border-gray-200 text-gray-500'">
-    <span 
-      :class="user?.role === 'admin' 
-        ? (isDarkMode ? 'text-purple-400' : 'text-purple-600') 
-        : (isDarkMode ? 'text-green-400' : 'text-green-600')"
-    >
-      {{ user?.role === 'admin' ? 'Administrateur' : 'Utilisateur' }}
-    </span>
-  </div>
+    <div class="p-4 border-t text-xs flex items-center justify-center"
+         :class="isDarkMode ? 'border-gray-800 text-gray-400' : 'border-gray-200 text-gray-500'">
+      <span 
+        :class="isAdmin 
+          ? (isDarkMode ? 'text-purple-400' : 'text-purple-600') 
+          : (isDarkMode ? 'text-green-400' : 'text-green-600')"
+      >
+        {{ isAdmin ? 'Administrateur' : 'Utilisateur' }}
+      </span>
+    </div>
   </aside>
 </template>
 
@@ -131,7 +131,7 @@ import { useRouter } from 'vue-router';
 import { storeToRefs } from 'pinia';
 import { useThemeStore } from '@/stores/theme';
 import { useLayoutStore } from '@/stores/layoutStore';
-import { useAuthStore } from '@/stores/auth';
+import { useAuthStore } from '@/stores/AuthStore';
 
 import logo from '@/assets/logo/logo.svg';
 import logoCollapsed from '@/assets/logo/logo-collapsed.svg';
@@ -158,6 +158,7 @@ const isDarkMode = darkMode;
 
 const authStore = useAuthStore();
 const { user, isAuthenticated } = storeToRefs(authStore);
+const isAdmin = computed(() => authStore.isAdmin);
 
 // URL de l'avatar utilisateur
 const userAvatarUrl = computed(() => {
@@ -177,10 +178,9 @@ const menuItems = computed(() => {
 
 // Filtrer les éléments de menu selon le rôle de l'utilisateur
 const hasAccess = (item) => {
-  // Si la route nécessite un rôle spécifique
-  if (item.meta?.requiredRole) {
-    // Vérifier si l'utilisateur a le rôle requis
-    return authStore.hasAccess(item.meta.requiredRole);
+  // Si la route nécessite un rôle admin
+  if (item.meta?.requiredRole === 'admin') {
+    return isAdmin.value;
   }
   // Par défaut, autoriser l'accès
   return true;
@@ -202,18 +202,4 @@ const filteredAdminMenuItems = computed(() => {
     .filter(item => item.meta?.group === 'Administration' && hasAccess(item));
 });
 
-
-// Initialisation: vérifier l'authentification
-onMounted(async () => {
-  if (isAuthenticated.value && !user.value) {
-    await authStore.getUserProfile();
-  }
-});
-
-// Observer les changements d'authentification
-watch(isAuthenticated, async (newValue) => {
-  if (newValue && !user.value) {
-    await authStore.getUserProfile();
-  }
-});
 </script>

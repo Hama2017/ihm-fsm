@@ -78,35 +78,35 @@
   
   // Méthodes
   const handleForgotPassword = async () => {
-    // Réinitialiser les erreurs
-    emailError.value = '';
-    errorMessage.value = '';
-    successMessage.value = '';
-  
-    // Validation email
-    if (!email.value) {
-      emailError.value = 'L\'email est requis';
-      return;
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value)) {
-      emailError.value = 'Format d\'email invalide';
-      return;
-    }
-  
-    try {
-      isLoading.value = true;
-  
-      // Simuler l'envoi d'un email de réinitialisation (à remplacer par l'appel API réel)
-      await new Promise(resolve => setTimeout(resolve, 1500));
-  
-      // Afficher un message de succès
-      successMessage.value = 'Un email de réinitialisation de mot de passe a été envoyé à votre adresse email.';
-      toast.success('Email de réinitialisation envoyé');
-    } catch (error) {
-      console.error('Erreur lors de la réinitialisation du mot de passe:', error);
-      errorMessage.value = 'Une erreur est survenue lors de l\'envoi de l\'email. Veuillez réessayer plus tard.';
-    } finally {
-      isLoading.value = false;
-    }
-  };
+  // Réinitialiser les erreurs
+  emailError.value = '';
+  errorMessage.value = '';
+  successMessage.value = '';
+
+  // Validation email
+  if (!email.value) {
+    emailError.value = 'L\'email est requis';
+    return;
+  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value)) {
+    emailError.value = 'Format d\'email invalide';
+    return;
+  }
+
+  try {
+    isLoading.value = true;
+
+    // Appel réel à l'API via le store
+    await useAuthStore().requestPasswordReset(email.value);
+
+    // Afficher un message de succès
+    successMessage.value = 'Un email de réinitialisation de mot de passe a été envoyé à votre adresse email.';
+    toast.success('Email de réinitialisation envoyé');
+  } catch (error) {
+    console.error('Erreur lors de la réinitialisation du mot de passe:', error);
+    errorMessage.value = 'Une erreur est survenue lors de l\'envoi de l\'email. Veuillez réessayer plus tard.';
+  } finally {
+    isLoading.value = false;
+  }
+};
   </script>
   

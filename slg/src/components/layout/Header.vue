@@ -104,7 +104,7 @@
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useThemeStore } from '@/stores/theme';
-import { useAuthStore } from '@/stores/auth';
+import { useAuthStore } from '@/stores/AuthStore';
 import { storeToRefs } from 'pinia';
 import toast from '@/composables/Toast/useToast';
 import {
