@@ -1,0 +1,13 @@
+{
+  "events": [
+    {
+      "timestamp": "2025-05-15T12:02:17.227491+00:00",
+      "contract_name": "j",
+      "event_type": "create",
+      "user_id": "admin@localhost.com",
+      "details": {
+        "automatons_count": 1
+      }
+    }
+  ]
+}

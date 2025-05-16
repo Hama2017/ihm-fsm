@@ -1,4 +1,3 @@
-# app/api/routes/package.py
 from fastapi import APIRouter, Depends, status
 from typing import List
 
@@ -45,29 +44,29 @@ def create_package(
     return service.create_package(package)
 
 @router.get(
-    "/{name}",
-    summary="Get a package by name",
+    "/{id}",
+    summary="Get a package by ID",
     response_description="The package"
 )
 def get_package(
-    name: str,
+    id: str,
     user: User = Depends(get_current_user),
     service: PackageService = Depends(get_package_service)
 ) -> PackageModel:
     """
-    Get a package by its name.
+    Get a package by its ID.
     
     This endpoint requires authentication.
     """
-    return service.get_package(name)
+    return service.get_package(id)
 
 @router.put(
-    "/{name}",
+    "/{id}",
     summary="Update a package",
     response_description="The updated package"
 )
 def update_package(
-    name: str,
+    id: str,
     package: PackageModel,
     user: User = Depends(get_admin_user),  # Admin only
     service: PackageService = Depends(get_package_service)
@@ -77,22 +76,22 @@ def update_package(
     
     This endpoint requires administrator privileges.
     """
-    return service.update_package(name, package)
+    return service.update_package(id, package)
 
 @router.delete(
-    "/{name}",
+    "/{id}",
     summary="Delete a package",
     response_description="Success message",
     status_code=status.HTTP_204_NO_CONTENT
 )
 def delete_package(
-    name: str,
+    id: str,
     user: User = Depends(get_admin_user),  # Admin only
     service: PackageService = Depends(get_package_service)
 ) -> None:
     """
-    Delete a package by its name.
+    Delete a package by its ID.
     
     This endpoint requires administrator privileges.
     """
-    service.delete_package(name)
+    service.delete_package(id)

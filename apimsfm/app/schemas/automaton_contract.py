@@ -2,12 +2,11 @@ from pydantic import BaseModel, Field
 from typing import List, Optional
 from datetime import datetime, timezone
 from app.enums.contract_status import ContractStatus
-
+import uuid
 
 class Position(BaseModel):
     x: float
     y: float
-
 
 class State(BaseModel):
     id: str
@@ -16,7 +15,6 @@ class State(BaseModel):
     type: str
     sourcePosition: Optional[str] = None
     targetPosition: Optional[str] = None
-
 
 class Transition(BaseModel):
     id: str
@@ -27,7 +25,6 @@ class Transition(BaseModel):
     conditions: Optional[List[str]] = []
     automataDependencies: Optional[List[str]] = None
 
-
 class Automaton(BaseModel):
     id: str
     name: str
@@ -35,9 +32,8 @@ class Automaton(BaseModel):
     states: List[State]
     transitions: List[Transition]
 
-
 class AutomatonContract(BaseModel):
-    id: Optional[str] = None
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     name: str
     status: ContractStatus = ContractStatus.DRAFT  #Default status is draft
     createdAt: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))

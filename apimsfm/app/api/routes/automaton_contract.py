@@ -1,4 +1,3 @@
-# app/api/routes/automaton_contract.py
 from fastapi import APIRouter, Depends, status, Query
 from typing import Dict, List, Optional, Any
 
@@ -27,6 +26,24 @@ def list_automaton_contracts(
     contracts = service.get_all_contracts()
     return {"contracts": contracts}
 
+@router.get(
+    "/by-user/{user_id}",
+    summary="List automaton contracts by user",
+    response_description="List of automaton contracts created by the specified user"
+)
+def list_automaton_contracts_by_user(
+    user_id: str,
+    user: User = Depends(get_current_user),
+    service: AutomatonContractService = Depends(get_automaton_contract_service)
+) -> Dict[str, List[AutomatonContract]]:
+    """
+    List all automaton contracts created by a specific user.
+    
+    This endpoint requires authentication.
+    """
+    contracts = service.get_contracts_by_user(user_id)
+    return {"contracts": contracts}
+
 @router.post(
     "/",
     summary="Create a new automaton contract",
@@ -46,53 +63,53 @@ def create_automaton_contract(
     return service.create_contract(contract, user.email)
 
 @router.get(
-    "/{contract_name}",
-    summary="Get an automaton contract by name",
+    "/{contract_id}",
+    summary="Get an automaton contract by ID",
     response_description="Automaton contract"
 )
 def get_automaton_contract(
-    contract_name: str,
+    contract_id: str,
     user: User = Depends(get_current_user),
     service: AutomatonContractService = Depends(get_automaton_contract_service)
 ) -> AutomatonContract:
     """
-    Get an automaton contract by name.
+    Get an automaton contract by its ID.
     
     This endpoint requires authentication.
     """
-    return service.get_contract(contract_name)
+    return service.get_contract_by_id(contract_id)
 
 @router.put(
-    "/{contract_name}",
+    "/{contract_id}",
     summary="Update an automaton contract",
     response_description="Update result"
 )
 def update_automaton_contract(
-    contract_name: str,
+    contract_id: str,
     contract: AutomatonContract,
     user: User = Depends(get_current_user),
     service: AutomatonContractService = Depends(get_automaton_contract_service)
 ) -> Dict[str, Any]:
     """
-    Update an automaton contract.
+    Update an automaton contract by ID.
     
     This endpoint requires authentication.
     """
-    return service.update_contract(contract_name, contract, user.email)
+    return service.update_contract(contract_id, contract, user.email)
 
 @router.delete(
-    "/{contract_name}",
+    "/{contract_id}",
     summary="Delete an automaton contract",
     response_description="Deletion result"
 )
 def delete_automaton_contract(
-    contract_name: str,
+    contract_id: str,
     user: User = Depends(get_current_user),
     service: AutomatonContractService = Depends(get_automaton_contract_service)
 ) -> Dict[str, Any]:
     """
-    Delete an automaton contract.
+    Delete an automaton contract by ID.
     
     This endpoint requires authentication.
     """
-    return service.delete_contract(contract_name, user.email)
+    return service.delete_contract(contract_id, user.email)

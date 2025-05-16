@@ -14,42 +14,42 @@ class HistoryTracker:
         self.history_dir = settings.HISTORY_DIR
         os.makedirs(self.history_dir, exist_ok=True)
 
-    def _get_contract_history_path(self, contract_name: str) -> str:
-        """Get the path to the contract history file."""
-        return os.path.join(self.history_dir, f"{contract_name}_history.json")
+    def _get_contract_history_path(self, contract_id: str) -> str:
+        """Return the path to the contract's history file."""
+        return os.path.join(self.history_dir, f"{contract_id}_history.json")
 
     def record_event(
             self,
-            contract_name: str,
+            contract_id: str,
             event_type: str,
             user_id: Optional[str] = None,
             details: Optional[Dict[str, Any]] = None
     ) -> Dict[str, Any]:
         """
-        Record a contract event in the history.
+        Record an event in the contract's history.
 
         Args:
-            contract_name: Name of the contract
-            event_type: Type of event (create, update, deploy, etc.)
+            contract_id: Unique identifier of the contract
+            event_type: Type of event (e.g., create, update, deploy)
             user_id: ID of the user who performed the action
-            details: Additional event details
+            details: Additional metadata for the event
 
         Returns:
-            Dict[str, Any]: The recorded event
+            Dict[str, Any]: The newly recorded event
         """
-        # Create event data
+        # Create the event entry
         event = {
             "timestamp": datetime.now(timezone.utc).isoformat(),
-            "contract_name": contract_name,
+            "contract_id": contract_id,
             "event_type": event_type,
             "user_id": user_id,
             "details": details or {}
         }
 
-        # Get history file path
-        history_path = self._get_contract_history_path(contract_name)
+        # Determine file path
+        history_path = self._get_contract_history_path(contract_id)
 
-        # Load existing history or create new
+        # Load existing history, or initialize new one
         if os.path.exists(history_path):
             try:
                 with open(history_path, 'r') as f:
@@ -59,26 +59,26 @@ class HistoryTracker:
         else:
             history = {"events": []}
 
-        # Add new event
+        # Append the new event
         history["events"].append(event)
 
-        # Save updated history
+        # Save the updated history to file
         with open(history_path, 'w') as f:
             json.dump(history, f, indent=2)
 
         return event
 
-    def get_contract_history(self, contract_name: str) -> List[Dict[str, Any]]:
+    def get_contract_history(self, contract_id: str) -> List[Dict[str, Any]]:
         """
-        Get the history of events for a contract.
+        Retrieve the event history of a specific contract.
 
         Args:
-            contract_name: Name of the contract
+            contract_id: Unique identifier of the contract
 
         Returns:
-            List[Dict[str, Any]]: List of events for the contract
+            List[Dict[str, Any]]: List of recorded events
         """
-        history_path = self._get_contract_history_path(contract_name)
+        history_path = self._get_contract_history_path(contract_id)
 
         if not os.path.exists(history_path):
             return []

@@ -1,0 +1,21 @@
+{
+  "name": "p2",
+  "label": null,
+  "description": null,
+  "functions": {
+    "c1": {
+      "code": "function package__p2__c1() public pure returns (bool) { return true; }",
+      "default": false,
+      "label": null,
+      "description": null
+    },
+    "c2": {
+      "code": "function package__p2__c2() public pure returns (bool) { return true; }",
+      "default": false,
+      "label": null,
+      "description": null
+    }
+  },
+  "structs": [],
+  "variables": []
+}

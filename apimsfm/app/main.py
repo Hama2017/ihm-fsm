@@ -4,7 +4,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.api.routes.smart_contract import router as smart_contract_router
 from app.api.routes.automaton_contract import router as automaton_contract_router
 from app.api.routes.package import router as package_router
-from app.api.routes.history import router as history_router
 from app.auth.api.routes import router as auth_router
 from app.api_keys.routes.api_key_routes import router as api_key_router
 
@@ -49,9 +48,8 @@ app.add_middleware(
 api_prefix = settings.API_PREFIX
 
 # Register routes with tags
-app.include_router(smart_contract_router, prefix=api_prefix, tags=["Smart Contracts"])
-app.include_router(automaton_contract_router, prefix=api_prefix, tags=["Automaton Contracts"])
-app.include_router(package_router, prefix=api_prefix, tags=["Packages"])
-app.include_router(history_router, prefix=api_prefix, tags=["History"])
+app.include_router(smart_contract_router, prefix=api_prefix)
+app.include_router(automaton_contract_router, prefix=api_prefix)
+app.include_router(package_router, prefix=api_prefix)
 app.include_router(auth_router, prefix=api_prefix)
-app.include_router(api_key_router, prefix=api_prefix, tags=["API Keys"])
+app.include_router(api_key_router, prefix=api_prefix)

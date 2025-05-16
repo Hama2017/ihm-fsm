@@ -16,7 +16,7 @@ def add_api_key_security_schema(app):
             routes=app.routes,
         )
 
-        # Déclare les 2 schémas de sécurité
+        # Declare both security schemes
         openapi_schema["components"]["securitySchemes"] = {
             "ApiKeyAuth": {
                 "type": "apiKey",
@@ -30,7 +30,7 @@ def add_api_key_security_schema(app):
             }
         }
 
-        # Applique les 2 à toutes les opérations (ou choisis finement si tu veux)
+        # Apply both security schemes to all operations (or refine per route if needed)
         for path in openapi_schema["paths"].values():
             for operation in path.values():
                 operation.setdefault("security", []).extend([

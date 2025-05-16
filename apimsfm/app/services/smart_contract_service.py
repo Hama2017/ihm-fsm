@@ -49,7 +49,7 @@ class SmartContractService:
             self.repository.save(specification.name, contract_data)
 
             self.history_tracker.record_event(
-                contract_name=specification.name,
+                contract_id=specification.name,
                 event_type=HistoryTrackerEventType.DEPLOY,
                 user_id=user_id,
                 details={"automatons_count": len(specification.automatons)}
@@ -70,7 +70,7 @@ class SmartContractService:
         self.repository.delete(contract_name)
 
         self.history_tracker.record_event(
-            contract_name=contract_name,
+            contract_id=contract_name,
             event_type=HistoryTrackerEventType.DELETE_DEPLOYED,
             user_id=user_id
         )
@@ -106,7 +106,7 @@ class SmartContractService:
             result = executor.execute(function_name=function_name, function_args=args)
 
             self.history_tracker.record_event(
-                contract_name=contract_name,
+                contract_id=contract_name,
                 event_type=HistoryTrackerEventType.EXECUTE,
                 user_id=user_id,
                 details={

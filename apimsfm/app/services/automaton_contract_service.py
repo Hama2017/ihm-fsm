@@ -6,10 +6,9 @@ from app.repositories.automaton_contract_repository import AutomatonContractRepo
 from app.core.exceptions import AutomatonContractNotFoundException, AutomatonContractAlreadyExistsException
 from app.utils.history_tracker import HistoryTracker
 from app.enums.contract_status import ContractStatus
-from app.enums.history_events import  HistoryTrackerEventType
+from app.enums.history_events import HistoryTrackerEventType
 
 from app.core.config import settings
-
 
 class AutomatonContractService:
     """Service for managing automaton contracts."""
@@ -19,12 +18,50 @@ class AutomatonContractService:
         self.history_tracker = HistoryTracker()
 
     def get_all_contracts(self) -> List[AutomatonContract]:
+        """Get all automaton contracts."""
         return self.repository.get_all()
 
-    def get_contract(self, name: str) -> AutomatonContract:
-        return self.repository.get_by_name(name)
+    def get_contract_by_id(self, contract_id: str) -> AutomatonContract:
+        """
+        Get a contract by its ID.
+        
+        Args:
+            contract_id: The ID of the contract to retrieve
+            
+        Returns:
+            The contract
+            
+        Raises:
+            AutomatonContractNotFoundException: If contract is not found
+        """
+        return self.repository.get_by_id(contract_id)
+    
+    def get_contracts_by_user(self, user_id: str) -> List[AutomatonContract]:
+        """
+        Get all contracts created by a specific user.
+        
+        Args:
+            user_id: The ID of the user who created the contracts
+            
+        Returns:
+            List of contracts created by the user
+        """
+        return self.repository.get_by_field('createdBy', user_id)
 
     def create_contract(self, contract: AutomatonContract, user_id: Optional[str] = None) -> Dict[str, Any]:
+        """
+        Create a new automaton contract.
+        
+        Args:
+            contract: Contract data
+            user_id: ID of the user creating the contract
+            
+        Returns:
+            Dictionary with creation information
+            
+        Raises:
+            AutomatonContractAlreadyExistsException: If contract with the same ID already exists
+        """
         contract.status = ContractStatus.DRAFT.value
 
         if user_id:
@@ -34,14 +71,10 @@ class AutomatonContractService:
         contract.createdAt = now
         contract.updatedAt = now
 
-        if self.repository.exists(contract.name):
-            raise AutomatonContractAlreadyExistsException(contract.name)
-
-        sanitized_name = self.repository._sanitize_name(contract.name)
         created_contract = self.repository.create(contract)
 
         self.history_tracker.record_event(
-            contract_name=contract.name,
+            contract_id=created_contract.id,
             event_type=HistoryTrackerEventType.CREATE,
             user_id=user_id,
             details={"automatons_count": len(contract.automates)}
@@ -49,25 +82,41 @@ class AutomatonContractService:
 
         return {
             "message": "Automaton contract created successfully.",
-            "filename": f"{sanitized_name}{settings.AUTOMATON_CONTRACT_EXTENSION}",
-            "contractName": sanitized_name
+            "contractId": created_contract.id,
+            "contractName": created_contract.name
         }
-
-    def update_contract(self, name: str, contract: AutomatonContract, user_id: Optional[str] = None) -> Dict[str, Any]:
+    
+    def update_contract(self, contract_id: str, contract: AutomatonContract, user_id: Optional[str] = None) -> Dict[str, Any]:
+        """
+        Update a contract by its ID.
+        
+        Args:
+            contract_id: The ID of the contract to update
+            contract: The updated contract data
+            user_id: The ID of the user making the update
+            
+        Returns:
+            Dictionary with update information
+            
+        Raises:
+            AutomatonContractNotFoundException: If contract is not found
+        """
         contract.updatedAt = datetime.now(timezone.utc)
-
-        try:
-            existing_contract = self.repository.get_by_name(name)
-            contract.createdAt = existing_contract.createdAt
-            contract.createdBy = existing_contract.createdBy
-        except AutomatonContractNotFoundException:
-            pass
-
-        sanitized_name = self.repository._sanitize_name(name)
-        updated_contract = self.repository.update(name, contract)
+        
+        # Get existing contract to preserve creation info
+        existing_contract = self.get_contract_by_id(contract_id)
+        
+        # Preserve creation info
+        contract.createdAt = existing_contract.createdAt
+        contract.createdBy = existing_contract.createdBy
+        # Preserve the original ID
+        contract.id = contract_id
+        
+        updated_contract = self.repository.update(contract_id, contract)
 
         self.history_tracker.record_event(
-            contract_name=name,
+            contract_id=contract_id,
+            contract_name=updated_contract.name,
             event_type=HistoryTrackerEventType.UPDATE,
             user_id=user_id,
             details={"automatons_count": len(contract.automates)}
@@ -75,20 +124,39 @@ class AutomatonContractService:
 
         return {
             "message": "Automaton contract updated successfully.",
-            "filename": f"{sanitized_name}{settings.AUTOMATON_CONTRACT_EXTENSION}"
+            "contractId": contract_id,
+            "contractName": updated_contract.name
         }
-
-    def delete_contract(self, name: str, user_id: Optional[str] = None) -> Dict[str, Any]:
-        sanitized_name = self.repository._sanitize_name(name)
-        self.repository.delete(name)
+    
+    def delete_contract(self, contract_id: str, user_id: Optional[str] = None) -> Dict[str, Any]:
+        """
+        Delete a contract by its ID.
+        
+        Args:
+            contract_id: The ID of the contract to delete
+            user_id: The ID of the user making the deletion
+            
+        Returns:
+            Dictionary with deletion information
+            
+        Raises:
+            AutomatonContractNotFoundException: If contract is not found
+        """
+        # Get the contract to get its name before deletion for history
+        contract = self.get_contract_by_id(contract_id)
+        contract_name = contract.name
+        
+        self.repository.delete(contract_id)
 
         self.history_tracker.record_event(
-            contract_name=name,
+            contract_id=contract_id,
+            contract_name=contract_name,
             event_type=HistoryTrackerEventType.DELETE,
             user_id=user_id
         )
 
         return {
             "message": "Automaton contract deleted successfully.",
-            "filename": f"{sanitized_name}{settings.AUTOMATON_CONTRACT_EXTENSION}"
+            "contractId": contract_id,
+            "contractName": contract_name
         }

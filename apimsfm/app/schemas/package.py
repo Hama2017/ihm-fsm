@@ -25,7 +25,7 @@ class FunctionModel(BaseModel):
 
 
 class PackageModel(BaseModel):
-    name: str
+    id: str
     label: Optional[str] = None
     description: Optional[str] = None
     functions: Dict[str, FunctionModel]

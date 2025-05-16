@@ -2,9 +2,7 @@ from app.repositories.base_repository import FileSystemRepository
 from app.schemas.automaton_contract import AutomatonContract
 from app.core.config import settings
 from app.core.exceptions import AutomatonContractNotFoundException, AutomatonContractAlreadyExistsException
-from app.core.config import settings
 from app.enums.contract_status import ContractStatus
-
 
 class AutomatonContractRepository(FileSystemRepository[AutomatonContract]):
     """Repository for managing automaton contracts."""
