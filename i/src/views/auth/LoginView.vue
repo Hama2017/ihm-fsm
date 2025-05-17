@@ -146,7 +146,7 @@
   
     try {
       const result = await authStore.login(email.value, password.value);
-  
+      console.log('Résultat de la connexion :', result);
       if (result.success) {
         toast.success('Connexion réussie');
         // Rediriger vers le splash screen

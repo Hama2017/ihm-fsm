@@ -4,173 +4,180 @@ import { useI18n } from '@/composables/i18n/useI18n';
 /**
  * Service pour gérer les erreurs de l'application
  * - Centralise la gestion des erreurs
- * - Utilise le système de toast pour afficher les erreurs
- * - Intègre l'internationalisation des messages d'erreur
+ * - Traduit les codes d'erreur API en messages localisés
+ * - Affiche les erreurs via le système de toast
  */
 export const ErrorService = {
   /**
-   * Gérer une erreur API
-   * @param {Error} error L'erreur à traiter
-   * @param {String} defaultMessage Message par défaut si aucun message d'erreur spécifique n'est trouvé
-   * @param {boolean} logError Si true, enregistre l'erreur dans la console
+   * Gère une erreur d'API en extrayant le code d'erreur et en l'affichant
+   * @param {Error} error - L'erreur Axios retournée par l'API
+   * @param {String} defaultMessage - Code du message par défaut à utiliser si aucun code spécifique n'est trouvé
+   * @param {Boolean} showToast - Si true, affiche automatiquement un toast d'erreur
+   * @returns {String} Le message d'erreur traduit
    */
-  handleApiError(error, defaultMessage = 'errors.unknownError', logError = true) {
-    if (logError) {
-      console.error('API Error:', error);
-    }
-    
+  handleApiError(error, defaultMessage = 'errors.general.internal_error', showToast = true) {
     const { t } = useI18n();
-    let errorMessage = t(defaultMessage);
-    let errorDetails = null;
+    let errorMessage = '';
+    let errorCode = '';
     
-    // Déterminer le message d'erreur approprié
-    if (error.response) {
-      // Structure de l'erreur API
-      const apiError = error.response.data;
+    // Extraire le code d'erreur et le message
+    if (error.response && error.response.data) {
+      const { code, message } = error.response.data;
       
-      // Extraire le message d'erreur spécifique
-      if (apiError?.detail) {
-        if (typeof apiError.detail === 'string') {
-          errorMessage = apiError.detail;
-        } else if (apiError.detail?.code) {
-          // Utiliser le code d'erreur pour obtenir une traduction
-          const errorCode = `errors.${apiError.detail.code}`;
-          errorMessage = t(errorCode, apiError.detail.params || {});
-          errorDetails = apiError.detail.message;
-        }
-      } else if (apiError?.message) {
-        errorMessage = apiError.message;
+      // Utiliser le code d'erreur s'il existe
+      if (code) {
+        errorCode = code;
+        // Vérifier si le code existe dans nos traductions
+        const translationPath = `errors.${code}`;
+        errorMessage = t(translationPath);
+      } 
+      // Sinon utiliser le message renvoyé par l'API
+      else if (message) {
+        errorMessage = message;
       }
-      
-      // Si aucun message spécifique n'est trouvé, utiliser un message basé sur le code HTTP
-      if (errorMessage === t(defaultMessage)) {
-        switch (error.response.status) {
-          case 400:
-            errorMessage = t('errors.badRequest');
-            break;
-          case 401:
-            errorMessage = t('errors.unauthorized');
-            break;
-          case 403:
-            errorMessage = t('errors.forbidden');
-            break;
-          case 404:
-            errorMessage = t('errors.notFound');
-            break;
-          case 409:
-            errorMessage = t('errors.conflict');
-            break;
-          case 422:
-            errorMessage = t('errors.validationFailed');
-            break;
-          case 429:
-            errorMessage = t('errors.tooManyRequests');
-            break;
-          case 500:
-            errorMessage = t('errors.serverError');
-            break;
-          case 503:
-            errorMessage = t('errors.serviceUnavailable');
-            break;
-          default:
-            if (error.response.status >= 500) {
-              errorMessage = t('errors.serverError');
-            } else if (error.response.status >= 400) {
-              errorMessage = t('errors.clientError');
-            }
-        }
-      }
-    } else if (error.request) {
-      // La requête a été envoyée mais aucune réponse n'a été reçue
-      errorMessage = t('errors.noResponse');
-    } else if (error.message) {
-      // Erreur lors de la configuration de la requête
-      errorMessage = error.message;
     }
     
-    // Afficher le toast d'erreur
-    toast.error(errorMessage, {
-      duration: 6000, // Durée plus longue pour les erreurs
-      ...(errorDetails && { description: errorDetails }) // Ajouter les détails si disponibles
-    });
+    // Si aucun message spécifique n'est trouvé, utiliser le code HTTP
+    if (!errorMessage && error.response) {
+      switch (error.response.status) {
+        case 400:
+          errorCode = 'general.bad_request';
+          errorMessage = t('errors.general.bad_request');
+          break;
+        case 401:
+          errorCode = 'general.unauthorized';
+          errorMessage = t('errors.general.unauthorized');
+          break;
+        case 403:
+          errorCode = 'general.forbidden';
+          errorMessage = t('errors.general.forbidden');
+          break;
+        case 404:
+          errorCode = 'general.not_found';
+          errorMessage = t('errors.general.not_found');
+          break;
+        case 409:
+          errorCode = 'general.conflict';
+          errorMessage = t('errors.general.conflict');
+          break;
+        case 500:
+          errorCode = 'general.internal_error';
+          errorMessage = t('errors.general.internal_error');
+          break;
+        default:
+          errorCode = 'general.internal_error';
+          errorMessage = t('errors.general.internal_error');
+      }
+    }
     
-    // Retourner le message d'erreur au cas où le code appelant voudrait le traiter
-    return errorMessage;
+    // Si c'est une erreur réseau (pas de réponse du serveur)
+    if (error.request && !error.response) {
+      errorCode = 'general.network_error';
+      errorMessage = t('errors.general.network_error');
+    }
+    
+    // Si c'est une autre erreur JavaScript
+    if (!errorMessage) {
+      errorCode = defaultMessage;
+      errorMessage = t(defaultMessage);
+    }
+    
+    // Afficher le toast si demandé
+    if (showToast) {
+      toast.error(errorMessage);
+    }
+    
+    // Log l'erreur en développement
+    if (process.env.NODE_ENV !== 'production') {
+      console.error('API Error:', error);
+      console.error('Error Code:', errorCode);
+      console.error('Error Message:', errorMessage);
+    }
+    
+    return {
+      code: errorCode,
+      message: errorMessage
+    };
   },
   
   /**
-   * Gérer une erreur de validation de formulaire
-   * @param {Object} validationErrors Objet contenant les erreurs de validation
-   * @param {String} defaultMessage Message par défaut si aucun message d'erreur spécifique n'est trouvé
+   * Gère une erreur de validation (erreur de formulaire)
+   * @param {Object} validationErrors - Erreurs de validation
+   * @param {Boolean} showToast - Si true, affiche automatiquement un toast d'erreur
+   * @returns {Object} Les messages d'erreur par champ
    */
-  handleValidationError(validationErrors, defaultMessage = 'errors.validationFailed') {
+  handleValidationError(validationErrors, showToast = true) {
     const { t } = useI18n();
+    const formattedErrors = {};
     
     // Si nous avons un objet d'erreurs de validation complexe
     if (typeof validationErrors === 'object' && validationErrors !== null) {
-      // Récupérer le premier message d'erreur
-      const firstField = Object.keys(validationErrors)[0];
-      if (firstField && validationErrors[firstField]) {
-        let errorMessage = Array.isArray(validationErrors[firstField])
-          ? validationErrors[firstField][0]
-          : validationErrors[firstField];
-          
-        toast.error(errorMessage);
-        return errorMessage;
+      // Parcourir toutes les erreurs et les formater
+      Object.keys(validationErrors).forEach(field => {
+        const fieldError = validationErrors[field];
+        
+        if (Array.isArray(fieldError)) {
+          formattedErrors[field] = fieldError[0];
+        } else {
+          formattedErrors[field] = fieldError;
+        }
+      });
+      
+      // Afficher la première erreur si demandé
+      if (showToast && Object.keys(formattedErrors).length > 0) {
+        const firstField = Object.keys(formattedErrors)[0];
+        toast.error(formattedErrors[firstField]);
       }
+    } else {
+      // Si c'est une erreur simple, l'afficher directement
+      const errorMessage = t('errors.general.validation_failed');
+      
+      if (showToast) {
+        toast.error(errorMessage);
+      }
+      
+      formattedErrors._global = errorMessage;
     }
     
-    // Fallback sur le message par défaut
-    const errorMessage = t(defaultMessage);
-    toast.error(errorMessage);
-    return errorMessage;
+    return formattedErrors;
   },
   
   /**
-   * Gérer une erreur générique
-   * @param {Error|String} error L'erreur à traiter
-   * @param {String} defaultMessage Message par défaut si aucun message d'erreur spécifique n'est trouvé
-   * @param {boolean} logError Si true, enregistre l'erreur dans la console
+   * Gère une erreur générique (non API)
+   * @param {Error|String} error - L'erreur à gérer
+   * @param {String} defaultMessage - Code du message par défaut
+   * @param {Boolean} showToast - Si true, affiche automatiquement un toast d'erreur
+   * @returns {String} Le message d'erreur
    */
-  handleError(error, defaultMessage = 'errors.unknownError', logError = true) {
-    if (logError) {
-      console.error('Error:', error);
-    }
-    
+  handleGenericError(error, defaultMessage = 'errors.general.internal_error', showToast = true) {
     const { t } = useI18n();
     let errorMessage = '';
     
+    // Déterminer le message d'erreur
     if (error instanceof Error) {
-      errorMessage = error.message || t(defaultMessage);
+      errorMessage = error.message;
     } else if (typeof error === 'string') {
-      errorMessage = error;
+      // Vérifier si la chaîne est un code d'erreur que nous pouvons traduire
+      if (error.startsWith('errors.')) {
+        errorMessage = t(error);
+      } else {
+        errorMessage = error;
+      }
     } else {
       errorMessage = t(defaultMessage);
     }
     
-    toast.error(errorMessage);
+    // Afficher le toast si demandé
+    if (showToast) {
+      toast.error(errorMessage);
+    }
+    
+    // Log l'erreur en développement
+    if (process.env.NODE_ENV !== 'production') {
+      console.error('Error:', error);
+    }
+    
     return errorMessage;
-  },
-  
-  /**
-   * Gère les différents types d'erreurs possibles
-   * @param {Error|Object|String} error L'erreur à traiter
-   * @param {String} defaultMessage Message par défaut
-   * @param {boolean} logError Si true, enregistre l'erreur dans la console
-   */
-  handle(error, defaultMessage = 'errors.unknownError', logError = true) {
-    // Si c'est une erreur API (avec response ou request)
-    if (error && (error.response || error.request)) {
-      return this.handleApiError(error, defaultMessage, logError);
-    }
-    
-    // Si c'est une erreur de validation
-    if (error && typeof error === 'object' && !Array.isArray(error) && !(error instanceof Error)) {
-      return this.handleValidationError(error, defaultMessage);
-    }
-    
-    // Sinon, c'est une erreur générique
-    return this.handleError(error, defaultMessage, logError);
   }
 };
 
