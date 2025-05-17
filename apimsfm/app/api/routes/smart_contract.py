@@ -101,7 +101,7 @@ def execute_smart_contract_function(
     This endpoint requires authentication.
     """
     return service.execute_contract_function(
-        contract_name=contract_name,
+        contract_id=contract_name,
         automaton_name=clause_name,
         function_name=function_name,
         args=execution_request.args,

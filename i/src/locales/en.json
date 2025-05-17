@@ -1,0 +1,56 @@
+{
+    "errors": {
+      "general": {
+        "not_found": "Resource not found",
+        "bad_request": "Invalid request",
+        "internal_error": "An internal error occurred",
+        "validation_failed": "Validation failed",
+        "unauthorized": "Unauthorized",
+        "forbidden": "Access forbidden",
+        "conflict": "Resource conflict"
+      },
+      "auth": {
+        "email_already_used": "This email is already in use",
+        "invalid_credentials": "Invalid email or password",
+        "user_not_found": "User not found",
+        "incorrect_current_password": "Current password is incorrect",
+        "password_update_failed": "Password update failed",
+        "insufficient_permissions": "Insufficient permissions",
+        "missing_token": "Authentication token is missing",
+        "invalid_token": "Invalid or expired token"
+      },
+      "apikey": {
+        "not_found": "API key not found",
+        "already_exists": "This API key already exists",
+        "invalid": "Invalid API key",
+        "unauthorized": "Unauthorized access",
+        "missing_header": "API key header is missing",
+        "disabled": "This API key is disabled"
+      },
+      "contract": {
+        "not_found": "Contract not found",
+        "already_exists": "This contract already exists",
+        "validation_failed": "Contract validation failed",
+        "deployment_failed": "Contract deployment failed",
+        "execution_failed": "Contract execution failed",
+        "unauthorized_access": "Unauthorized contract access",
+        "invalid_state": "Invalid contract state",
+        "compilation_failed": "Contract compilation failed"
+      },
+      "automaton": {
+        "not_found": "Automaton not found",
+        "already_exists": "This automaton already exists",
+        "invalid_structure": "Invalid automaton structure",
+        "state_not_found": "State not found",
+        "transition_not_found": "Transition not found",
+        "cyclic_dependency": "Cyclic dependency detected"
+      },
+      "package": {
+        "not_found": "Package not found",
+        "already_exists": "This package already exists",
+        "invalid_structure": "Invalid package structure",
+        "missing_function": "Missing function",
+        "dependency_not_found": "Dependency not found"
+      }
+    }
+  }

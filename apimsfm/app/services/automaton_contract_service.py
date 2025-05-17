@@ -116,7 +116,6 @@ class AutomatonContractService:
 
         self.history_tracker.record_event(
             contract_id=contract_id,
-            contract_name=updated_contract.name,
             event_type=HistoryTrackerEventType.UPDATE,
             user_id=user_id,
             details={"automatons_count": len(contract.automates)}
@@ -150,7 +149,6 @@ class AutomatonContractService:
 
         self.history_tracker.record_event(
             contract_id=contract_id,
-            contract_name=contract_name,
             event_type=HistoryTrackerEventType.DELETE,
             user_id=user_id
         )

@@ -1,0 +1,56 @@
+{
+    "errors": {
+      "general": {
+        "not_found": "Ressource non trouvée",
+        "bad_request": "Requête invalide",
+        "internal_error": "Une erreur interne est survenue",
+        "validation_failed": "La validation a échoué",
+        "unauthorized": "Non authentifié",
+        "forbidden": "Accès interdit",
+        "conflict": "Conflit de ressources"
+      },
+      "auth": {
+        "email_already_used": "Cet email est déjà utilisé",
+        "invalid_credentials": "Email ou mot de passe incorrect",
+        "user_not_found": "Utilisateur non trouvé",
+        "incorrect_current_password": "Le mot de passe actuel est incorrect",
+        "password_update_failed": "La mise à jour du mot de passe a échoué",
+        "insufficient_permissions": "Permissions insuffisantes",
+        "missing_token": "Jeton d'authentification manquant",
+        "invalid_token": "Jeton d'authentification invalide ou expiré"
+      },
+      "apikey": {
+        "not_found": "Clé API non trouvée",
+        "already_exists": "Cette clé API existe déjà",
+        "invalid": "Clé API invalide",
+        "unauthorized": "Accès non autorisé",
+        "missing_header": "L'en-tête de clé API est manquant",
+        "disabled": "Cette clé API est désactivée"
+      },
+      "contract": {
+        "not_found": "Contrat non trouvé",
+        "already_exists": "Ce contrat existe déjà",
+        "validation_failed": "Validation du contrat échouée",
+        "deployment_failed": "Échec du déploiement du contrat",
+        "execution_failed": "Échec de l'exécution du contrat",
+        "unauthorized_access": "Accès non autorisé au contrat",
+        "invalid_state": "État du contrat invalide",
+        "compilation_failed": "Échec de la compilation du contrat"
+      },
+      "automaton": {
+        "not_found": "Automate non trouvé",
+        "already_exists": "Cet automate existe déjà",
+        "invalid_structure": "Structure d'automate invalide",
+        "state_not_found": "État non trouvé",
+        "transition_not_found": "Transition non trouvée",
+        "cyclic_dependency": "Dépendance cyclique détectée"
+      },
+      "package": {
+        "not_found": "Package non trouvé",
+        "already_exists": "Ce package existe déjà",
+        "invalid_structure": "Structure de package invalide",
+        "missing_function": "Fonction manquante",
+        "dependency_not_found": "Dépendance non trouvée"
+      }
+    }
+  }
