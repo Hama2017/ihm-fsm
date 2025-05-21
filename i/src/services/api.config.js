@@ -1,14 +1,11 @@
 import axios from 'axios';
-import authService from '@/services/authService';
 import router from '@/router';
-import { useAuthStore } from '@/stores/AuthStore';
-import ErrorService from '@/services/errorService';
 
 /**
  * Configuration de base d'Axios pour l'API
- * - Gestion automatique des erreurs
+ * - Gestion des erreurs
  * - Gestion du rafraîchissement des tokens
- * - Ajout automatique des en-têtes d'authentification
+ * - Support des cookies HTTP-only pour l'authentification
  */
 
 // URL de base de l'API
@@ -17,7 +14,7 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/
 // Création de l'instance Axios
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
-  withCredentials: true, // Pour permettre l'envoi de cookies CSRF
+  withCredentials: true, // IMPORTANT: Permet l'envoi et la réception de cookies HTTP-only
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json'
@@ -28,13 +25,10 @@ const apiClient = axios.create({
 apiClient.interceptors.request.use(
   config => {
     // Ajouter la clé API à chaque requête
-    config.headers['X-API-KEY'] = import.meta.env.VITE_API_KEY || 'sk_master_admin';
+    config.headers['X-API-KEY'] = import.meta.env.VITE_API_KEY || 'pk_master_admin';
     
-    // Ajouter le jeton d'authentification s'il existe
-    const token = localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token');
-    if (token) {
-      config.headers['Authorization'] = `Bearer ${token}`;
-    }
+    // Pas besoin d'ajouter manuellement le token d'authentification
+    // Les cookies HTTP-only sont automatiquement envoyés par le navigateur
     
     return config;
   },
@@ -45,7 +39,7 @@ apiClient.interceptors.request.use(
   }
 );
 
-// Variables pour gérer le rafraîchissement du token
+// Variables pour gérer la file d'attente des requêtes
 let isRefreshing = false;
 let failedQueue = [];
 
@@ -59,14 +53,14 @@ const noNeedToRefresh = [
 /**
  * Traite la file d'attente des requêtes ayant échoué
  * @param {Error} error - L'erreur à rejeter si le rafraîchissement a échoué
- * @param {string} token - Le nouveau token si le rafraîchissement a réussi
+ * @param {boolean} success - Indique si le rafraîchissement a réussi
  */
-function processQueue(error, token = null) {
+function processQueue(error, success = false) {
   failedQueue.forEach(p => {
     if (error) {
       p.reject(error);
     } else {
-      p.resolve(token);
+      p.resolve();
     }
   });
   failedQueue = [];
@@ -99,23 +93,24 @@ apiClient.interceptors.response.use(
       isRefreshing = true;
       
       try {
-        // Tenter de rafraîchir le token
-        await authService.refreshToken();
-        processQueue(null);
+        // Tenter de rafraîchir le token via les cookies HTTP-only
+        await apiClient.post('/auth/refresh');
+        
+        // Le cookie est automatiquement mis à jour par le serveur
+        processQueue(null, true);
+        
+        // Réexécuter la requête originale maintenant que le cookie est rafraîchi
         return apiClient(originalRequest);
       } catch (refreshError) {
         // Si le rafraîchissement échoue, déconnecter l'utilisateur
         processQueue(refreshError);
         
-        try {
-          const authStore = useAuthStore();
-          authStore.user = null;
-        } catch (e) {
-          console.warn('authStore inaccessible, ignore.');
-        }
-        
         // Rediriger vers la page de connexion
-        router.push({ name: 'login' });
+        router.push({ 
+          name: 'login',
+          query: { redirect: router.currentRoute.value.fullPath }
+        });
+        
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;
@@ -127,104 +122,4 @@ apiClient.interceptors.response.use(
   }
 );
 
-/**
- * Wrapper pour les requêtes API avec gestion des erreurs intégrée
- */
-export const apiWrapper = {
-  /**
-   * Envoie une requête GET
-   * @param {string} url - URL relative à l'URL de base
-   * @param {Object} config - Configuration Axios supplémentaire
-   * @returns {Promise} - Promesse résolue avec les données ou rejetée avec l'erreur traitée
-   */
-  async get(url, config = {}) {
-    try {
-      const response = await apiClient.get(url, config);
-      return response.data;
-    } catch (error) {
-      // Utiliser le service d'erreurs pour formater l'erreur mais sans afficher de toast
-      const formattedError = ErrorService.handleApiError(error, 'errors.general.get_failed', false);
-      // Rejeter avec l'erreur formatée
-      return Promise.reject(formattedError);
-    }
-  },
-  
-  /**
-   * Envoie une requête POST
-   * @param {string} url - URL relative à l'URL de base
-   * @param {Object} data - Données à envoyer dans le corps de la requête
-   * @param {Object} config - Configuration Axios supplémentaire
-   * @returns {Promise} - Promesse résolue avec les données ou rejetée avec l'erreur traitée
-   */
-  async post(url, data = {}, config = {}) {
-    try {
-      const response = await apiClient.post(url, data, config);
-      return response.data;
-    } catch (error) {
-      // Utiliser le service d'erreurs pour formater l'erreur mais sans afficher de toast
-      const formattedError = ErrorService.handleApiError(error, 'errors.general.post_failed', false);
-      // Rejeter avec l'erreur formatée
-      return Promise.reject(formattedError);
-    }
-  },
-  
-  /**
-   * Envoie une requête PUT
-   * @param {string} url - URL relative à l'URL de base
-   * @param {Object} data - Données à envoyer dans le corps de la requête
-   * @param {Object} config - Configuration Axios supplémentaire
-   * @returns {Promise} - Promesse résolue avec les données ou rejetée avec l'erreur traitée
-   */
-  async put(url, data = {}, config = {}) {
-    try {
-      const response = await apiClient.put(url, data, config);
-      return response.data;
-    } catch (error) {
-      // Utiliser le service d'erreurs pour formater l'erreur mais sans afficher de toast
-      const formattedError = ErrorService.handleApiError(error, 'errors.general.update_failed', false);
-      // Rejeter avec l'erreur formatée
-      return Promise.reject(formattedError);
-    }
-  },
-  
-  /**
-   * Envoie une requête PATCH
-   * @param {string} url - URL relative à l'URL de base
-   * @param {Object} data - Données à envoyer dans le corps de la requête
-   * @param {Object} config - Configuration Axios supplémentaire
-   * @returns {Promise} - Promesse résolue avec les données ou rejetée avec l'erreur traitée
-   */
-  async patch(url, data = {}, config = {}) {
-    try {
-      const response = await apiClient.patch(url, data, config);
-      return response.data;
-    } catch (error) {
-      // Utiliser le service d'erreurs pour formater l'erreur mais sans afficher de toast
-      const formattedError = ErrorService.handleApiError(error, 'errors.general.update_failed', false);
-      // Rejeter avec l'erreur formatée
-      return Promise.reject(formattedError);
-    }
-  },
-  
-  /**
-   * Envoie une requête DELETE
-   * @param {string} url - URL relative à l'URL de base
-   * @param {Object} config - Configuration Axios supplémentaire
-   * @returns {Promise} - Promesse résolue avec les données ou rejetée avec l'erreur traitée
-   */
-  async delete(url, config = {}) {
-    try {
-      const response = await apiClient.delete(url, config);
-      return response.data;
-    } catch (error) {
-      // Utiliser le service d'erreurs pour formater l'erreur mais sans afficher de toast
-      const formattedError = ErrorService.handleApiError(error, 'errors.general.delete_failed', false);
-      // Rejeter avec l'erreur formatée
-      return Promise.reject(formattedError);
-    }
-  }
-};
-
-// Exporter à la fois l'instance Axios brute et le wrapper
-export { apiClient };
-export default apiWrapper;
+export default apiClient;

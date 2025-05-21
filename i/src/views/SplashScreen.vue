@@ -50,37 +50,39 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useThemeStore } from '@/stores/theme';
 import { useAuthStore } from '@/stores/AuthStore';
 import { storeToRefs } from 'pinia';
+import { useI18n } from '@/composables/i18n/useI18n';
 
 const router = useRouter();
 const themeStore = useThemeStore();
 const authStore = useAuthStore();
 const { darkMode } = storeToRefs(themeStore);
 const { user } = storeToRefs(authStore);
+const { t } = useI18n();
 
 // État pour contrôler l'affichage
-const statusText = ref('Initialisation...');
+const statusText = ref(t('splash.initializing'));
 const showUserName = ref(false);
 
 // Nom complet de l'utilisateur
 const fullName = user.value 
   ? `${user.value.firstName} ${user.value.lastName}` 
-  : 'Utilisateur';
+  : t('splash.user');
 
 // Séquence d'animation
 onMounted(() => {
   // Étape 1: Message initial
   setTimeout(() => {
-    statusText.value = 'Chargement des modules...';
+    statusText.value = t('splash.loading_modules');
   }, 1500);
   
   // Étape 2: Message de bienvenue
   setTimeout(() => {
-    statusText.value = 'Bienvenue sur Smart Legal Contract';
+    statusText.value = t('splash.welcome');
   }, 3000);
   
   // Étape 3: Transition vers le nom d'utilisateur

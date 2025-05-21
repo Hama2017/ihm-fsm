@@ -16,6 +16,7 @@
     "@vue-flow/core": "^1.42.5",
     "@vue-flow/minimap": "^1.5.3",
     "axios": "^1.8.4",
+    "lodash": "^4.17.21",
     "lucide-vue-next": "^0.488.0",
     "pinia": "^3.0.2",
     "pinia-plugin-persistedstate": "^4.2.0",

@@ -1,4 +1,3 @@
-// src/components/layout/Header.vue (correction du problème de notification)
 <template>
   <header 
     class="py-4 px-6 flex justify-between items-center border-b transition-colors duration-300"
@@ -6,7 +5,10 @@
   >
     <h1 class="text-lg font-semibold">{{ pageTitle }}</h1>
     <div class="flex items-center gap-4">
-      <!-- Toggle Dark Mode Button -->
+      <!-- Sélecteur de langue -->
+      <LanguageSelector />
+      
+      <!-- Bouton de thème sombre/clair -->
       <button 
         class="p-2 rounded transition-colors duration-200"
         :class="darkMode 
@@ -18,9 +20,11 @@
         <LucideSun v-else class="w-5 h-5" />
       </button>
 
-      <!-- Notifications Button -->
+      <!-- 
+      =====================================================================
+      FONCTIONNALITÉ DE NOTIFICATIONS À IMPLÉMENTER DANS UNE FUTURE VERSION 
+      =====================================================================
       <div class="relative">
-        <!-- Changement : ajout de l'attribut id et stopPropagation -->
         <button 
           id="notifications-toggle"
           class="p-2 rounded transition-colors duration-200"
@@ -35,7 +39,6 @@
           </span>
         </button>
 
-        <!-- Notifications Dropdown -->
         <div 
           v-if="showNotifications"
           id="notifications-dropdown"
@@ -84,15 +87,16 @@
           </div>
         </div>
       </div>
+      -->
 
-      <!-- Logout Button -->
+      <!-- Bouton de déconnexion -->
       <button
         @click="logout"
         class="p-2 rounded transition-colors duration-200 text-red-600 dark:text-red-400"
         :class="darkMode 
           ? 'bg-gray-800 hover:bg-red-900/20' 
           : 'bg-gray-100 hover:bg-red-100'"
-        title="Déconnexion"
+        :title="t('auth.logout.confirm')"
       >
         <LucideLogOut class="w-5 h-5" />
       </button>
@@ -107,6 +111,8 @@ import { useThemeStore } from '@/stores/theme';
 import { useAuthStore } from '@/stores/AuthStore';
 import { storeToRefs } from 'pinia';
 import toast from '@/composables/Toast/useToast';
+import LanguageSelector from '@/components/ui/UiLanguageSelector.vue';
+import { useI18n } from '@/composables/i18n/useI18n';
 import {
   LucideSun,
   LucideMoon,
@@ -116,6 +122,9 @@ import {
 
 // Router
 const router = useRouter();
+
+// Système de traduction
+const { t } = useI18n();
 
 // Theme store
 const themeStore = useThemeStore();
@@ -128,6 +137,8 @@ const authStore = useAuthStore();
 const route = useRoute();
 const pageTitle = computed(() => route.meta.title || 'Dashboard');
 
+// Fonctionnalité de notifications - commentée car à implémenter plus tard
+/*
 const showNotifications = ref(false);
 
 // Notifications (exemple - à remplacer par des données réelles)
@@ -171,30 +182,32 @@ const handleClickOutside = (event) => {
     showNotifications.value = false;
   }
 };
+*/
 
 // Déconnexion
 const logout = async () => {
   try {
     await authStore.logout();
     router.push({ name: 'login' });
-    toast.success('Vous avez été déconnecté avec succès');
+    toast.success(t('auth.logout.success'));
   } catch (error) {
-    console.error('Erreur lors de la déconnexion:', error);
-    toast.error('Erreur lors de la déconnexion');
+    toast.error(t('errors.auth.logout_failed'));
   }
 };
 
 onMounted(() => {
-  // Ajouter l'événement de clic sur document
-  document.addEventListener('click', handleClickOutside);
+  // Ajouter l'événement de clic sur document - Commenté car lié aux notifications
+  // document.addEventListener('click', handleClickOutside);
 });
 
 onUnmounted(() => {
-  // Nettoyer l'événement
-  document.removeEventListener('click', handleClickOutside);
+  // Nettoyer l'événement - Commenté car lié aux notifications
+  // document.removeEventListener('click', handleClickOutside);
 });
 
+/*
 watch(() => route.path, () => {
   showNotifications.value = false;
 });
+*/
 </script>

@@ -1,86 +1,91 @@
-import apiClient from './api.config.js';
+import apiClient from './api.config';
 
-export default {
+/**
+ * Service d'authentification pour gérer la connexion, l'inscription et les sessions utilisateur.
+ * Utilise des cookies HTTP-only pour la gestion de session côté client.
+ */
+const AuthService = {
   /**
-   * Connexion de l'utilisateur.
-   * @param {string} email - L'adresse email de l'utilisateur.
-   * @param {string} password - Le mot de passe de l'utilisateur.
-   * @returns {Promise<Object>} Données de l'utilisateur connecté.
-   * @throws {Error} Si l'authentification échoue.
+   * Connecte un utilisateur avec ses identifiants.
+   * Le serveur configurera automatiquement les cookies HTTP-only pour l'authentification.
+   * 
+   * @param {string} email - Adresse email de l'utilisateur
+   * @param {string} password - Mot de passe de l'utilisateur
+   * @returns {Promise<Object>} Données de l'utilisateur connecté
+   * @throws {Error} Erreur en cas d'échec
    */
   async login(email, password) {
-    const res = await apiClient.post('/auth/login', { email, password });
-    return res.data.user;
+    try {
+      const response = await apiClient.post('/auth/login', { email, password });
+      return response.data;
+    } catch (error) {
+      // Simplement transmettre l'erreur d'API pour traitement par le store
+      throw error;
+    }
   },
 
   /**
-   * Inscription d'un nouvel utilisateur.
-   * @param {Object} payload - Données du formulaire d'inscription.
-   * @param {string} payload.firstName
-   * @param {string} payload.lastName
-   * @param {string} payload.email
-   * @param {string} payload.password
-   * @returns {Promise<Object>} Données de l'utilisateur créé.
-   * @throws {Error} Si l'inscription échoue (ex: email déjà utilisé).
+   * Inscrit un nouvel utilisateur.
+   * @param {Object} userData - Données du nouvel utilisateur
+   * @param {string} userData.firstName - Prénom
+   * @param {string} userData.lastName - Nom
+   * @param {string} userData.email - Email
+   * @param {string} userData.password - Mot de passe
+   * @returns {Promise<Object>} Résultat de l'inscription
+   * @throws {Error} Erreur en cas d'échec
    */
-  async register(payload) {
-    const res = await apiClient.post('/auth/register', payload);
-    return res.data;
+  async register(userData) {
+    try {
+      const response = await apiClient.post('/auth/register', userData);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
   },
 
   /**
-   * Déconnexion de l'utilisateur.
-   * @returns {Promise<void>}
-   * @throws {Error} Si la requête échoue.
+   * Déconnecte l'utilisateur actuel (supprime les cookies de session côté serveur).
+   * @returns {Promise<Object>} Confirmation de déconnexion
+   * @throws {Error} Erreur en cas d'échec
    */
   async logout() {
-    await apiClient.post('/auth/logout');
+    try {
+      const response = await apiClient.post('/auth/logout');
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
   },
 
   /**
-   * Récupère les données de l'utilisateur actuellement connecté.
-   * @returns {Promise<Object>} Données de l'utilisateur.
-   * @throws {Error} Si la récupération échoue ou si l'utilisateur n'est pas connecté.
+   * Récupère les informations de l'utilisateur actuellement connecté.
+   * Utilise le cookie HTTP-only pour l'authentification.
+   * 
+   * @returns {Promise<Object>} Données de l'utilisateur
+   * @throws {Error} Erreur en cas d'échec
    */
   async fetchCurrentUser() {
-    const res = await apiClient.get('/auth/me');
-    return res.data;
+    try {
+      const response = await apiClient.get('/auth/me');
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
   },
 
   /**
-   * Change le mot de passe de l'utilisateur connecté.
-   * @param {string} oldPassword - Ancien mot de passe.
-   * @param {string} newPassword - Nouveau mot de passe.
-   * @returns {Promise<void>}
-   * @throws {Error} Si le mot de passe est incorrect ou la mise à jour échoue.
+   * Rafraîchit le token d'authentification stocké dans les cookies HTTP-only.
+   * @returns {Promise<Object>} Confirmation de rafraîchissement
+   * @throws {Error} Erreur en cas d'échec
    */
-  async changePassword(oldPassword, newPassword) {
-    await apiClient.post('/profile/change-password', {
-      oldPassword,
-      newPassword
-    });
-  },
-
-  /**
-   * Met à jour le profil de l'utilisateur connecté.
-   * @param {Object} payload - Données à mettre à jour (ex: prénom, nom...).
-   * @returns {Promise<Object>} Données de l'utilisateur mis à jour.
-   * @throws {Error} Si la mise à jour échoue.
-   */
-  async updateProfile(payload) {
-    const res = await apiClient.patch('/profile/', payload);
-    return res.data;
-  },
-
-
-  /**
- * Rafraîchit le token d'accès en utilisant le refresh token.
- * @returns {Promise<{ accessToken: string, refreshToken: string }>} Nouveaux tokens.
- * @throws {Error} Si le refresh échoue.
- */
   async refreshToken() {
-  const res = await apiClient.post('/auth/refresh');
-  return res.data;
-}
-
+    try {
+      const response = await apiClient.post('/auth/refresh');
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
 };
+
+export default AuthService;

@@ -132,6 +132,7 @@ import { storeToRefs } from 'pinia';
 import { useThemeStore } from '@/stores/theme';
 import { useLayoutStore } from '@/stores/layoutStore';
 import { useAuthStore } from '@/stores/AuthStore';
+import { getProfilePictureUrl } from '@/utils/imageUtils';
 
 import logo from '@/assets/logo/logo.svg';
 import logoCollapsed from '@/assets/logo/logo-collapsed.svg';
@@ -161,10 +162,10 @@ const { user, isAuthenticated } = storeToRefs(authStore);
 const isAdmin = computed(() => authStore.isAdmin);
 
 // URL de l'avatar utilisateur
-const userAvatarUrl = computed(() => {
-  return user.value?.profilePicture || 'https://i.pravatar.cc/100?img=1';
-});
 
+const userAvatarUrl = computed(() => {
+  return getProfilePictureUrl(user.value?.profilePicture)
+})
 // Obtenir les routes enfants du layout principal
 const menuItems = computed(() => {
   return router.options.routes[0].children

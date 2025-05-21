@@ -136,6 +136,20 @@
       "dead_end_state": "Dead-end state",
       "missing_conditions": "Missing conditions",
       "condition_evaluation_failed": "Condition evaluation failed"
+    }
+
+,
+    "form": {
+      "required": "This field is required",
+      "email": "Please enter a valid email address",
+      "min_length": "This field must be at least {min} characters",
+      "max_length": "This field cannot exceed {max} characters",
+      "password_match": "Passwords do not match",
+      "number": "This field must be a number",
+      "url": "Please enter a valid URL",
+      "date": "Please enter a valid date",
+      "alpha": "This field can only contain letters",
+      "alphanumeric": "This field can only contain letters and numbers"
     },
     "package": {
       "not_found": "Package not found",
@@ -153,19 +167,12 @@
       "incompatible_version": "Incompatible version",
       "invalid_format": "Invalid package format",
       "syntax_error": "Syntax error in package code",
-      "compilation_error": "Package compilation error"
-    },
-    "form": {
-      "required": "This field is required",
-      "email": "Please enter a valid email address",
-      "min_length": "This field must be at least {min} characters",
-      "max_length": "This field cannot exceed {max} characters",
-      "password_match": "Passwords do not match",
-      "number": "This field must be a number",
-      "url": "Please enter a valid URL",
-      "date": "Please enter a valid date",
-      "alpha": "This field can only contain letters",
-      "alphanumeric": "This field can only contain letters and numbers"
+      "compilation_error": "Package compilation error",
+      "update_failed": "Failed to update package",
+      "deletion_failed": "Failed to delete package",
+      "function_creation_failed": "Failed to create function",
+      "function_update_failed": "Failed to update function",
+      "function_deletion_failed": "Failed to delete function"
     }
   },
   "contract": {
@@ -276,6 +283,7 @@
       "login": "Log in",
       "success": "Registration successful",
       "terms": "I agree to the terms of service"
+
     },
     "logout": {
       "success": "Logout successful",
@@ -308,41 +316,95 @@
     "deleteSuccess": "API key deleted successfully",
     "copied": "API key copied to clipboard"
   },
+ 
+  "footer": {
+    "rights_reserved": "All rights reserved",
+    "current_mode": "Current mode",
+    "dark_mode": "🌙 Dark",
+    "light_mode": "☀️ Light"
+  },
+  "splash": {
+    "initializing": "Initializing...",
+    "loading_modules": "Loading modules...",
+    "welcome": "Welcome to Smart Legal Contract",
+    "user": "User"
+  },
+  "profile": {
+    "title": "My Profile",
+    "personalInfo": "Personal Information",
+    "edit": "Edit",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "email": "Email",
+    "createdAt": "Member Since",
+    "role": "Role",
+    "admin": "Administrator",
+    "user": "User",
+    "security": "Security",
+    "changePassword": "Change Password",
+    "currentPassword": "Current Password",
+    "newPassword": "New Password",
+    "confirmPassword": "Confirm New Password",
+    "updatePassword": "Update Password",
+    "profilePicture": "Profile Picture",
+    "profilePictureAlt": "Profile picture",
+    "supportedFormats": "Supported formats: JPEG, PNG, GIF",
+    "maxSize": "Maximum size: 5MB",
+    "preferences": "Preferences",
+    "theme": "Theme",
+    "chooseTheme": "Choose between light and dark theme",
+    "activeSession": "Active Session",
+    "currentDevice": "Current Device",
+    "logout": "Log Out",
+    "mobile": "Mobile Device",
+    "desktop": "Desktop Device",
+    "pictureUpdateSuccess": "Profile picture updated successfully",
+    "pictureDeleteSuccess": "Profile picture deleted successfully",
+    "mobileDevice": "Mobile Device",
+    "desktopDevice": "Desktop Device"
+  },
   "packages": {
-    "title": "Packages",
-    "create": "Create package",
-    "edit": "Edit package",
-    "delete": "Delete package",
-    "import": "Import package",
-    "export": "Export package",
-    "confirmDelete": "Are you sure you want to delete this package?",
-    "createSuccess": "Package created successfully",
-    "updateSuccess": "Package updated successfully",
-    "deleteSuccess": "Package deleted successfully",
-    "importSuccess": "Package imported successfully",
-    "exportSuccess": "Package exported successfully",
-    "function": {
-      "add": "Add function",
-      "edit": "Edit function",
-      "delete": "Delete function",
-      "name": "Function name",
-      "code": "Code",
-      "default": "Default",
-      "description": "Description"
-    },
-    "struct": {
-      "add": "Add struct",
-      "edit": "Edit struct",
-      "delete": "Delete struct",
-      "name": "Struct name",
-      "code": "Code"
-    },
-    "variable": {
-      "add": "Add variable",
-      "edit": "Edit variable",
-      "delete": "Delete variable",
-      "name": "Variable name",
-      "code": "Code"
-    }
+  "title": "Packages",
+  "create": "Create package",
+  "edit": "Edit package",
+  "delete": "Delete package",
+  "import": "Import package",
+  "export": "Export package",
+  "noPackages": "No packages available. Create a new one or import one to get started.",
+  "confirmDelete": "Confirm deletion",
+  "confirmDeleteMessage": "Are you sure you want to delete the package {name}?",
+  "confirmDeleteWarning": "This action is irreversible and will permanently delete the package and all its associated functions.",
+  "createSuccess": "Package created successfully",
+  "updateSuccess": "Package updated successfully",
+  "deleteSuccess": "Package deleted successfully",
+  "importSuccess": "Package imported successfully",
+  "exportSuccess": "Package exported successfully",
+  "importingMessage": "Importing...",
+  "deletingMessage": "Deleting...",
+  "exportingMessage": "Preparing download...",
+  "function": {
+    "title": "Functions",
+    "add": "Add function",
+    "edit": "Edit function",
+    "delete": "Delete function",
+    "name": "Function name",
+    "code": "Code",
+    "default": "Default",
+    "description": "Description"
+  },
+  "struct": {
+    "add": "Add struct",
+    "edit": "Edit struct",
+    "delete": "Delete struct",
+    "name": "Struct name",
+    "code": "Code"
+  },
+  "variable": {
+    "add": "Add variable",
+    "edit": "Edit variable",
+    "delete": "Delete variable",
+    "name": "Variable name",
+    "code": "Code"
   }
+}
 }

@@ -1,318 +1,573 @@
 import { defineStore } from 'pinia';
-import { ref } from 'vue';
-import { useToast } from '@/composables/Toast/useToast';
+import packageService from '@/services/packageService';
+import { extractErrorCode } from '@/utils/errorFormatter';
 
-export const usePackageStore = defineStore('packages', () => {
-  // État
-  const packages = ref([]);
-  const isLoading = ref(false);
-  const toast = useToast();
+/**
+ * Store Pinia pour la gestion des packages de contrats intelligents.
+ * Permet la création, mise à jour, suppression, import et export des packages.
+ */
+export const usePackageStore = defineStore('packages', {
+  state: () => ({
+    packages: [],
+    currentPackage: null,
+    loading: false,
+    error: null
+  }),
 
-  // Actions
-  async function loadPackages() {
-    try {
-      isLoading.value = true;
-      const storedPackages = localStorage.getItem('slc_packages');
+  getters: {
+    /**
+     * Récupère un package par son ID.
+     * @returns {Function} Fonction de recherche de package
+     */
+    getPackageById: (state) => (id) => {
+      return state.packages.find(pkg => pkg.id === id);
+    },
+    
+    /**
+     * Liste des fonctions disponibles dans tous les packages.
+     * @returns {Array} Liste des fonctions avec leurs packages
+     */
+    allFunctions: (state) => {
+      const functions = [];
       
-      if (storedPackages) {
-        const parsedPackages = JSON.parse(storedPackages);
+      state.packages.forEach(pkg => {
+        if (Array.isArray(pkg.functions)) {
+          pkg.functions.forEach(func => {
+            functions.push({
+              ...func,
+              packageId: pkg.id,
+              packageName: pkg.label || pkg.id
+            });
+          });
+        }
+      });
+      
+      return functions;
+    },
+    
+    /**
+     * Liste des noms de packages.
+     * @returns {Array} Noms des packages
+     */
+    packageNames: (state) => {
+      return state.packages.map(pkg => ({
+        id: pkg.id,
+        name: pkg.label || pkg.id
+      }));
+    }
+  },
+
+  actions: {
+    /**
+     * Charge tous les packages depuis le serveur.
+     * @returns {Promise<Object>} Résultat avec les packages ou code d'erreur
+     */
+    async fetchPackages() {
+      this.loading = true;
+      this.error = null;
+      
+      try {
+        console.log('Fetching packages from service...');
+        const packages = await packageService.getAllPackages();
+        console.log('Raw response from service:', packages);
         
-        // Convertir les packages du format stocké au format interne
-        packages.value = parsedPackages.map(pkg => {
-          // Convertir les fonctions de l'objet au tableau
-          const functionsArray = [];
-          if (pkg.functions && typeof pkg.functions === 'object') {
-            for (const [funcId, funcDetails] of Object.entries(pkg.functions)) {
-              functionsArray.push({
-                id: funcId,
-                name: funcId,
-                label: funcDetails.label || funcId,
-                description: funcDetails.description || '',
-                code: funcDetails.code || '',
-                default: funcDetails.default || false
-              });
+        // Vérifier que packages est bien un Array
+        if (Array.isArray(packages)) {
+          console.log('Packages is an array, processing...');
+          // Convertir les packages au format interne
+          this.packages = packages.map(pkg => {
+            try {
+              return packageService.convertToInternalFormat(pkg);
+            } catch (err) {
+              console.error('Error converting package:', err);
+              return null;
             }
-          }
+          }).filter(Boolean);
           
           return {
-            id: pkg.name,
-            name: pkg.name,
-            label: pkg.label,
-            description: pkg.description,
-            functions: functionsArray,
-            variables: pkg.variables || [],
-            structs: pkg.structs || []
+            success: true,
+            data: this.packages
           };
-        });
-      }
-      
-      // Si aucun package n'existe, ajouter un exemple
-      if (packages.value.length === 0) {
-        await createDefaultPackage();
-      }
-    } catch (error) {
-      console.error('Erreur lors du chargement des packages:', error);
-      toast.error('Erreur lors du chargement des packages');
-    } finally {
-      isLoading.value = false;
-    }
-  }
-
-  async function createDefaultPackage() {
-    const defaultPackage = {
-      name: "payment_service",
-      label: "Service de Paiement",
-      description: "Gère les opérations de paiement et de vérification financière dans les contrats intelligents.",
-      functions: {
-        "process_payment": {
-          code: "function processPayment(address _from, address _to, uint256 _amount) public {\n  require(_amount > 0, \"Le montant doit être supérieur à zéro\");\n  // Logique de traitement du paiement\n}",
-          default: true,
-          label: "Traiter Paiement",
-          description: "Traite un paiement entre deux parties."
+        } else if (packages && typeof packages === 'object') {
+          // Si un seul package est retourné comme objet
+          try {
+            const converted = packageService.convertToInternalFormat(packages);
+            this.packages = [converted];
+            
+            return {
+              success: true,
+              data: this.packages
+            };
+          } catch (err) {
+            console.error('Error converting single package:', err);
+          }
         }
-      },
-      structs: [
-        {
-          name: "Payment",
-          code: "struct Payment {\n  address sender;\n  address receiver;\n  uint256 amount;\n  uint256 timestamp;\n  bool completed;\n}"
-        }
-      ],
-      variables: [
-        {
-          name: "paymentStatus",
-          code: "mapping(address => bool) public paymentStatus;"
-        }
-      ]
-    };
-    
-    // Convertir au format interne
-    packages.value = [{
-      id: defaultPackage.name,
-      name: defaultPackage.name,
-      label: defaultPackage.label,
-      description: defaultPackage.description,
-      functions: Object.entries(defaultPackage.functions).map(([id, func]) => ({
-        id,
-        name: id,
-        label: func.label,
-        description: func.description,
-        code: func.code,
-        default: func.default
-      })),
-      variables: defaultPackage.variables,
-      structs: defaultPackage.structs
-    }];
-    
-    // Enregistrer dans localStorage
-    await saveToStorage();
-  }
-
-  async function saveToStorage() {
-    try {
-      // Convertir les packages du format interne au format de stockage
-      const packagesToStore = packages.value.map(pkg => {
-        const functions = {};
-        pkg.functions.forEach(func => {
-          functions[func.id] = {
-            code: func.code,
-            default: func.default,
-            label: func.label,
-            description: func.description
-          };
-        });
+        
+        // Si on arrive ici, c'est que le format est invalide
+        console.error('Les données reçues ne sont pas au format attendu:', packages);
+        this.error = 'invalid_format';
         
         return {
-          name: pkg.name,
-          label: pkg.label,
-          description: pkg.description,
-          functions,
-          variables: pkg.variables,
-          structs: pkg.structs
+          success: false,
+          errorCode: 'errors.package.invalid_format'
         };
-      });
+      } catch (error) {
+        console.error('Error in fetchPackages:', error);
+        const errorCode = extractErrorCode(error, 'not_found', 'package');
+        this.error = errorCode;
+        
+        return {
+          success: false,
+          errorCode
+        };
+      } finally {
+        this.loading = false;
+      }
+    },
+    
+    /**
+     * Supprime une fonction d'un package.
+     * @param {string} packageId - ID du package
+     * @param {string} functionId - ID de la fonction
+     * @returns {Promise<Object>} Résultat avec le package mis à jour ou code d'erreur
+     */
+    async deleteFunction(packageId, functionId) {
+      this.loading = true;
+      this.error = null;
       
-      localStorage.setItem('slc_packages', JSON.stringify(packagesToStore));
-      return true;
-    } catch (error) {
-      console.error('Erreur lors de la sauvegarde des packages:', error);
-      toast.error('Erreur lors de la sauvegarde des packages');
-      return false;
-    }
-  }
-
-  function getPackageById(id) {
-    return packages.value.find(pkg => pkg.id === id);
-  }
-
-  async function savePackage(packageData) {
-    try {
-      const index = packages.value.findIndex(pkg => pkg.id === packageData.id);
+      try {
+        const pkg = this.getPackageById(packageId);
+        
+        if (!pkg) {
+          throw { code: 'package.not_found' };
+        }
+        
+        // Supprimer la fonction
+        const updatedFunctions = pkg.functions.filter(f => f.id !== functionId);
+        
+        // Si la fonction n'existait pas
+        if (updatedFunctions.length === pkg.functions.length) {
+          throw new Error('missing_function');
+        }
+        
+        // Mettre à jour le package
+        const updatedPackage = {
+          ...pkg,
+          functions: updatedFunctions
+        };
+        
+        return await this.updatePackage(packageId, updatedPackage);
+      } catch (error) {
+        console.error('Error deleting function:', error);
+        const errorCode = extractErrorCode(error, 'function_deletion_failed', 'package');
+        this.error = errorCode;
+        
+        return {
+          success: false,
+          errorCode
+        };
+      } finally {
+        this.loading = false;
+      }
+    },
+    
+    /**
+     * Crée un nouveau package.
+     * @param {Object} packageData - Données du package
+     * @returns {Promise<Object>} Résultat avec le package créé ou code d'erreur
+     */
+    async createPackage(packageData) {
+      this.loading = true;
+      this.error = null;
       
-      if (index === -1) {
-        // Nouveau package
-        packages.value.push(packageData);
-        toast.success('Package créé avec succès');
+      try {
+        // Vérifier si un package avec le même ID existe déjà
+        const existingPackage = this.getPackageById(packageData.id);
+        if (existingPackage) {
+          throw new Error('already_exists');
+        }
+        
+        // Vérifier les doublons de fonctions
+        if (Array.isArray(packageData.functions)) {
+          const functionIds = new Set();
+          for (const func of packageData.functions) {
+            if (func.id && functionIds.has(func.id)) {
+              throw new Error('duplicate_function_id');
+            }
+            if (func.id) {
+              functionIds.add(func.id);
+            }
+          }
+        }
+        
+        const newPackage = await packageService.createPackage(packageData);
+        
+        // Convertir au format interne et ajouter à la liste
+        const internalPackage = packageService.convertToInternalFormat(newPackage);
+        this.packages.push(internalPackage);
+        
+        return {
+          success: true,
+          data: internalPackage
+        };
+      } catch (error) {
+        console.error('Error creating package:', error);
+        
+        let errorCode;
+        if (error.message === 'duplicate_function_id') {
+          errorCode = 'errors.package.duplicate_function';
+        } else if (error.message === 'already_exists') {
+          errorCode = 'errors.package.already_exists';
+        } else {
+          errorCode = extractErrorCode(error, 'creation_failed', 'package');
+        }
+        
+        this.error = errorCode;
+        
+        return {
+          success: false,
+          errorCode
+        };
+      } finally {
+        this.loading = false;
+      }
+    },
+    
+    /**
+     * Met à jour un package existant.
+     * @param {string} packageId - ID du package
+     * @param {Object} packageData - Nouvelles données
+     * @returns {Promise<Object>} Résultat avec le package mis à jour ou code d'erreur
+     */
+    async updatePackage(packageId, packageData) {
+      this.loading = true;
+      this.error = null;
+      
+      try {
+        // Vérifier que l'ID correspond
+        if (packageId !== packageData.id) {
+          throw new Error('validation_failed');
+        }
+        
+        // Vérifier les doublons de fonctions
+        if (Array.isArray(packageData.functions)) {
+          const functionIds = new Set();
+          for (const func of packageData.functions) {
+            if (func.id && functionIds.has(func.id)) {
+              throw new Error('duplicate_function_id');
+            }
+            if (func.id) {
+              functionIds.add(func.id);
+            }
+          }
+        }
+        
+        const updatedPackage = await packageService.updatePackage(packageId, packageData);
+        
+        // Convertir au format interne
+        const internalPackage = packageService.convertToInternalFormat(updatedPackage);
+        
+        // Mettre à jour dans la liste
+        const index = this.packages.findIndex(pkg => pkg.id === packageId);
+        if (index !== -1) {
+          this.packages[index] = internalPackage;
+        }
+        
+        // Mettre à jour le package courant si nécessaire
+        if (this.currentPackage && this.currentPackage.id === packageId) {
+          this.currentPackage = internalPackage;
+        }
+        
+        return {
+          success: true,
+          data: internalPackage
+        };
+      } catch (error) {
+        console.error('Error updating package:', error);
+        
+        let errorCode;
+        if (error.message === 'duplicate_function_id') {
+          errorCode = 'errors.package.duplicate_function';
+        } else {
+          errorCode = extractErrorCode(error, 'update_failed', 'package');
+        }
+        
+        this.error = errorCode;
+        
+        return {
+          success: false,
+          errorCode
+        };
+      } finally {
+        this.loading = false;
+      }
+    },
+    
+    /**
+     * Supprime un package.
+     * @param {string} packageId - ID du package
+     * @returns {Promise<Object>} Résultat de l'opération avec succès ou code d'erreur
+     */
+    async deletePackage(packageId) {
+      this.loading = true;
+      this.error = null;
+      
+      try {
+        await packageService.deletePackage(packageId);
+        
+        // Supprimer de la liste
+        this.packages = this.packages.filter(pkg => pkg.id !== packageId);
+        
+        // Réinitialiser le package courant si nécessaire
+        if (this.currentPackage && this.currentPackage.id === packageId) {
+          this.currentPackage = null;
+        }
+        
+        return {
+          success: true
+        };
+      } catch (error) {
+        console.error('Error deleting package:', error);
+        const errorCode = extractErrorCode(error, 'deletion_failed', 'package');
+        this.error = errorCode;
+        
+        return {
+          success: false,
+          errorCode
+        };
+      } finally {
+        this.loading = false;
+      }
+    },
+    
+    /**
+     * Définit le package actuellement sélectionné.
+     * @param {Object|string} packageOrId - Package ou ID du package
+     * @returns {Object} Package sélectionné ou null
+     */
+    setCurrentPackage(packageOrId) {
+      if (typeof packageOrId === 'string') {
+        this.currentPackage = this.getPackageById(packageOrId);
       } else {
-        // Mise à jour
-        packages.value[index] = packageData;
-        toast.success('Package mis à jour avec succès');
+        this.currentPackage = packageOrId;
       }
       
-      await saveToStorage();
-      return true;
-    } catch (error) {
-      console.error('Erreur lors de la sauvegarde du package:', error);
-      toast.error('Erreur lors de la sauvegarde du package');
-      return false;
-    }
-  }
-
-  async function deletePackage(id) {
-    try {
-      packages.value = packages.value.filter(pkg => pkg.id !== id);
-      await saveToStorage();
-      toast.success('Package supprimé avec succès');
-      return true;
-    } catch (error) {
-      console.error('Erreur lors de la suppression du package:', error);
-      toast.error('Erreur lors de la suppression du package');
-      return false;
-    }
-  }
-
-  function exportPackage(pkg) {
-    try {
-      // Créer une copie du package pour la transformation
-      const exportData = {
-        name: pkg.name,
-        label: pkg.label,
-        description: pkg.description,
-        functions: {},  // Objet au lieu d'un tableau
-        structs: pkg.structs,
-        variables: pkg.variables
-      };
+      return this.currentPackage;
+    },
+    
+    /**
+     * Réinitialise le package actuellement sélectionné.
+     */
+    clearCurrentPackage() {
+      this.currentPackage = null;
+    },
+    
+    /**
+     * Exporte un package au format JSON.
+     * @param {string} packageId - ID du package
+     * @returns {Object} Résultat avec l'URL de téléchargement ou code d'erreur
+     */
+    exportPackage(packageId) {
+      this.error = null;
       
-      // Transformer le tableau de fonctions en objet
-      pkg.functions.forEach(func => {
-        // Utiliser l'ID de la fonction comme clé dans l'objet
-        exportData.functions[func.id] = {
-          code: func.code,
-          default: func.default,
-          label: func.label,
-          description: func.description
-        };
-      });
-      
-      // Créer un blob avec le contenu JSON
-      const content = JSON.stringify(exportData, null, 2);
-      const blob = new Blob([content], { type: 'application/json' });
-      
-      // Créer un lien pour télécharger le fichier
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `${pkg.id}.json`;
-      document.body.appendChild(a);
-      a.click();
-      
-      // Nettoyer
-      setTimeout(() => {
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-      }, 100);
-      
-      toast.success(`Package "${pkg.label}" exporté avec succès`);
-      return true;
-    } catch (error) {
-      console.error('Erreur lors de l\'exportation du package:', error);
-      toast.error('Erreur lors de l\'exportation du package');
-      return false;
-    }
-  }
-
-  async function importPackage(file) {
-    try {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
+      try {
+        const packageToExport = this.getPackageById(packageId);
         
-        reader.onload = async (event) => {
-          try {
-            // Lire le contenu JSON du fichier
-            const content = event.target.result;
-            const importedData = JSON.parse(content);
-            
-            // Créer une structure pour le package interne
-            const internalPackage = {
-              id: importedData.name || '',
-              name: importedData.name || '',
-              label: importedData.label || '',
-              description: importedData.description || '',
-              functions: [],  // Tableau vide pour les fonctions
-              variables: Array.isArray(importedData.variables) ? importedData.variables : [],
-              structs: Array.isArray(importedData.structs) ? importedData.structs : []
-            };
-            
-            // Convertir l'objet de fonctions en tableau
-            if (importedData.functions && typeof importedData.functions === 'object') {
-              for (const [funcId, funcDetails] of Object.entries(importedData.functions)) {
-                internalPackage.functions.push({
-                  id: funcId,
-                  name: funcId,  // Utiliser l'ID comme nom par défaut
-                  label: funcDetails.label || funcId,
-                  description: funcDetails.description || '',
-                  code: funcDetails.code || '',
-                  default: funcDetails.default || false
-                });
-              }
-            }
-            
-            // Vérifier si un package avec le même ID existe déjà
-            const existingIndex = packages.value.findIndex(p => p.id === internalPackage.id);
-            
-            if (existingIndex !== -1) {
-              // Remplacer le package existant
-              packages.value[existingIndex] = internalPackage;
-              toast.warning(`Le package "${internalPackage.label}" a été mis à jour`);
-            } else {
-              // Ajouter le nouveau package
-              packages.value.push(internalPackage);
-              toast.success(`Le package "${internalPackage.label}" a été importé`);
-            }
-            
-            // Enregistrer les changements
-            await saveToStorage();
-            
-            resolve(internalPackage);
-          } catch (error) {
-            console.error('Erreur lors du parsing du fichier JSON:', error);
-            toast.error('Format de fichier invalide. Veuillez sélectionner un fichier JSON valide.');
-            reject(error);
-          }
+        if (!packageToExport) {
+          throw new Error('not_found');
+        }
+        
+        const downloadUrl = packageService.exportPackage(packageToExport);
+        
+        return {
+          success: true,
+          data: downloadUrl
+        };
+      } catch (error) {
+        console.error('Error exporting package:', error);
+        const errorCode = extractErrorCode(error, 'export_failed', 'package');
+        this.error = errorCode;
+        
+        return {
+          success: false,
+          errorCode
+        };
+      }
+    },
+    
+    /**
+     * Importe un package depuis un fichier JSON.
+     * @param {File} file - Fichier JSON
+     * @returns {Promise<Object>} Résultat avec le package importé ou code d'erreur
+     */
+    async importPackage(file) {
+      this.loading = true;
+      this.error = null;
+      
+      try {
+        const importedPackage = await packageService.importPackage(file);
+        
+        // Vérifier si un package avec le même ID existe déjà
+        const existingIndex = this.packages.findIndex(pkg => pkg.id === importedPackage.id);
+        let isUpdate = false;
+        
+        if (existingIndex !== -1) {
+          // Remplacer le package existant
+          this.packages[existingIndex] = importedPackage;
+          isUpdate = true;
+        } else {
+          // Ajouter le nouveau package
+          this.packages.push(importedPackage);
+        }
+        
+        return {
+          success: true,
+          data: importedPackage,
+          isUpdate
+        };
+      } catch (error) {
+        console.error('Error importing package:', error);
+        const errorCode = extractErrorCode(error, 'import_failed', 'package');
+        this.error = errorCode;
+        
+        return {
+          success: false,
+          errorCode
+        };
+      } finally {
+        this.loading = false;
+      }
+    },
+    
+    /**
+     * Vérifie si une fonction avec l'ID donné existe dans un package
+     * @param {string} packageId - ID du package
+     * @param {string} functionId - ID de la fonction
+     * @returns {boolean} true si la fonction existe
+     */
+    functionExists(packageId, functionId) {
+      const pkg = this.getPackageById(packageId);
+      if (!pkg || !Array.isArray(pkg.functions)) {
+        return false;
+      }
+      
+      return pkg.functions.some(func => func.id === functionId || func.name === functionId);
+    },
+    
+    /**
+     * Crée une fonction dans un package existant.
+     * @param {string} packageId - ID du package
+     * @param {Object} functionData - Données de la fonction
+     * @returns {Promise<Object>} Résultat avec le package mis à jour ou code d'erreur
+     */
+    async createFunction(packageId, functionData) {
+      this.loading = true;
+      this.error = null;
+      
+      try {
+        const pkg = this.getPackageById(packageId);
+        
+        if (!pkg) {
+          throw { code: 'package.not_found' };
+        }
+        
+        // Vérifier si une fonction avec le même ID existe déjà
+        if (this.functionExists(packageId, functionData.id)) {
+          throw new Error('duplicate_function');
+        }
+        
+        // Ajouter la fonction au package
+        const updatedPackage = {
+          ...pkg,
+          functions: [...pkg.functions, functionData]
         };
         
-        reader.onerror = (error) => {
-          toast.error('Erreur lors de la lecture du fichier');
-          reject(error);
+        // Mettre à jour le package
+        return await this.updatePackage(packageId, updatedPackage);
+      } catch (error) {
+        console.error('Error creating function:', error);
+        
+        let errorCode;
+        if (error.message === 'duplicate_function') {
+          errorCode = 'errors.package.duplicate_function';
+        } else {
+          errorCode = extractErrorCode(error, 'function_creation_failed', 'package');
+        }
+        
+        this.error = errorCode;
+        
+        return {
+          success: false,
+          errorCode
+        };
+      } finally {
+        this.loading = false;
+      }
+    },
+    
+    /**
+     * Met à jour une fonction existante dans un package.
+     * @param {string} packageId - ID du package
+     * @param {string} functionId - ID de la fonction
+     * @param {Object} functionData - Nouvelles données de la fonction
+     * @returns {Promise<Object>} Résultat avec le package mis à jour ou code d'erreur
+     */
+    async updateFunction(packageId, functionId, functionData) {
+      this.loading = true;
+      this.error = null;
+      
+      try {
+        const pkg = this.getPackageById(packageId);
+        
+        if (!pkg) {
+          throw { code: 'package.not_found' };
+        }
+        
+        // Trouver et mettre à jour la fonction
+        const functionIndex = pkg.functions.findIndex(f => f.id === functionId);
+        
+        if (functionIndex === -1) {
+          throw new Error('missing_function');
+        }
+        
+        // Vérifier si le nouvel ID de fonction existe déjà (si modifié)
+        if (functionData.id !== functionId && this.functionExists(packageId, functionData.id)) {
+          throw new Error('duplicate_function');
+        }
+        
+        // Créer un nouveau tableau de fonctions avec la fonction mise à jour
+        const updatedFunctions = [...pkg.functions];
+        updatedFunctions[functionIndex] = {
+          ...updatedFunctions[functionIndex],
+          ...functionData
         };
         
-        // Lire le fichier comme texte
-        reader.readAsText(file);
-      });
-    } catch (error) {
-      console.error('Erreur lors de l\'import du package:', error);
-      toast.error(`Erreur lors de l'import: ${error.message}`);
-      throw error;
-    }
+        // Mettre à jour le package
+        const updatedPackage = {
+          ...pkg,
+          functions: updatedFunctions
+        };
+        
+        return await this.updatePackage(packageId, updatedPackage);
+      } catch (error) {
+        console.error('Error updating function:', error);
+        
+        let errorCode;
+        if (error.message === 'duplicate_function') {
+          errorCode = 'errors.package.duplicate_function';
+        } else if (error.message === 'missing_function') {
+          errorCode = 'errors.package.missing_function';
+        } else {
+          errorCode = extractErrorCode(error, 'function_update_failed', 'package');
+        }
+        
+        this.error = errorCode;
+        
+        return {
+          success: false,
+          errorCode
+        };
+      }
+    } 
   }
-
-  return {
-    packages,
-    isLoading,
-    loadPackages,
-    getPackageById,
-    savePackage,
-    deletePackage,
-    exportPackage,
-    importPackage
-  };
 });

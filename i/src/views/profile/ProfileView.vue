@@ -133,7 +133,7 @@
                     <LucideEyeOff v-else class="h-5 w-5" />
                   </button>
                 </div>
-                <p v-if="passwordErrors.currentPassword" class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $t(`errors.${passwordErrors.currentPassword}`) }}</p>
+                <p v-if="passwordErrors.currentPassword" class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $t(`${passwordErrors.currentPassword}`) }}</p>
               </div>
 
               <!-- Nouveau mot de passe -->
@@ -159,7 +159,7 @@
                     <LucideEyeOff v-else class="h-5 w-5" />
                   </button>
                 </div>
-                <p v-if="passwordErrors.newPassword" class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $t(`errors.${passwordErrors.newPassword}`) }}</p>
+                <p v-if="passwordErrors.newPassword" class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $t(`${passwordErrors.newPassword}`) }}</p>
               </div>
 
               <!-- Confirmation du nouveau mot de passe -->
@@ -185,12 +185,12 @@
                     <LucideEyeOff v-else class="h-5 w-5" />
                   </button>
                 </div>
-                <p v-if="passwordErrors.confirmNewPassword" class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $t(`errors.${passwordErrors.confirmNewPassword}`) }}</p>
+                <p v-if="passwordErrors.confirmNewPassword" class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $t(`${passwordErrors.confirmNewPassword}`) }}</p>
               </div>
 
               <!-- Erreur générale -->
               <div v-if="passwordErrorMessage" class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-800 dark:text-red-300 p-3 rounded-md text-sm">
-                {{ $t(`errors.${passwordErrorMessage}`) }}
+                {{ $t(`${passwordErrorMessage}`) }}
               </div>
 
               <div class="flex justify-end">
@@ -217,11 +217,12 @@
           <div class="flex flex-col items-center space-y-4">
             <div class="relative">
               <img 
-                :src="user.profilePicture || 'https://i.pravatar.cc/150?img=1'" 
-                :alt="$t('profile.profilePictureAlt')" 
-                class="w-32 h-32 rounded-full object-cover border-2 transition-colors duration-300"
-                :class="isDarkMode ? 'border-gray-700' : 'border-gray-200'" 
-              />
+  :src="tempProfilePicture ? tempProfilePicture.url : getProfilePictureUrl(user.profilePicture)" 
+  :alt="$t('profile.profilePictureAlt')" 
+  class="w-32 h-32 rounded-full object-cover border-2 transition-colors duration-300"
+  :class="isDarkMode ? 'border-gray-700' : 'border-gray-200'" 
+/>
+
               <button
                 class="absolute bottom-0 right-0 p-2 bg-blue-600 text-white rounded-full shadow-md hover:bg-blue-700 transition-colors duration-200"
                 @click="openFileSelector"
@@ -325,435 +326,334 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
-import { useAuthStore } from '@/stores/AuthStore';
-import { useThemeStore } from '@/stores/theme';
-import { storeToRefs } from 'pinia';
-import apiClient from '@/services/api.config';
-import toast from '@/composables/Toast/useToast';
-import { 
-  LucidePencil, 
-  LucideLock, 
-  LucideEye, 
+import { ref, reactive, computed, onMounted } from 'vue'
+import { useI18n } from '@/composables/i18n/useI18n'
+import { useAuthStore } from '@/stores/AuthStore'
+import { useProfileStore } from '@/stores/ProfileStore'
+import toast from '@/composables/Toast/useToast'
+import { formatErrorCode } from '@/utils/errorFormatter'
+import {
+  LucidePencil,
+  LucideLock,
+  LucideEye,
   LucideEyeOff,
   LucideLoader,
   LucideCamera,
-  LucideSun,
   LucideMoon,
+  LucideSun,
   LucideMonitor
-} from 'lucide-vue-next';
+} from 'lucide-vue-next'
+import { useRouter } from 'vue-router'
+import { getProfilePictureUrl } from '@/utils/imageUtils';
 
-// Composition d'erreurs correspondant aux codes d'erreur backend
-const ERROR_KEYS = {
-  'password_required': 'password_required',
-  'password_too_short': 'password_too_short',
-  'password_confirmation_required': 'password_confirmation_required',
-  'passwords_not_match': 'passwords_not_match',
-  'incorrect_current_password': 'incorrect_current_password',
-  'password_update_failed': 'password_update_failed',
-}
+// Stores et composables
+const router = useRouter()
+const authStore = useAuthStore()
+const profileStore = useProfileStore()
+const { t, currentLocale, formatDate } = useI18n()
 
-// Router
-const router = useRouter();
+// Alias pour simplifier l'utilisation de la fonction de traduction dans le template
+const $t = t
 
-// Stores
-const authStore = useAuthStore();
-const themeStore = useThemeStore();
-const { darkMode } = storeToRefs(themeStore);
-const isDarkMode = darkMode;
-
-// État utilisateur
-const user = ref({
-  id: '',
-  firstName: '',
-  lastName: '',
-  email: '',
-  role: '',
-  profilePicture: null,
-  createdAt: new Date()
-});
-
-// États du formulaire
-const isEditingProfile = ref(false);
-const isLoading = ref(false);
-const isChangingPassword = ref(false);
-const isUploadingPicture = ref(false);
-const fileInput = ref(null);
-const tempProfilePicture = ref(null);
-
-// Référence utilisateur édité
-const editedUser = reactive({
+// État de l'utilisateur
+const user = computed(() => authStore.user || {})
+const editedUser = ref({
   firstName: '',
   lastName: ''
-});
+})
 
-// Formulaire changement mot de passe
+// État du formulaire de profil
+const isEditingProfile = ref(false)
+const isLoading = ref(false)
+
+// État du formulaire de mot de passe
 const passwordForm = reactive({
   currentPassword: '',
   newPassword: '',
   confirmNewPassword: ''
-});
-
-const passwordErrors = reactive({
-  currentPassword: '',
-  newPassword: '',
-  confirmNewPassword: ''
-});
-
-const passwordErrorMessage = ref('');
-
-// Affichage des mots de passe
+})
 const showPasswords = reactive({
   current: false,
   new: false,
   confirm: false
-});
+})
+const passwordErrors = reactive({
+  currentPassword: '',
+  newPassword: '',
+  confirmNewPassword: ''
+})
+const passwordErrorMessage = ref('')
+const isChangingPassword = ref(false)
 
-// Informations de l'appareil
+// État de la photo de profil
+const tempProfilePicture = ref(null)
+const fileInput = ref(null)
+const isUploadingPicture = ref(false)
+
+// Détection du thème
+const isDarkMode = computed(() => {
+  return document.documentElement.classList.contains('dark')
+})
+
+// Détection du dispositif utilisateur
 const userDevice = computed(() => {
-  const browser = detectBrowser();
-  const os = detectOS();
-  return `${browser} sur ${os}`;
-});
-
-// Méthodes
-const formatDate = (date) => {
-  const d = new Date(date);
-  if (isNaN(d.getTime())) return 'Date inconnue';
-  return new Intl.DateTimeFormat('fr-FR', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric'
-  }).format(d);
-};
-
-const detectBrowser = () => {
-  const userAgent = navigator.userAgent;
-  if (userAgent.indexOf("Chrome") > -1) return "Chrome";
-  if (userAgent.indexOf("Safari") > -1) return "Safari";
-  if (userAgent.indexOf("Firefox") > -1) return "Firefox";
-  if (userAgent.indexOf("MSIE") > -1 || userAgent.indexOf("Trident") > -1) return "Internet Explorer";
-  if (userAgent.indexOf("Edge") > -1) return "Edge";
-  return "Navigateur inconnu";
-};
-
-const detectOS = () => {
-  const userAgent = navigator.userAgent;
-  if (userAgent.indexOf("Windows") > -1) return "Windows";
-  if (userAgent.indexOf("Mac") > -1) return "macOS";
-  if (userAgent.indexOf("Linux") > -1) return "Linux";
-  if (userAgent.indexOf("Android") > -1) return "Android";
-  if (userAgent.indexOf("iPhone") > -1 || userAgent.indexOf("iPad") > -1) return "iOS";
-  return "Système inconnu";
-};
-
-// Basculer le mode sombre
-const toggleDarkMode = () => {
-  themeStore.setDarkMode(!isDarkMode.value);
-};
-
-// Chargement des données utilisateur
-const loadUserData = async () => {
-  try {
-    isLoading.value = true;
-    
-    // Récupération des données utilisateur
-    const userData = authStore.user;
-    
-    if (userData) {
-      user.value = { ...userData };
-      
-      // Si l'image de profil est stockée en base64, elle peut être utilisée directement
-      if (user.value.profilePicture) {
-        // Assurons-nous que c'est une chaîne base64 valide
-        if (typeof user.value.profilePicture === 'string' && 
-            (user.value.profilePicture.startsWith('data:image/') || 
-             user.value.profilePicture.startsWith('/api/profiles/'))) {
-          // On la laisse telle quelle
-        } else {
-          // On construit un chemin d'accès complet si nécessaire
-          user.value.profilePicture = `${import.meta.env.VITE_API_URL || ''}/data/users/profile/${user.value.profilePicture}`;
-        }
-      }
-    } else {
-      await authStore.fetchUser();
-      if (authStore.user) {
-        user.value = { ...authStore.user };
-        
-        // Même traitement pour l'image de profil
-        if (user.value.profilePicture && 
-            !user.value.profilePicture.startsWith('data:image/') && 
-            !user.value.profilePicture.startsWith('/api/profiles/')) {
-          user.value.profilePicture = `${import.meta.env.VITE_API_URL || ''}/data/users/profile/${user.value.profilePicture}`;
-        }
-      } else {
-        router.push({ name: 'login' });
-      }
-    }
-  } catch (error) {
-    console.error('Erreur lors du chargement du profil:', error);
-    toast.error($t('errors.profile_load_failed'));
-  } finally {
-    isLoading.value = false;
-  }
-};
-
-// Gestion du formulaire de profil
-const startEditingProfile = () => {
-  editedUser.firstName = user.value.firstName;
-  editedUser.lastName = user.value.lastName;
-  isEditingProfile.value = true;
-};
-
-const cancelEditingProfile = () => {
-  isEditingProfile.value = false;
-};
-
-const saveProfile = async () => {
-  try {
-    isLoading.value = true;
-    
-    const result = await authStore.updateProfile({
-      firstName: editedUser.firstName,
-      lastName: editedUser.lastName
-    });
-    
-    if (result.success) {
-      user.value = {
-        ...user.value,
-        firstName: editedUser.firstName,
-        lastName: editedUser.lastName
-      };
-      
-      isEditingProfile.value = false;
-      toast.success($t('success.profile_updated'));
-    } else {
-      toast.error($t(`errors.${result.code || 'profile_update_failed'}`));
-    }
-  } catch (error) {
-    console.error('Erreur lors de la mise à jour du profil:', error);
-    toast.error($t('errors.profile_update_failed'));
-  } finally {
-    isLoading.value = false;
-  }
-};
-
-// Gestion du changement de mot de passe
-const validatePasswordForm = () => {
-  let isValid = true;
-  passwordErrors.currentPassword = '';
-  passwordErrors.newPassword = '';
-  passwordErrors.confirmNewPassword = '';
-  passwordErrorMessage.value = '';
-
-  if (!passwordForm.currentPassword) {
-    passwordErrors.currentPassword = ERROR_KEYS.password_required;
-    isValid = false;
-  }
-
-  if (!passwordForm.newPassword) {
-    passwordErrors.newPassword = ERROR_KEYS.password_required;
-    isValid = false;
-  } else if (passwordForm.newPassword.length < 6) {
-    passwordErrors.newPassword = ERROR_KEYS.password_too_short;
-    isValid = false;
-  }
-
-  if (!passwordForm.confirmNewPassword) {
-    passwordErrors.confirmNewPassword = ERROR_KEYS.password_confirmation_required;
-    isValid = false;
-  } else if (passwordForm.newPassword !== passwordForm.confirmNewPassword) {
-    passwordErrors.confirmNewPassword = ERROR_KEYS.passwords_not_match;
-    isValid = false;
-  }
-
-  return isValid;
-};
-
-const changePassword = async () => {
-  if (!validatePasswordForm()) return;
-
-  try {
-    isChangingPassword.value = true;
-    passwordErrorMessage.value = '';
-
-    const result = await authStore.changePassword(
-      passwordForm.currentPassword,
-      passwordForm.newPassword
-    );
-
-    if (result.success) {
-      passwordForm.currentPassword = '';
-      passwordForm.newPassword = '';
-      passwordForm.confirmNewPassword = '';
-      toast.success($t('success.password_updated'));
-    } else {
-      passwordErrorMessage.value = result.code || ERROR_KEYS.password_update_failed;
-    }
-  } catch (error) {
-    console.error('Erreur lors du changement de mot de passe:', error);
-    passwordErrorMessage.value = ERROR_KEYS.password_update_failed;
-  } finally {
-    isChangingPassword.value = false;
-  }
-};
-
-// Gestion de la photo de profil
-const openFileSelector = () => {
-  fileInput.value.click();
-};
-
-const handleFileUpload = (event) => {
-  const file = event.target.files[0];
-  if (!file) return;
-
-  const validTypes = ['image/jpeg', 'image/png', 'image/gif'];
-  const maxSize = 2 * 1024 * 1024; // 2 Mo
-
-  if (!validTypes.includes(file.type)) {
-    toast.error($t('errors.invalid_file_format'));
-    return;
-  }
-
-  if (file.size > maxSize) {
-    toast.error($t('errors.file_too_large'));
-    return;
-  }
-
-  tempProfilePicture.value = URL.createObjectURL(file);
-};
-
-const saveProfilePicture = async () => {
-  try {
-    isUploadingPicture.value = true;
-    
-    const formData = new FormData();
-    const file = fileInput.value.files[0];
-    formData.append("file", file);
-
-    const res = await apiClient.post("/auth/me/profile-picture", formData);
-    
-    if (res.data.filename) {
-      user.value.profilePicture = `http://127.0.0.1/data/users/profile/${res.data.filename}`;
-      tempProfilePicture.value = null;
-      fileInput.value.value = '';
-      toast.success($t('success.profile_picture_updated'));
-    }
-  } catch (error) {
-    const code = error.response?.data?.detail?.code || 'profile_picture_update_failed';
-    toast.error($t(`errors.${code}`));
-  } finally {
-    isUploadingPicture.value = false;
-  }
-};
-
-
-const cancelProfilePicture = () => {
-  tempProfilePicture.value = null;
-  fileInput.value.value = '';
-};
-
-const removeProfilePicture = async () => {
-  try {
-    isUploadingPicture.value = true;
-    
-    // Utilisation de la méthode updateProfile pour supprimer la photo
-    // En envoyant null ou une valeur spécifique indiquant la suppression
-
-    await apiClient.delete("/auth/me/profile-picture");
-
-    const result = await authStore.updateProfile({
-      profilePicture: null  // Le backend doit interpréter null comme une demande de suppression
-    });
-    
-    if (result.success) {
-      user.value.profilePicture = null;
-      toast.success($t('success.profile_picture_removed'));
-    } else {
-      toast.error($t(`errors.${result.code || 'profile_picture_remove_failed'}`));
-    }
-  } catch (error) {
-    console.error('Erreur lors de la suppression de la photo:', error);
-    toast.error($t('errors.profile_picture_remove_failed'));
-  } finally {
-    isUploadingPicture.value = false;
-  }
-};
-
-// Déconnexion
-const logout = async () => {
-  try {
-    await authStore.logout();
-    router.push({ name: 'login' });
-  } catch (error) {
-    console.error('Erreur lors de la déconnexion:', error);
-    toast.error($t('errors.logout_failed'));
-  }
-};
+  const userAgent = navigator.userAgent
+  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent)
+  const browser = getBrowser(userAgent)
+  
+  return isMobile 
+    ? `${browser} (${t('common.mobile')})` 
+    : `${browser} (${t('common.desktop')})`
+})
 
 // Initialisation
 onMounted(() => {
-  loadUserData();
-});
+  if (!authStore.user) {
+    router.push('/auth/login')
+    return
+  }
+})
 
-// Fonction d'aide pour l'internationalisation (temporaire)
-// À remplacer par votre bibliothèque i18n réelle (vue-i18n)
-const $t = (key) => {
-  // Ce tableau peut être chargé depuis un fichier JSON pour chaque langue
-  const translations = {
-    'profile.title': 'Profil',
-    'profile.personalInfo': 'Informations personnelles',
-    'profile.edit': 'Modifier',
-    'profile.firstName': 'Prénom',
-    'profile.lastName': 'Nom',
-    'profile.email': 'Email',
-    'profile.role': 'Rôle',
-    'profile.admin': 'Administrateur',
-    'profile.user': 'Utilisateur',
-    'profile.createdAt': 'Compte créé le',
-    'profile.security': 'Sécurité',
-    'profile.changePassword': 'Changer le mot de passe',
-    'profile.currentPassword': 'Mot de passe actuel',
-    'profile.newPassword': 'Nouveau mot de passe',
-    'profile.confirmPassword': 'Confirmer le nouveau mot de passe',
-    'profile.updatePassword': 'Mettre à jour le mot de passe',
-    'profile.profilePicture': 'Photo de profil',
-    'profile.profilePictureAlt': 'Photo de profil',
-    'profile.supportedFormats': 'Formats supportés: JPG, PNG, GIF',
-    'profile.maxSize': 'Taille maximale: 2 Mo',
-    'profile.preferences': 'Préférences',
-    'profile.theme': 'Thème',
-    'profile.chooseTheme': 'Choisir le thème de l\'interface',
-    'profile.activeSession': 'Session active',
-    'profile.currentDevice': 'Votre appareil actuel',
-    'profile.logout': 'Déconnexion',
-    
-    'common.save': 'Enregistrer',
-    'common.cancel': 'Annuler',
-    'common.delete': 'Supprimer',
-    
-    'success.profile_updated': 'Profil mis à jour avec succès',
-    'success.password_updated': 'Mot de passe mis à jour avec succès',
-    'success.profile_picture_updated': 'Photo de profil mise à jour avec succès',
-    'success.profile_picture_removed': 'Photo de profil supprimée avec succès',
-    
-    'errors.profile_load_failed': 'Erreur lors du chargement des données utilisateur',
-    'errors.profile_update_failed': 'Erreur lors de la mise à jour du profil',
-    'errors.password_required': 'Le mot de passe est requis',
-    'errors.password_too_short': 'Le mot de passe doit contenir au moins 6 caractères',
-    'errors.password_confirmation_required': 'La confirmation du mot de passe est requise',
-    'errors.passwords_not_match': 'Les mots de passe ne correspondent pas',
-    'errors.incorrect_current_password': 'Le mot de passe actuel est incorrect',
-    'errors.password_update_failed': 'Erreur lors de la mise à jour du mot de passe',
-    'errors.invalid_file_format': 'Format de fichier non supporté. Utilisez JPG, PNG ou GIF',
-    'errors.file_too_large': 'Fichier trop volumineux. Taille maximale: 2 Mo',
-    'errors.profile_picture_update_failed': 'Erreur lors de la mise à jour de la photo de profil',
-    'errors.profile_picture_remove_failed': 'Erreur lors de la suppression de la photo de profil',
-    'errors.logout_failed': 'Erreur lors de la déconnexion'
-  };
+// === Fonctions de gestion du profil ===
+function startEditingProfile() {
+  editedUser.value = {
+    firstName: user.value.firstName,
+    lastName: user.value.lastName
+  }
+  isEditingProfile.value = true
+}
+
+function cancelEditingProfile() {
+  isEditingProfile.value = false
+}
+
+async function saveProfile() {
+  isLoading.value = true
   
-  return translations[key] || key;
-};
+  try {
+    const result = await profileStore.updateProfile(editedUser.value)
+    
+    if (result.success) {
+      isEditingProfile.value = false
+      toast.success(t('auth.profile.update_success'))
+    } else {
+      const errorCode = formatErrorCode(result.errorCode || 'errors.general.update_failed', 'auth')
+      toast.error(t(errorCode))
+    }
+  } catch (error) {
+    console.error('Erreur lors de la mise à jour du profil:', error)
+    toast.error(t('errors.general.update_failed'))
+  } finally {
+    isLoading.value = false
+  }
+}
 
+// === Fonctions de changement de mot de passe ===
+function validatePasswordForm() {
+  // Réinitialiser les erreurs
+  passwordErrors.currentPassword = ''
+  passwordErrors.newPassword = ''
+  passwordErrors.confirmNewPassword = ''
+  passwordErrorMessage.value = ''
+  
+  let isValid = true
+  
+  // Valider le mot de passe actuel
+  if (!passwordForm.currentPassword) {
+    passwordErrors.currentPassword = 'errors.form.required'
+    isValid = false
+  }
+  
+  // Valider le nouveau mot de passe
+  if (!passwordForm.newPassword) {
+    passwordErrors.newPassword = 'errors.form.required'
+    isValid = false
+  } else if (passwordForm.newPassword.length < 6) {
+    passwordErrors.newPassword = 'errors.auth.password_too_weak'
+    isValid = false
+  }
+  
+  // Valider la confirmation du mot de passe
+  if (!passwordForm.confirmNewPassword) {
+    passwordErrors.confirmNewPassword = 'errors.form.required'
+    isValid = false
+  } else if (passwordForm.confirmNewPassword !== passwordForm.newPassword) {
+    passwordErrors.confirmNewPassword = 'errors.form.password_match'
+    isValid = false
+  }
+  
+  return isValid
+}
+
+async function changePassword() {
+  if (!validatePasswordForm()) return
+  
+  isChangingPassword.value = true
+  
+  try {
+    const result = await profileStore.changePassword(
+      passwordForm.currentPassword,
+      passwordForm.newPassword
+    )
+    
+    if (result.success) {
+      passwordForm.currentPassword = ''
+      passwordForm.newPassword = ''
+      passwordForm.confirmNewPassword = ''
+      toast.success(t('auth.profile.password_change_success'))
+    } else {
+      // Gestion correcte des codes d'erreurs
+      if (result.errorCode) {
+        // Si l'API renvoie "auth.incorrect_current_password"
+        if (result.errorCode.includes('.') && !result.errorCode.startsWith('errors.')) {
+          passwordErrorMessage.value = `errors.${result.errorCode}`
+        } 
+        // Si l'API renvoie déjà "errors.auth.incorrect_current_password"
+        else if (result.errorCode.startsWith('errors.')) {
+          passwordErrorMessage.value = result.errorCode
+        } 
+        // Si l'API renvoie juste "incorrect_current_password"
+        else {
+          passwordErrorMessage.value = `errors.auth.${result.errorCode}`
+        }
+      } else {
+        passwordErrorMessage.value = 'errors.auth.password_update_failed'
+      }
+      
+      console.log('Erreur lors du changement de mot de passe:', result.errorCode)
+    }
+  } catch (error) {
+    console.error('Erreur lors du changement de mot de passe:', error)
+    passwordErrorMessage.value = 'errors.general.internal_error'
+  } finally {
+    isChangingPassword.value = false
+  }
+}
+
+// === Fonctions de gestion de la photo de profil ===
+function openFileSelector() {
+  fileInput.value.click()
+}
+
+function handleFileUpload(event) {
+  const file = event.target.files[0]
+  if (!file) return
+  
+  // Vérifier le type de fichier
+  const allowedTypes = ['image/jpeg', 'image/png', 'image/gif']
+  if (!allowedTypes.includes(file.type)) {
+    toast.error(t('errors.auth.invalid_file_format'))
+    return
+  }
+  
+  // Vérifier la taille du fichier (max 5MB)
+  const maxSize = 5 * 1024 * 1024 // 5MB
+  if (file.size > maxSize) {
+    toast.error(t('errors.auth.file_too_large'))
+    return
+  }
+  
+  // Créer un objet contenant à la fois l'URL et le fichier
+  tempProfilePicture.value = {
+    url: URL.createObjectURL(file),
+    file: file
+  }
+}
+
+async function saveProfilePicture() {
+  if (!tempProfilePicture.value || !tempProfilePicture.value.file) return
+  
+  isUploadingPicture.value = true
+  
+  try {
+    const result = await profileStore.uploadProfilePicture(tempProfilePicture.value.file)
+    
+    if (result.success) {
+      toast.success(t('common.success'))
+      // Nettoyer l'URL temporaire
+      URL.revokeObjectURL(tempProfilePicture.value.url)
+      tempProfilePicture.value = null
+    } else {
+      // Gestion correcte des codes d'erreurs
+      const errorMsg = result.errorCode || 'general.upload_failed'
+      toast.error(t(errorMsg.startsWith('errors.') ? errorMsg : `errors.${errorMsg}`))
+    }
+  } catch (error) {
+    console.error('Erreur lors de l\'upload de la photo de profil:', error)
+    toast.error(t('errors.general.upload_failed'))
+  } finally {
+    isUploadingPicture.value = false
+  }
+}
+
+function cancelProfilePicture() {
+  if (tempProfilePicture.value) {
+    URL.revokeObjectURL(tempProfilePicture.value.url)
+    tempProfilePicture.value = null
+  }
+}
+
+async function removeProfilePicture() {
+  if (!user.value.profilePicture) return
+  
+  isUploadingPicture.value = true
+  
+  try {
+    const result = await profileStore.deleteProfilePicture()
+    
+    if (result.success) {
+      toast.success(t('common.success'))
+    } else {
+      // Gestion correcte des codes d'erreurs
+      const errorCode = result.errorCode || 'general.delete_failed'
+      toast.error(t(errorCode.startsWith('errors.') ? errorCode : `errors.${errorCode}`))
+    }
+  } catch (error) {
+    console.error('Erreur lors de la suppression de la photo de profil:', error)
+    toast.error(t('errors.general.delete_failed'))
+  } finally {
+    isUploadingPicture.value = false
+  }
+}
+
+// === Fonctions de préférences ===
+function toggleDarkMode() {
+  document.documentElement.classList.toggle('dark')
+  // Sauvegarder la préférence dans localStorage
+  const isDark = document.documentElement.classList.contains('dark')
+  localStorage.setItem('darkMode', isDark ? 'true' : 'false')
+}
+
+// === Fonctions d'authentification ===
+async function logout() {
+  try {
+    await authStore.logout()
+    router.push('/auth/login')
+    toast.success(t('auth.logout.success'))
+  } catch (error) {
+    console.error('Erreur lors de la déconnexion:', error)
+    toast.error(t('auth.logout.failed'))
+  }
+}
+
+// === Fonctions utilitaires ===
+function getBrowser(userAgent) {
+  if (userAgent.indexOf('Firefox') > -1) {
+    return 'Firefox'
+  } else if (userAgent.indexOf('SamsungBrowser') > -1) {
+    return 'Samsung Internet'
+  } else if (userAgent.indexOf('Opera') > -1 || userAgent.indexOf('OPR') > -1) {
+    return 'Opera'
+  } else if (userAgent.indexOf('Trident') > -1) {
+    return 'Internet Explorer'
+  } else if (userAgent.indexOf('Edge') > -1) {
+    return 'Microsoft Edge'
+  } else if (userAgent.indexOf('Chrome') > -1) {
+    return 'Chrome'
+  } else if (userAgent.indexOf('Safari') > -1) {
+    return 'Safari'
+  } else {
+    return 'Unknown'
+  }
+}
 </script>
