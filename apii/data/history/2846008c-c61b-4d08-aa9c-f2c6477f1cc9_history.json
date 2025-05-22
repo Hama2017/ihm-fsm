@@ -1,0 +1,20 @@
+{
+  "events": [
+    {
+      "timestamp": "2025-05-22T03:09:54.051003+00:00",
+      "contract_id": "2846008c-c61b-4d08-aa9c-f2c6477f1cc9",
+      "event_type": "create",
+      "user_id": "admin@localhost.com",
+      "details": {
+        "automatons_count": 1
+      }
+    },
+    {
+      "timestamp": "2025-05-22T03:22:00.364474+00:00",
+      "contract_id": "2846008c-c61b-4d08-aa9c-f2c6477f1cc9",
+      "event_type": "delete",
+      "user_id": "admin@localhost.com",
+      "details": {}
+    }
+  ]
+}

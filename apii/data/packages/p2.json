@@ -1,0 +1,18 @@
+{
+    "name": "p2",
+    "id": "p2",
+    "label": "p2",
+    "description": "",
+    "functions": {
+        "c1": {
+            "code": "function package__p2__c1() public pure returns (bool) { return true; }",
+            "default": false
+        },
+        "c2":{
+            "code": "function package__p2__c2() public pure returns (bool) { return true; }",
+            "default": false
+        }
+    },
+    "variables": [],
+    "structs": []
+}

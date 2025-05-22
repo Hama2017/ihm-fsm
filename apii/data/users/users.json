@@ -1,0 +1,13 @@
+[
+  {
+    "firstName": "MAXENCE",
+    "lastName": "LAMBARD",
+    "email": "admin@localhost.com",
+    "hashedPassword": "$2b$12$z0nM6v5OLpeYNN4vwZ5ymepj3cW6LXjiUN1lDbluFzOYA78WAQBLO",
+    "role": "admin",
+    "profilePicture": null,
+    "createdAt": "2025-05-19 09:26:55.029695+00:00",
+    "refreshToken": "0sFiAOmjAp-dVdxb5-JJs1eFy1k12WtsmcwYswZAOY4nprI3CndRTw1M1zK3PVmA9cBtNZCuwrDQha85k4IOYQ",
+    "refreshTokenExpiresAt": "2025-05-29 06:04:01.159580+00:00"
+  }
+]

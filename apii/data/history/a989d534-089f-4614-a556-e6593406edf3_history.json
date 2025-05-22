@@ -1,0 +1,38 @@
+{
+  "events": [
+    {
+      "timestamp": "2025-05-22T03:26:41.637753+00:00",
+      "contract_id": "a989d534-089f-4614-a556-e6593406edf3",
+      "event_type": "create",
+      "user_id": "admin@localhost.com",
+      "details": {
+        "automatons_count": 1
+      }
+    },
+    {
+      "timestamp": "2025-05-22T03:26:47.198134+00:00",
+      "contract_id": "a989d534-089f-4614-a556-e6593406edf3",
+      "event_type": "update",
+      "user_id": "admin@localhost.com",
+      "details": {
+        "automatons_count": 1
+      }
+    },
+    {
+      "timestamp": "2025-05-22T03:26:50.945044+00:00",
+      "contract_id": "a989d534-089f-4614-a556-e6593406edf3",
+      "event_type": "update",
+      "user_id": "admin@localhost.com",
+      "details": {
+        "automatons_count": 2
+      }
+    },
+    {
+      "timestamp": "2025-05-22T03:31:36.883446+00:00",
+      "contract_id": "a989d534-089f-4614-a556-e6593406edf3",
+      "event_type": "delete",
+      "user_id": "admin@localhost.com",
+      "details": {}
+    }
+  ]
+}

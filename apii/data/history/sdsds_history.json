@@ -1,0 +1,13 @@
+{
+  "events": [
+    {
+      "timestamp": "2025-05-15T10:45:50.138740+00:00",
+      "contract_name": "sdsds",
+      "event_type": "deploy",
+      "user_id": "admin@localhost.com",
+      "details": {
+        "automatons_count": 2
+      }
+    }
+  ]
+}

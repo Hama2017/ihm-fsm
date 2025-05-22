@@ -1,0 +1,131 @@
+{
+  "id": null,
+  "name": "dadada",
+  "status": "draft",
+  "createdAt": "2025-05-15 12:04:19.155852+00:00",
+  "updatedAt": "2025-05-15 12:04:27.380015+00:00",
+  "createdBy": "admin@localhost.com",
+  "description": null,
+  "automates": [
+    {
+      "id": "01",
+      "name": "d",
+      "active": false,
+      "states": [
+        {
+          "id": "state-1",
+          "label": "\u00c9tat Initial",
+          "position": {
+            "x": 100.0,
+            "y": 150.0
+          },
+          "type": "standard",
+          "sourcePosition": "bottom",
+          "targetPosition": "top"
+        },
+        {
+          "id": "state-2",
+          "label": "\u00c9tat Final",
+          "position": {
+            "x": 300.0,
+            "y": 150.0
+          },
+          "type": "standard",
+          "sourcePosition": "bottom",
+          "targetPosition": "top"
+        }
+      ],
+      "transitions": [
+        {
+          "id": "edge-1",
+          "source": "state-1",
+          "target": "state-2",
+          "label": "terminer",
+          "markerEnd": "arrowclosed",
+          "conditions": [],
+          "automataDependencies": null
+        }
+      ]
+    },
+    {
+      "id": "02",
+      "name": "da",
+      "active": false,
+      "states": [
+        {
+          "id": "state-1",
+          "label": "\u00c9tat Initial",
+          "position": {
+            "x": 100.0,
+            "y": 150.0
+          },
+          "type": "standard",
+          "sourcePosition": "bottom",
+          "targetPosition": "top"
+        },
+        {
+          "id": "state-2",
+          "label": "\u00c9tat Final",
+          "position": {
+            "x": 300.0,
+            "y": 150.0
+          },
+          "type": "standard",
+          "sourcePosition": "bottom",
+          "targetPosition": "top"
+        }
+      ],
+      "transitions": [
+        {
+          "id": "edge-1",
+          "source": "state-1",
+          "target": "state-2",
+          "label": "terminer",
+          "markerEnd": "arrowclosed",
+          "conditions": [],
+          "automataDependencies": null
+        }
+      ]
+    },
+    {
+      "id": "03",
+      "name": "dada",
+      "active": true,
+      "states": [
+        {
+          "id": "state-1",
+          "label": "\u00c9tat Initial",
+          "position": {
+            "x": 100.0,
+            "y": 150.0
+          },
+          "type": "standard",
+          "sourcePosition": "bottom",
+          "targetPosition": "top"
+        },
+        {
+          "id": "state-2",
+          "label": "\u00c9tat Final",
+          "position": {
+            "x": 300.0,
+            "y": 150.0
+          },
+          "type": "standard",
+          "sourcePosition": "bottom",
+          "targetPosition": "top"
+        }
+      ],
+      "transitions": [
+        {
+          "id": "edge-1",
+          "source": "state-1",
+          "target": "state-2",
+          "label": "terminer",
+          "markerEnd": "arrowclosed",
+          "conditions": [],
+          "automataDependencies": null
+        }
+      ]
+    }
+  ]
+}

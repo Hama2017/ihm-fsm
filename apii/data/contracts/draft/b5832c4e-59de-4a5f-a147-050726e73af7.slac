@@ -1,0 +1,139 @@
+{
+  "id": "b5832c4e-59de-4a5f-a147-050726e73af7",
+  "name": "Test",
+  "status": "draft",
+  "createdAt": "2025-05-22 04:30:27.552216+00:00",
+  "updatedAt": "2025-05-22 05:51:49.610524+00:00",
+  "createdBy": "admin@localhost.com",
+  "description": "",
+  "automates": [
+    {
+      "id": "01",
+      "name": "flow1",
+      "active": true,
+      "states": [
+        {
+          "id": "state-1",
+          "label": "\u00c9tat Initial",
+          "position": {
+            "x": -16.126333434727826,
+            "y": 205.5923936655612
+          },
+          "type": "standard",
+          "sourcePosition": "bottom",
+          "targetPosition": "top"
+        },
+        {
+          "id": "state-2",
+          "label": "\u00c9tat Final",
+          "position": {
+            "x": 300.0,
+            "y": 150.0
+          },
+          "type": "standard",
+          "sourcePosition": "bottom",
+          "targetPosition": "top"
+        }
+      ],
+      "transitions": [
+        {
+          "id": "edge-1",
+          "source": "state-1",
+          "target": "state-2",
+          "label": "terminer",
+          "markerEnd": "arrowclosed",
+          "conditions": [
+            "package__p1__c1",
+            "package__p1__c2",
+            "package__p2__c1"
+          ],
+          "automataDependencies": [
+            "02"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "02",
+      "name": "d",
+      "active": false,
+      "states": [
+        {
+          "id": "state-1",
+          "label": "\u00c9tat Initial",
+          "position": {
+            "x": 100.0,
+            "y": 150.0
+          },
+          "type": "standard",
+          "sourcePosition": "bottom",
+          "targetPosition": "top"
+        },
+        {
+          "id": "state-2",
+          "label": "\u00c9tat Final",
+          "position": {
+            "x": 300.0,
+            "y": 150.0
+          },
+          "type": "standard",
+          "sourcePosition": "bottom",
+          "targetPosition": "top"
+        }
+      ],
+      "transitions": [
+        {
+          "id": "edge-1",
+          "source": "state-1",
+          "target": "state-2",
+          "label": "terminer",
+          "markerEnd": "arrowclosed",
+          "conditions": [
+            "package__p1__c2"
+          ],
+          "automataDependencies": null
+        }
+      ]
+    },
+    {
+      "id": "flow-deploiement",
+      "name": "Flow D\u00e9ploiement",
+      "active": false,
+      "states": [
+        {
+          "id": "deployment-state-01",
+          "label": "flow1",
+          "position": {
+            "x": 200.0,
+            "y": 200.0
+          },
+          "type": "standard",
+          "sourcePosition": null,
+          "targetPosition": null
+        },
+        {
+          "id": "deployment-state-02",
+          "label": "d",
+          "position": {
+            "x": 500.0,
+            "y": 200.0
+          },
+          "type": "standard",
+          "sourcePosition": null,
+          "targetPosition": null
+        }
+      ],
+      "transitions": [
+        {
+          "id": "deployment-edge-02-to-01",
+          "source": "deployment-state-02",
+          "target": "deployment-state-01",
+          "label": "est termin\u00e9",
+          "markerEnd": "arrowclosed",
+          "conditions": [],
+          "automataDependencies": null
+        }
+      ]
+    }
+  ]
+}
