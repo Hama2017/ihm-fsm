@@ -1,6 +1,27 @@
 <template>
-  <div>
+  <div 
+    @dragenter="handleDragEnter"
+    @dragover.prevent
+    @dragleave="handleDragLeave"
+    @drop.prevent="handleDrop"
+  >
     <h1 class="text-2xl font-semibold text-gray-900 dark:text-white mb-6">{{ t('packages.title') }}</h1>
+    
+    <!-- Zone de drag and drop -->
+    <div 
+      v-if="isDragOver"
+      class="fixed inset-0 z-50 bg-blue-500/20 backdrop-blur-sm flex items-center justify-center pointer-events-none"
+    >
+      <div class="bg-white dark:bg-gray-800 rounded-xl p-8 shadow-2xl border-2 border-dashed border-blue-500 text-center max-w-md pointer-events-none">
+        <LucideUpload class="w-12 h-12 mx-auto text-blue-500 mb-4" />
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+          {{ t('packages.dropToImport') }}
+        </h3>
+        <p class="text-sm text-gray-600 dark:text-gray-400">
+          {{ t('packages.dropDescription') }}
+        </p>
+      </div>
+    </div>
     
     <!-- Barre d'outils -->
     <div class="flex justify-between items-center mb-6">
@@ -118,10 +139,39 @@
         </div>
       </div>
       
-      <!-- État vide -->
-      <div v-else class="bg-white dark:bg-gray-800 shadow-md rounded-xl p-6 border border-gray-200 dark:border-gray-700 text-center py-8">
-        <LucidePackage class="w-12 h-12 mx-auto text-gray-300 dark:text-gray-600" />
-        <p class="mt-2 text-gray-500 dark:text-gray-400">{{ t('packages.noPackages') }}</p>
+      <!-- État vide avec zone de drop -->
+      <div 
+        v-else 
+        class="bg-white dark:bg-gray-800 shadow-md rounded-xl p-6 border-2 border-dashed border-gray-300 dark:border-gray-600 text-center py-12 transition-colors duration-200"
+        :class="{ 'border-blue-500 bg-blue-50 dark:bg-blue-900/20': isDragOverEmpty }"
+        @dragenter="handleDragEnterEmpty"
+        @dragleave="handleDragLeaveEmpty"
+        @dragover.prevent
+        @drop.prevent="handleDrop"
+      >
+        <LucidePackage class="w-16 h-16 mx-auto text-gray-300 dark:text-gray-600 mb-4" />
+        <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">
+          {{ t('packages.noPackages') }}
+        </h3>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">
+          {{ t('packages.noPackagesDesc') }}
+        </p>
+        <div class="flex justify-center space-x-4">
+          <button 
+            @click="triggerFileInput"
+            class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium flex items-center space-x-2 transition duration-200"
+          >
+            <LucideUpload class="h-4 w-4" />
+            <span>{{ t('packages.import') }}</span>
+          </button>
+          <router-link 
+            :to="{name: 'package-new'}"
+            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium flex items-center space-x-2 transition duration-200"
+          >
+            <LucideFilePlus class="h-4 w-4" />
+            <span>{{ t('packages.create') }}</span>
+          </router-link>
+        </div>
       </div>
     </div>
     
@@ -175,6 +225,11 @@ const isLoading = ref(false);
 const isFirstLoading = ref(true);
 const loadingMessage = ref(t('common.loading'));
 
+// Drag and drop states
+const isDragOver = ref(false);
+const isDragOverEmpty = ref(false);
+const dragCounter = ref(0);
+
 // Computed
 const filteredPackages = computed(() => {
   const packages = packageStore.packages || [];
@@ -200,6 +255,77 @@ function triggerFileInput() {
   fileInput.value.click();
 }
 
+// Drag and Drop handlers
+function handleDragEnter(e) {
+  e.preventDefault();
+  e.stopPropagation();
+  dragCounter.value++;
+  
+  // Vérifier si on a des fichiers
+  if (e.dataTransfer && e.dataTransfer.items && e.dataTransfer.items.length > 0) {
+    const item = e.dataTransfer.items[0];
+    if (item.kind === 'file') {
+      isDragOver.value = true;
+    }
+  }
+}
+
+function handleDragLeave(e) {
+  e.preventDefault();
+  e.stopPropagation();
+  dragCounter.value--;
+  
+  if (dragCounter.value <= 0) {
+    isDragOver.value = false;
+    dragCounter.value = 0;
+  }
+}
+
+function handleDragEnterEmpty(e) {
+  e.preventDefault();
+  e.stopPropagation();
+  isDragOverEmpty.value = true;
+}
+
+function handleDragLeaveEmpty(e) {
+  e.preventDefault();
+  e.stopPropagation();
+  isDragOverEmpty.value = false;
+}
+
+function handleDrop(e) {
+  e.preventDefault();
+  e.stopPropagation();
+  
+  // Reset drag states
+  isDragOver.value = false;
+  isDragOverEmpty.value = false;
+  dragCounter.value = 0;
+  
+  const files = e.dataTransfer.files;
+  
+  if (files.length === 0) {
+    toast.error(t('errors.package.no_file_dropped'));
+    return;
+  }
+  
+  if (files.length > 1) {
+    toast.error(t('errors.package.multiple_files'));
+    return;
+  }
+  
+  const file = files[0];
+  
+  // Vérifier le type de fichier
+  if (file.type !== 'application/json' && !file.name.endsWith('.json')) {
+    toast.error(t('errors.package.invalid_format'));
+    return;
+  }
+  
+  // Traiter le fichier comme s'il était uploadé via l'input
+  processFile(file);
+}
+
 async function handleFileUpload(event) {
   const file = event.target.files[0];
   
@@ -212,37 +338,81 @@ async function handleFileUpload(event) {
     return;
   }
   
+  await processFile(file);
+  
+  // Réinitialiser l'input file
+  event.target.value = null;
+}
+
+async function processFile(file) {
   try {
     // Activer le chargement
     isLoading.value = true;
     loadingMessage.value = t('packages.importingMessage');
     
+    // Étape 1: Analyser le fichier JSON pour obtenir l'ID du package
+    const fileContent = await readFileAsText(file);
+    let packageData;
+    
+    try {
+      packageData = JSON.parse(fileContent);
+    } catch (parseError) {
+      throw new Error('invalid_format');
+    }
+    
+    // Vérifier la structure minimale requise
+    if (!packageData || !packageData.id) {
+      throw new Error('invalid_structure');
+    }
+    
+    // Étape 2: Vérifier si un package avec cet ID existe déjà
+    const existingPackage = packageStore.getPackageById(packageData.id);
+    
+    if (existingPackage) {
+      // Le package existe déjà, afficher un message d'erreur
+      toast.error(t('errors.package.already_exists'));
+      isLoading.value = false;
+      return;
+    }
+    
+    // Étape 3: Importer le package si tout est OK (via l'API)
     const result = await packageStore.importPackage(file);
     
     // Attendre avec un délai minimum pour l'animation
     await new Promise(resolve => setTimeout(resolve, MIN_FILE_OPERATION_DELAY));
     
     if (result.success) {
-      if (result.isUpdate) {
-        toast.warning(t('packages.updateSuccess'));
-      } else {
-        toast.success(t('packages.importSuccess'));
-      }
+      // Rafraîchir la liste des packages depuis le serveur pour garantir qu'ils sont à jour
+      await packageStore.fetchPackages();
+      
+      toast.success(t('packages.importSuccess'));
     } else {
-      if (result.errorCode === 'errors.package.already_exists') {
-        toast.warning(t('errors.package.already_exists'));
-      } else {
-        toast.error(t(result.errorCode) || t('errors.package.import_failed'));
-      }
+      toast.error(t(result.errorCode) || t('errors.package.import_failed'));
     }
   } catch (error) {
-    console.error('Error handling file upload:', error);
-    toast.error(t('errors.package.import_failed'));
+    console.error('Error handling file:', error);
+    
+    // Gestion d'erreurs spécifiques
+    if (error.message === 'invalid_format') {
+      toast.error(t('errors.package.invalid_format'));
+    } else if (error.message === 'invalid_structure') {
+      toast.error(t('errors.package.invalid_structure'));
+    } else {
+      toast.error(t('errors.package.import_failed'));
+    }
   } finally {
     isLoading.value = false;
-    // Réinitialiser l'input file
-    event.target.value = null;
   }
+}
+
+// Fonction utilitaire pour lire un fichier comme texte
+function readFileAsText(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = event => resolve(event.target.result);
+    reader.onerror = error => reject(error);
+    reader.readAsText(file);
+  });
 }
 
 function openDeleteModal(pkg) {

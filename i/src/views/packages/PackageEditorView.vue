@@ -245,8 +245,8 @@ async function savePackage(packageData) {
     // Activer l'écran de chargement
     isLoading.value = true;
     loadingMessage.value = isNewPackage.value 
-      ? t('packages.creatingMessage') 
-      : t('packages.updatingMessage');
+      ? t('packages.createSuccess') 
+      : t('packages.updateSuccess');
     
     // Sauvegarder le package
     if (isNewPackage.value) {

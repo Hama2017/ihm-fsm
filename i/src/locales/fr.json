@@ -36,7 +36,9 @@
     "success": "Succès",
     "error": "Erreur",
     "warning": "Avertissement",
-    "info": "Information"
+    "info": "Information",
+    "clear": "Effacer",
+    "saving": "Sauvegarde..."
   },
   "errors": {
     "general": {
@@ -137,7 +139,6 @@
       "missing_conditions": "Conditions manquantes",
       "condition_evaluation_failed": "Échec d'évaluation des conditions"
     },
- 
     "form": {
       "required": "Ce champ est obligatoire",
       "email": "Veuillez entrer une adresse email valide",
@@ -148,31 +149,37 @@
       "url": "Veuillez entrer une URL valide",
       "date": "Veuillez entrer une date valide",
       "alpha": "Ce champ ne peut contenir que des lettres",
-      "alphanumeric": "Ce champ ne peut contenir que des lettres et des chiffres"
+      "alphanumeric": "Ce champ ne peut contenir que des lettres et des chiffres",
+      "validation_failed": "Veuillez corriger les erreurs dans le formulaire"
     },
     "package": {
-    "not_found": "Package introuvable",
-    "already_exists": "Ce package existe déjà",
-    "invalid_structure": "Structure de package invalide",
-    "missing_function": "Fonction manquante",
-    "dependency_not_found": "Dépendance introuvable",
-    "validation_failed": "Échec de la validation du package",
-    "installation_failed": "Échec de l'installation du package",
-    "duplicate_function": "Fonction en double",
-    "duplicate_variable": "Variable en double",
-    "duplicate_struct": "Structure en double",
-    "import_failed": "Échec de l'importation du package",
-    "export_failed": "Échec de l'exportation du package",
-    "incompatible_version": "Version incompatible",
-    "invalid_format": "Format de package invalide",
-    "syntax_error": "Erreur de syntaxe dans le code du package",
-    "compilation_error": "Erreur de compilation du package",
-    "update_failed": "Échec de la mise à jour du package",
-    "deletion_failed": "Échec de la suppression du package",
-    "function_creation_failed": "Échec de la création de la fonction",
-    "function_update_failed": "Échec de la mise à jour de la fonction",
-    "function_deletion_failed": "Échec de la suppression de la fonction"
-  }
+      "not_found": "Package introuvable",
+      "already_exists": "Ce package existe déjà",
+      "invalid_structure": "Structure de package invalide",
+      "missing_function": "Fonction manquante",
+      "dependency_not_found": "Dépendance introuvable",
+      "validation_failed": "Échec de la validation du package",
+      "installation_failed": "Échec de l'installation du package",
+      "duplicate_function": "Fonction en double",
+      "duplicate_variable": "Variable en double",
+      "duplicate_struct": "Structure en double",
+      "import_failed": "Échec de l'importation du package",
+      "export_failed": "Échec de l'exportation du package",
+      "incompatible_version": "Version incompatible",
+      "invalid_format": "Format de package invalide",
+      "syntax_error": "Erreur de syntaxe dans le code du package",
+      "compilation_error": "Erreur de compilation du package",
+      "update_failed": "Échec de la mise à jour du package",
+      "deletion_failed": "Échec de la suppression du package",
+      "function_creation_failed": "Échec de la création de la fonction",
+      "function_update_failed": "Échec de la mise à jour de la fonction",
+      "function_deletion_failed": "Échec de la suppression de la fonction",
+      "duplicate_functions": "IDs de fonction en double trouvés : {ids}",
+      "invalid_id_format": "Format d'ID invalide. Utilisez uniquement des lettres minuscules, des chiffres et des underscores",
+      "invalid_function_id_format": "Format d'ID de fonction invalide. Utilisez uniquement des lettres minuscules, des chiffres et des underscores",
+      "no_file_dropped": "Aucun fichier déposé, Veuillez déposer un fichier JSON valide.",
+      "multiple_files_dropped": "Veuillez déposer un seul fichier JSON."
+    }
   },
   "contract": {
     "name": "Nom du contrat",
@@ -314,7 +321,6 @@
     "deleteSuccess": "Clé API supprimée avec succès",
     "copied": "Clé API copiée dans le presse-papier"
   },
-
   "footer": {
     "rights_reserved": "Tous droits réservés",
     "current_mode": "Mode actuel",
@@ -361,48 +367,72 @@
     "mobileDevice": "Appareil mobile",
     "desktopDevice": "Ordinateur"
   },
- "packages": {
-  "title": "Packages",
-  "create": "Créer un package",
-  "edit": "Modifier le package",
-  "delete": "Supprimer le package",
-  "import": "Importer un package",
-  "export": "Exporter le package",
-  "noPackages": "Aucun package disponible. Créez-en un nouveau ou importez-en un.",
-  "confirmDelete": "Confirmer la suppression",
-  "confirmDeleteMessage": "Êtes-vous sûr de vouloir supprimer le package {name} ?",
-  "confirmDeleteWarning": "Cette action est irréversible et supprimera définitivement le package et toutes ses fonctions associées.",
-  "createSuccess": "Package créé avec succès",
-  "updateSuccess": "Package mis à jour avec succès",
-  "deleteSuccess": "Package supprimé avec succès",
-  "importSuccess": "Package importé avec succès",
-  "exportSuccess": "Package exporté avec succès",
-  "importingMessage": "Importation en cours...",
-  "deletingMessage": "Suppression en cours...",
-  "exportingMessage": "Préparation du téléchargement...",
-  "function": {
-    "title": "Fonctions",
-    "add": "Ajouter une fonction",
-    "edit": "Modifier la fonction",
-    "delete": "Supprimer la fonction",
-    "name": "Nom de la fonction",
-    "code": "Code",
-    "default": "Par défaut",
-    "description": "Description"
-  },
-  "struct": {
-    "add": "Ajouter une structure",
-    "edit": "Modifier la structure",
-    "delete": "Supprimer la structure",
-    "name": "Nom de la structure",
-    "code": "Code"
-  },
-  "variable": {
-    "add": "Ajouter une variable",
-    "edit": "Modifier la variable",
-    "delete": "Supprimer la variable",
-    "name": "Nom de la variable",
-    "code": "Code"
+  "packages": {
+    "title": "Packages",
+    "totalElements": "Total éléments",
+    "create": "Créer un package",
+    "edit": "Modifier le package",
+    "delete": "Supprimer le package",
+    "import": "Importer un package",
+    "export": "Exporter le package",
+    "noPackages": "Aucun package disponible. Créez-en un nouveau ou importez-en un.",
+    "confirmDelete": "Confirmer la suppression",
+    "confirmDeleteMessage": "Êtes-vous sûr de vouloir supprimer le package {name} ?",
+    "confirmDeleteWarning": "Cette action est irréversible et supprimera définitivement le package et toutes ses fonctions associées.",
+    "createSuccess": "Package créé avec succès",
+    "updateSuccess": "Package mis à jour avec succès",
+    "deleteSuccess": "Package supprimé avec succès",
+    "importSuccess": "Package importé avec succès",
+    "exportSuccess": "Package exporté avec succès",
+    "importingMessage": "Importation en cours...",
+    "deletingMessage": "Suppression en cours...",
+    "exportingMessage": "Préparation du téléchargement...",
+    "namePlaceholder": "Entrez le nom du package",
+    "nameHint": "Nom descriptif pour le package",
+    "idHint": "Identifiant unique, lettres minuscules, chiffres et underscores uniquement",
+    "notModifiable": "non modifiable",
+    "descriptionPlaceholder": "Décrivez ce que fait ce package",
+    "dropToImport": "Déposez le fichier ici pour importer",
+    "dropDescription": "Faites glisser et déposez le fichier JSON du package ici pour l'importer.",
+
+    "function": {
+      "title": "Fonctions",
+      "add": "Ajouter une fonction",
+      "edit": "Modifier la fonction",
+      "delete": "Supprimer la fonction",
+      "name": "Nom de la fonction",
+      "code": "Code",
+      "default": "Par défaut",
+      "description": "Description",
+      "namePlaceholder": "Entrez le nom de la fonction",
+      "descriptionPlaceholder": "Décrivez ce que fait cette fonction",
+      "noCode": "Aucun code fourni",
+      "noFunctions": "Aucune fonction ajoutée pour l'instant",
+      "noFunctionsDesc": "Ce package ne contient aucune fonction. Ajoutez des fonctions pour commencer."
+    },
+    "struct": {
+      "title": "Structures",
+      "add": "Ajouter une structure",
+      "edit": "Modifier la structure",
+      "delete": "Supprimer la structure",
+      "name": "Nom de la structure",
+      "code": "Code",
+      "noCode": "Aucun code fourni",
+      "noStructs": "Aucune structure ajoutée pour l'instant",
+      "noStructsDesc": "Ce package ne contient aucune structure. Ajoutez des structures pour organiser vos données."
+    },
+    "variable": {
+      "title": "Variables",
+      "add": "Ajouter une variable",
+      "edit": "Modifier la variable",
+      "delete": "Supprimer la variable",
+      "name": "Nom de la variable",
+      "code": "Code",
+      "noCode": "Aucun code fourni",
+      "noVariables": "Aucune variable ajoutée pour l'instant",
+      "noVariablesDesc": "Ce package ne contient aucune variable. Ajoutez des variables pour stocker des données."
+
+    },
+    "noDescription": "Aucune description fournie"
   }
-}
 }

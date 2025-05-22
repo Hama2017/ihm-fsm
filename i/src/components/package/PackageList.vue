@@ -136,32 +136,69 @@ async function handleFileUpload(event) {
     isLoading.value = true;
     loadingMessage.value = t('packages.importingMessage');
     
+    // Étape 1: Analyser le fichier JSON pour obtenir l'ID du package
+    const fileContent = await readFileAsText(file);
+    let packageData;
+    
+    try {
+      packageData = JSON.parse(fileContent);
+    } catch (parseError) {
+      throw new Error('invalid_format');
+    }
+    
+    // Vérifier la structure minimale requise
+    if (!packageData || !packageData.id) {
+      throw new Error('invalid_structure');
+    }
+    
+    // Étape 2: Vérifier si un package avec cet ID existe déjà
+    const existingPackage = packageStore.getPackageById(packageData.id);
+    
+    if (existingPackage) {
+      // Le package existe déjà, afficher un message d'erreur
+      toast.error(t('errors.package.already_exists'));
+      event.target.value = null; // Réinitialiser l'input
+      isLoading.value = false;
+      return;
+    }
+    
+    // Étape 3: Importer le package si tout est OK
     const result = await packageStore.importPackage(file);
     
     // Attendre avec un délai minimum pour l'animation
     await new Promise(resolve => setTimeout(resolve, MIN_FILE_OPERATION_DELAY));
     
     if (result.success) {
-      if (result.isUpdate) {
-        toast.warning(`${t('packages.updateSuccess')} (${result.data.label || result.data.id})`);
-      } else {
-        toast.success(`${t('packages.importSuccess')} (${result.data.label || result.data.id})`);
-      }
+      toast.success(t('packages.importSuccess'));
     } else {
-      if (result.errorCode === 'errors.package.already_exists') {
-        toast.warning(`${t('errors.package.already_exists')} (${file.name})`);
-      } else {
-        toast.error(t(result.errorCode) || t('errors.package.import_failed'));
-      }
+      toast.error(t(result.errorCode) || t('errors.package.import_failed'));
     }
   } catch (error) {
     console.error('Error handling file upload:', error);
-    toast.error(t('errors.package.import_failed'));
+    
+    // Gestion d'erreurs spécifiques
+    if (error.message === 'invalid_format') {
+      toast.error(t('errors.package.invalid_format'));
+    } else if (error.message === 'invalid_structure') {
+      toast.error(t('errors.package.invalid_structure'));
+    } else {
+      toast.error(t('errors.package.import_failed'));
+    }
   } finally {
     isLoading.value = false;
     // Réinitialiser l'input file
     event.target.value = null;
   }
+}
+
+// Fonction utilitaire pour lire un fichier comme texte
+function readFileAsText(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = event => resolve(event.target.result);
+    reader.onerror = error => reject(error);
+    reader.readAsText(file);
+  });
 }
 
 function openDeleteModal(pkg) {

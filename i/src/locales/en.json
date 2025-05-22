@@ -36,7 +36,9 @@
     "success": "Success",
     "error": "Error",
     "warning": "Warning",
-    "info": "Information"
+    "info": "Information",
+    "clear": "Clear",
+    "saving": "Saving..."
   },
   "errors": {
     "general": {
@@ -136,9 +138,7 @@
       "dead_end_state": "Dead-end state",
       "missing_conditions": "Missing conditions",
       "condition_evaluation_failed": "Condition evaluation failed"
-    }
-
-,
+    },
     "form": {
       "required": "This field is required",
       "email": "Please enter a valid email address",
@@ -149,7 +149,8 @@
       "url": "Please enter a valid URL",
       "date": "Please enter a valid date",
       "alpha": "This field can only contain letters",
-      "alphanumeric": "This field can only contain letters and numbers"
+      "alphanumeric": "This field can only contain letters and numbers",
+      "validation_failed": "Please correct the errors in the form"
     },
     "package": {
       "not_found": "Package not found",
@@ -172,7 +173,12 @@
       "deletion_failed": "Failed to delete package",
       "function_creation_failed": "Failed to create function",
       "function_update_failed": "Failed to update function",
-      "function_deletion_failed": "Failed to delete function"
+      "function_deletion_failed": "Failed to delete function",
+      "duplicate_functions": "Duplicate function IDs found: {ids}",
+      "invalid_id_format": "Invalid ID format. Use only lowercase letters, numbers, and underscores",
+      "invalid_function_id_format": "Invalid function ID format. Use only lowercase letters, numbers, and underscores",
+      "no_file_dropped": "No file dropped, Please drop a valid JSON package file.",
+      "multiple_files_dropped": "Please drop only one JSON package file."
     }
   },
   "contract": {
@@ -283,7 +289,6 @@
       "login": "Log in",
       "success": "Registration successful",
       "terms": "I agree to the terms of service"
-
     },
     "logout": {
       "success": "Logout successful",
@@ -316,7 +321,6 @@
     "deleteSuccess": "API key deleted successfully",
     "copied": "API key copied to clipboard"
   },
- 
   "footer": {
     "rights_reserved": "All rights reserved",
     "current_mode": "Current mode",
@@ -364,47 +368,69 @@
     "desktopDevice": "Desktop Device"
   },
   "packages": {
-  "title": "Packages",
-  "create": "Create package",
-  "edit": "Edit package",
-  "delete": "Delete package",
-  "import": "Import package",
-  "export": "Export package",
-  "noPackages": "No packages available. Create a new one or import one to get started.",
-  "confirmDelete": "Confirm deletion",
-  "confirmDeleteMessage": "Are you sure you want to delete the package {name}?",
-  "confirmDeleteWarning": "This action is irreversible and will permanently delete the package and all its associated functions.",
-  "createSuccess": "Package created successfully",
-  "updateSuccess": "Package updated successfully",
-  "deleteSuccess": "Package deleted successfully",
-  "importSuccess": "Package imported successfully",
-  "exportSuccess": "Package exported successfully",
-  "importingMessage": "Importing...",
-  "deletingMessage": "Deleting...",
-  "exportingMessage": "Preparing download...",
-  "function": {
-    "title": "Functions",
-    "add": "Add function",
-    "edit": "Edit function",
-    "delete": "Delete function",
-    "name": "Function name",
-    "code": "Code",
-    "default": "Default",
-    "description": "Description"
-  },
-  "struct": {
-    "add": "Add struct",
-    "edit": "Edit struct",
-    "delete": "Delete struct",
-    "name": "Struct name",
-    "code": "Code"
-  },
-  "variable": {
-    "add": "Add variable",
-    "edit": "Edit variable",
-    "delete": "Delete variable",
-    "name": "Variable name",
-    "code": "Code"
+    "title": "Packages",
+    "totalElements": "Total Elements",
+    "create": "Create package",
+    "edit": "Edit package",
+    "delete": "Delete package",
+    "import": "Import package",
+    "export": "Export package",
+    "noPackages": "No packages available. Create a new one or import one to get started.",
+    "confirmDelete": "Confirm deletion",
+    "confirmDeleteMessage": "Are you sure you want to delete the package {name}?",
+    "confirmDeleteWarning": "This action is irreversible and will permanently delete the package and all its associated functions.",
+    "createSuccess": "Package created successfully",
+    "updateSuccess": "Package updated successfully",
+    "deleteSuccess": "Package deleted successfully",
+    "importSuccess": "Package imported successfully",
+    "exportSuccess": "Package exported successfully",
+    "importingMessage": "Importing...",
+    "deletingMessage": "Deleting...",
+    "exportingMessage": "Preparing download...",
+    "namePlaceholder": "Enter package name",
+    "nameHint": "Descriptive name for the package",
+    "idHint": "Unique identifier, lowercase letters, numbers and underscores only",
+    "notModifiable": "not modifiable",
+    "descriptionPlaceholder": "Describe what this package does",
+    "dropToImport": "Drag and drop the JSON package file here to import it.",
+    "dropDescription": "Drag and drop the JSON package file here to import it.",
+    "function": {
+      "title": "Functions",
+      "add": "Add function",
+      "edit": "Edit function",
+      "delete": "Delete function",
+      "name": "Function name",
+      "code": "Code",
+      "default": "Default",
+      "description": "Description",
+      "namePlaceholder": "Enter function name",
+      "descriptionPlaceholder": "Describe what this function does",
+      "noCode": "No code provided",
+      "noFunctions": "No functions added yet",
+      "noFunctionsDesc": "This package contains no functions. Add functions to get started."
+    },
+    "struct": {
+      "title": "Structures",
+      "add": "Add struct",
+      "edit": "Edit struct",
+      "delete": "Delete struct",
+      "name": "Struct name",
+      "code": "Code",
+      "noCode": "No code provided",
+      "noStructs": "No structures added yet",
+      "noStructsDesc": "This package contains no structures. Add structures to organize your data."
+    },
+    "variable": {
+      "title": "Variables",
+      "add": "Add variable",
+      "edit": "Edit variable",
+      "delete": "Delete variable",
+      "name": "Variable name",
+      "code": "Code",
+      "noCode": "No code provided",
+      "noVariables": "No variables added yet",
+      "noVariablesDesc": "This package contains no variables. Add variables to store data."
+    },
+    "noDescription": "No description provided"
   }
-}
 }

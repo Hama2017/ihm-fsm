@@ -21,24 +21,117 @@
     </div>
 
     <div v-else-if="packageData" class="package-details bg-white dark:bg-gray-800 shadow-md rounded-xl p-6 border border-gray-200 dark:border-gray-700">
-      <div class="flex justify-between items-center mb-6">
-        <div>
-          <h1 class="text-2xl font-semibold text-gray-900 dark:text-white">
+      <div class="flex justify-between items-start mb-6">
+        <div class="flex-1">
+          <h1 class="text-2xl font-semibold text-gray-900 dark:text-white mb-2">
             {{ packageData.label || packageData.name }}
           </h1>
-          <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">
+          <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
             {{ packageData.description || t('packages.noDescription') }}
           </p>
-          <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-            <span class="inline-block px-2 py-1 bg-gray-200 dark:bg-gray-700 rounded mr-2">
-              ID: {{ packageData.id }}
+          
+          <!-- Package Statistics -->
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+            <!-- Functions Count -->
+            <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-xs font-medium text-blue-600 dark:text-blue-400 uppercase tracking-wide">
+                    {{ t('packages.function.title') }}
+                  </p>
+                  <p class="text-lg font-semibold text-blue-800 dark:text-blue-300">
+                    {{ packageFunctions.length }}
+                  </p>
+                </div>
+                <div class="p-2 bg-blue-100 dark:bg-blue-800/30 rounded-lg">
+                  <svg class="w-4 h-4 text-blue-600 dark:text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                  </svg>
+                </div>
+              </div>
+              <p v-if="defaultFunctionsCount > 0" class="text-xs text-blue-600 dark:text-blue-400 mt-1">
+                {{ defaultFunctionsCount }} {{ t('packages.function.default').toLowerCase() }}
+              </p>
+            </div>
+
+            <!-- Variables Count -->
+            <div class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-3">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-xs font-medium text-green-600 dark:text-green-400 uppercase tracking-wide">
+                    {{ t('packages.variable.title') }}
+                  </p>
+                  <p class="text-lg font-semibold text-green-800 dark:text-green-300">
+                    {{ variablesCount }}
+                  </p>
+                </div>
+                <div class="p-2 bg-green-100 dark:bg-green-800/30 rounded-lg">
+                  <svg class="w-4 h-4 text-green-600 dark:text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
+                    <path fill-rule="evenodd" d="M4 5a2 2 0 012-2v1a1 1 0 001 1h6a1 1 0 001-1V3a2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/>
+                  </svg>
+                </div>
+              </div>
+            </div>
+
+            <!-- Structures Count -->
+            <div class="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg p-3">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-xs font-medium text-purple-600 dark:text-purple-400 uppercase tracking-wide">
+                    {{ t('packages.struct.title') }}
+                  </p>
+                  <p class="text-lg font-semibold text-purple-800 dark:text-purple-300">
+                    {{ structsCount }}
+                  </p>
+                </div>
+                <div class="p-2 bg-purple-100 dark:bg-purple-800/30 rounded-lg">
+                  <svg class="w-4 h-4 text-purple-600 dark:text-purple-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"/>
+                  </svg>
+                </div>
+              </div>
+            </div>
+
+            <!-- Total Elements -->
+            <div class="bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-lg p-3">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wide">
+                    {{ t('packages.totalElements') }}
+                  </p>
+                  <p class="text-lg font-semibold text-gray-800 dark:text-gray-300">
+                    {{ totalElements }}
+                  </p>
+                </div>
+                <div class="p-2 bg-gray-100 dark:bg-gray-600/30 rounded-lg">
+                  <svg class="w-4 h-4 text-gray-600 dark:text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
+                    <path fill-rule="evenodd" d="M4 5a2 2 0 012-2v1a1 1 0 001 1h6a1 1 0 001-1V3a2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm8 6H7a1 1 0 100 2h5a1 1 0 100-2z" clip-rule="evenodd"/>
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Package Metadata -->
+          <div class="flex flex-wrap gap-2">
+            <span class="inline-block px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full text-sm">
+              <span class="font-medium">ID:</span> {{ packageData.id }}
             </span>
-            <span class="inline-block px-2 py-1 bg-gray-200 dark:bg-gray-700 rounded">
-              {{ packageData.functions?.length || 0 }} {{ t('packages.function.title').toLowerCase() }}
+            <span v-if="packageData.version" class="inline-block px-3 py-1 bg-blue-200 dark:bg-blue-700 text-blue-700 dark:text-blue-300 rounded-full text-sm">
+              <span class="font-medium">{{ t('packages.version') }}:</span> {{ packageData.version }}
+            </span>
+            <span v-if="packageData.author" class="inline-block px-3 py-1 bg-green-200 dark:bg-green-700 text-green-700 dark:text-green-300 rounded-full text-sm">
+              <span class="font-medium">{{ t('packages.author') }}:</span> {{ packageData.author }}
+            </span>
+            <span v-if="packageData.createdAt" class="inline-block px-3 py-1 bg-purple-200 dark:bg-purple-700 text-purple-700 dark:text-purple-300 rounded-full text-sm">
+              <span class="font-medium">{{ t('packages.created') }}:</span> {{ formatDate(packageData.createdAt) }}
             </span>
           </div>
         </div>
-        <div class="flex space-x-3">
+        
+        <div class="flex space-x-3 ml-4">
           <router-link 
             :to="{ name: 'package-edit', params: { id: packageData.id } }"
             class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium flex items-center space-x-2 transition duration-200 shadow-sm"
@@ -64,13 +157,19 @@
             :key="tab.id"
             @click="currentTab = tab.id"
             :class="[
-              'px-4 py-2 text-sm font-medium border-b-2 focus:outline-none transition',
+              'px-4 py-2 text-sm font-medium border-b-2 focus:outline-none transition flex items-center space-x-2',
               currentTab === tab.id
                 ? 'border-blue-600 text-blue-600 dark:border-blue-400 dark:text-blue-400'
                 : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
             ]"
           >
-            {{ tab.label }}
+            <span>{{ tab.label }}</span>
+            <span 
+              v-if="tab.count > 0"
+              class="inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white bg-blue-600 rounded-full"
+            >
+              {{ tab.count }}
+            </span>
           </button>
         </div>
 
@@ -113,8 +212,12 @@
                 </div>
               </div>
             </div>
-            <div v-else class="text-center py-4 text-gray-500 dark:text-gray-400">
-              {{ t('packages.function.noFunctions') }}
+            <div v-else class="text-center py-8 text-gray-500 dark:text-gray-400">
+              <svg class="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              <p class="text-lg font-medium">{{ t('packages.function.noFunctions') }}</p>
+              <p class="text-sm">{{ t('packages.function.noFunctionsDesc') }}</p>
             </div>
           </div>
 
@@ -144,8 +247,12 @@
                 </div>
               </div>
             </div>
-            <div v-else class="text-center py-4 text-gray-500 dark:text-gray-400">
-              {{ t('packages.variable.noVariables') }}
+            <div v-else class="text-center py-8 text-gray-500 dark:text-gray-400">
+              <svg class="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+              </svg>
+              <p class="text-lg font-medium">{{ t('packages.variable.noVariables') }}</p>
+              <p class="text-sm">{{ t('packages.variable.noVariablesDesc') }}</p>
             </div>
           </div>
 
@@ -175,8 +282,12 @@
                 </div>
               </div>
             </div>
-            <div v-else class="text-center py-4 text-gray-500 dark:text-gray-400">
-              {{ t('packages.struct.noStructs') }}
+            <div v-else class="text-center py-8 text-gray-500 dark:text-gray-400">
+              <svg class="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+              </svg>
+              <p class="text-lg font-medium">{{ t('packages.struct.noStructs') }}</p>
+              <p class="text-sm">{{ t('packages.struct.noStructsDesc') }}</p>
             </div>
           </div>
         </div>
@@ -216,19 +327,59 @@ const exporting = ref(false);
 const error = ref(null);
 const currentTab = ref('functions');
 
-// Définition des onglets
-const tabs = [
-  { id: 'functions', label: t('packages.function.title') },
-  { id: 'variables', label: t('packages.variable.title') },
-  { id: 'structs', label: t('packages.struct.title') }
-];
-
 const packageFunctions = computed(() => {
   if (!packageData.value || !Array.isArray(packageData.value.functions)) {
     return [];
   }
   return packageData.value.functions;
 });
+
+const variablesCount = computed(() => {
+  return packageData.value?.variables?.length || 0;
+});
+
+const structsCount = computed(() => {
+  return packageData.value?.structs?.length || 0;
+});
+
+const defaultFunctionsCount = computed(() => {
+  return packageFunctions.value.filter(func => func.default).length;
+});
+
+const totalElements = computed(() => {
+  return packageFunctions.value.length + variablesCount.value + structsCount.value;
+});
+
+// Définition des onglets avec compteurs
+const tabs = computed(() => [
+  { 
+    id: 'functions', 
+    label: t('packages.function.title'),
+    count: packageFunctions.value.length
+  },
+  { 
+    id: 'variables', 
+    label: t('packages.variable.title'),
+    count: variablesCount.value
+  },
+  { 
+    id: 'structs', 
+    label: t('packages.struct.title'),
+    count: structsCount.value
+  }
+]);
+
+/**
+ * Formate une date pour l'affichage
+ */
+function formatDate(dateString) {
+  if (!dateString) return '';
+  try {
+    return new Date(dateString).toLocaleDateString();
+  } catch (error) {
+    return dateString;
+  }
+}
 
 /**
  * Récupère les détails du package à partir de l'ID dans la route

@@ -73,7 +73,7 @@
         </label>
         <div class="border border-gray-300 dark:border-gray-600 rounded-lg code-editor-container overflow-hidden">
           <div class="flex items-center justify-between bg-gray-100 dark:bg-gray-700 px-3 py-1 border-b border-gray-300 dark:border-gray-600">
-            <span class="text-xs text-gray-500 dark:text-gray-400">Solidity</span>
+            <span class="text-xs text-gray-500 dark:text-gray-400"></span>
             <div class="flex space-x-2">
               <button type="button" @click="clearCode(index)" class="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">{{ t('common.clear') }}</button>
             </div>
@@ -81,7 +81,7 @@
           <textarea
             v-model="modelValue[index].code"
             rows="8"
-            placeholder="// Solidity code here"
+            placeholder="code here"
             class="w-full px-3 py-2 font-mono text-sm bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none"
           ></textarea>
         </div>
@@ -112,7 +112,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, watch } from 'vue';
+import { reactive } from 'vue';
 import { useI18n } from '@/composables/i18n/useI18n';
 import { LucideTrash2, LucidePlus, LucideAlertCircle } from 'lucide-vue-next';
 
@@ -132,22 +132,6 @@ const emit = defineEmits(['update:modelValue', 'validate']);
 
 // État
 const errors = reactive({});
-
-// Computed
-const functionIds = computed(() => {
-  const ids = new Map();
-  props.modelValue.forEach((func, index) => {
-    const id = func.id || '';
-    if (id) {
-      if (ids.has(id)) {
-        ids.set(id, [...ids.get(id), index]);
-      } else {
-        ids.set(id, [index]);
-      }
-    }
-  });
-  return ids;
-});
 
 // Méthodes pour la gestion des erreurs
 function hasError(index, field) {
@@ -172,8 +156,8 @@ function hasDuplicateId(index) {
   
   if (!id) return false;
   
-  const indexes = functionIds.value.get(id) || [];
-  return indexes.length > 1;
+  const count = props.modelValue.filter(f => f.id === id).length;
+  return count > 1;
 }
 
 function checkDuplicateId(index) {
@@ -260,11 +244,6 @@ function emitValidate() {
   // Émettre l'événement de validation avec le résultat
   emit('validate', Object.keys(errors).length === 0);
 }
-
-// Surveiller les changements et valider
-watch(() => props.modelValue, () => {
-  emitValidate();
-}, { deep: true });
 </script>
 
 <style scoped>

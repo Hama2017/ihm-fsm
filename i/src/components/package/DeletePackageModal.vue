@@ -5,7 +5,7 @@
     :confirm-text="t('common.delete')"
     variant="danger"
     @update:modelValue="$emit('update:modelValue', $event)"
-    @confirm="$emit('confirm')"
+    @confirm="handleConfirm"
   >
     <p class="text-gray-700 dark:text-gray-300">
       {{ t('packages.confirmDeleteMessage', { name: packageData?.label || packageData?.id }) }}
@@ -37,8 +37,14 @@ const props = defineProps({
 });
 
 // Emits
-defineEmits(['update:modelValue', 'confirm']);
+const emit = defineEmits(['update:modelValue', 'confirm']);
 
 // Computed
 const packageData = computed(() => props.package);
+
+// Methods
+function handleConfirm() {
+  emit('confirm');
+  emit('update:modelValue', false);
+}
 </script>

@@ -224,11 +224,10 @@
                 
                 <div class="mb-4">
                   <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Code Solidity
                   </label>
                   <div class="border border-gray-300 dark:border-gray-600 rounded-lg code-editor-container overflow-hidden">
                     <div class="flex items-center justify-between bg-gray-100 dark:bg-gray-700 px-3 py-1 border-b border-gray-300 dark:border-gray-600">
-                      <span class="text-xs text-gray-500 dark:text-gray-400">Solidity</span>
+                      <span class="text-xs text-gray-500 dark:text-gray-400"></span>
                       <div class="flex space-x-2">
                         <button type="button" @click="func.code = ''" class="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">Effacer</button>
                       </div>
@@ -236,7 +235,7 @@
                     <textarea
                       v-model="func.code"
                       rows="8"
-                      placeholder="// Entrez votre code Solidity ici"
+                      placeholder="Entrez votre code ici"
                       class="w-full px-3 py-2 font-mono text-sm bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none"
                     ></textarea>
                   </div>
@@ -290,11 +289,11 @@
                 
                 <div>
                   <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Code Solidity
+                    Code
                   </label>
                   <div class="border border-gray-300 dark:border-gray-600 rounded-lg code-editor-container overflow-hidden">
                     <div class="flex items-center justify-between bg-gray-100 dark:bg-gray-700 px-3 py-1 border-b border-gray-300 dark:border-gray-600">
-                      <span class="text-xs text-gray-500 dark:text-gray-400">Solidity</span>
+                      <span class="text-xs text-gray-500 dark:text-gray-400"></span>
                       <div class="flex space-x-2">
                         <button type="button" @click="variable.code = ''" class="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">Effacer</button>
                       </div>
@@ -302,7 +301,7 @@
                     <textarea
                       v-model="variable.code"
                       rows="5"
-                      placeholder="// Entrez votre code Solidity ici"
+                      placeholder="// Entrez votre code  ici"
                       class="w-full px-3 py-2 font-mono text-sm bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none"
                     ></textarea>
                   </div>
@@ -344,11 +343,11 @@
                 
                 <div>
                   <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Code Solidity
+                    Code 
                   </label>
                   <div class="border border-gray-300 dark:border-gray-600 rounded-lg code-editor-container overflow-hidden">
                     <div class="flex items-center justify-between bg-gray-100 dark:bg-gray-700 px-3 py-1 border-b border-gray-300 dark:border-gray-600">
-                      <span class="text-xs text-gray-500 dark:text-gray-400">Solidity</span>
+                      <span class="text-xs text-gray-500 dark:text-gray-400"></span>
                       <div class="flex space-x-2">
                         <button type="button" @click="struct.code = ''" class="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">Effacer</button>
                       </div>
@@ -356,7 +355,7 @@
                     <textarea
                       v-model="struct.code"
                       rows="5"
-                      placeholder="// Entrez votre code Solidity ici"
+                      placeholder="// Entrez votre code ici"
                       class="w-full px-3 py-2 font-mono text-sm bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none"
                     ></textarea>
                   </div>

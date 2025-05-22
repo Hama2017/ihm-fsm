@@ -206,6 +206,9 @@ export const usePackageStore = defineStore('packages', {
         const internalPackage = packageService.convertToInternalFormat(newPackage);
         this.packages.push(internalPackage);
         
+        // Rafraîchir la liste depuis le serveur pour s'assurer de la cohérence
+        await this.fetchPackages();
+        
         return {
           success: true,
           data: internalPackage
@@ -397,7 +400,7 @@ export const usePackageStore = defineStore('packages', {
     
     /**
      * Importe un package depuis un fichier JSON.
-     * @param {File} file - Fichier JSON
+     * @param {File} file - Fichier JSON contenant les données du package
      * @returns {Promise<Object>} Résultat avec le package importé ou code d'erreur
      */
     async importPackage(file) {
@@ -405,26 +408,37 @@ export const usePackageStore = defineStore('packages', {
       this.error = null;
       
       try {
+        // Lire et analyser le fichier
         const importedPackage = await packageService.importPackage(file);
         
         // Vérifier si un package avec le même ID existe déjà
         const existingIndex = this.packages.findIndex(pkg => pkg.id === importedPackage.id);
-        let isUpdate = false;
         
         if (existingIndex !== -1) {
-          // Remplacer le package existant
-          this.packages[existingIndex] = importedPackage;
-          isUpdate = true;
-        } else {
-          // Ajouter le nouveau package
-          this.packages.push(importedPackage);
+          // Package existe déjà, retourner une erreur
+          return {
+            success: false,
+            errorCode: 'errors.package.already_exists',
+            data: null
+          };
         }
         
-        return {
-          success: true,
-          data: importedPackage,
-          isUpdate
-        };
+        // Ajouter le package via l'API (createPackage utilise l'API)
+        const result = await this.createPackage(importedPackage);
+        
+        if (result.success) {
+          // Rafraîchir la liste des packages depuis le serveur
+          await this.fetchPackages();
+          
+          return {
+            success: true,
+            data: importedPackage,
+            isUpdate: false
+          };
+        } else {
+          // Si la création a échoué, propager l'erreur
+          return result;
+        }
       } catch (error) {
         console.error('Error importing package:', error);
         const errorCode = extractErrorCode(error, 'import_failed', 'package');
@@ -568,6 +582,6 @@ export const usePackageStore = defineStore('packages', {
           errorCode
         };
       }
-    } 
+    }
   }
 });

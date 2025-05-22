@@ -103,23 +103,26 @@
       <!-- Conteneur des onglets -->
       <div class="p-4">
         <!-- Fonctions -->
-        <functions-list 
-          v-if="currentTab === 'functions'" 
-          v-model="packageData.functions"
-          @validate="validateFunctions"
-        />
+        <div v-show="currentTab === 'functions'">
+          <functions-list 
+            v-model="packageData.functions"
+            @validate="validateFunctions"
+          />
+        </div>
         
         <!-- Variables -->
-        <variables-list 
-          v-if="currentTab === 'variables'" 
-          v-model="packageData.variables"
-        />
+        <div v-show="currentTab === 'variables'">
+          <variables-list 
+            v-model="packageData.variables"
+          />
+        </div>
         
         <!-- Structs -->
-        <structs-list 
-          v-if="currentTab === 'structs'" 
-          v-model="packageData.structs"
-        />
+        <div v-show="currentTab === 'structs'">
+          <structs-list 
+            v-model="packageData.structs"
+          />
+        </div>
       </div>
     </div>
 
@@ -219,6 +222,18 @@ watch(() => props.package, (newValue) => {
   if (newValue) {
     // Copie profonde pour éviter les problèmes de réactivité
     Object.assign(packageData, JSON.parse(JSON.stringify(newValue)));
+    
+    // Si c'est un nouveau package sans fonctions, ajouter une fonction vide
+    if (props.isNew && (!packageData.functions || packageData.functions.length === 0)) {
+      packageData.functions = [{
+        id: '',
+        name: '',
+        label: '',
+        description: '',
+        code: '',
+        default: false
+      }];
+    }
   }
 }, { immediate: true, deep: true });
 
