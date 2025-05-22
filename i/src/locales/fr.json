@@ -38,7 +38,9 @@
     "warning": "Avertissement",
     "info": "Information",
     "clear": "Effacer",
-    "saving": "Sauvegarde..."
+    "saving": "Sauvegarde...",
+    "active": "Actif",
+    "inactive": "Inactif"
   },
   "errors": {
     "general": {
@@ -470,6 +472,44 @@
     "exportingMessage": "Préparation du téléchargement...",
     "dropToImport": "Déposez ici le fichier du contrat à importer",
     "dropDescription": "Déposez le fichier de contrat .slc ici pour l'importer.",
-    "invalidDate": "Date invalide"
+    "invalidDate": "Date invalide",
+    "details": "Détails du contrat",
+    "noDescription": "Aucune description",
+    "status": "Statut",
+    "updatedAt": "Modifié le",
+    "automates": "Automates",
+    "statesCount": "{count} état(s)",
+    "transitionsCount": "{count} transition(s)"
+  },
+  "dashboard": {
+    "title": "Tableau de bord",
+    "loading": "Chargement des données...",
+    "contracts_distribution": "Répartition des contrats",
+    "contracts_evolution": "Évolution des contrats",
+    "packages_overview": "Aperçu des packages",
+    "automatons_overview": "Automates par contrat",
+    "admin_overview": "Vue d'ensemble admin",
+    "recent_activity": "Activité récente",
+    "automatons": "automates",
+    "functions": "fonctions",
+    "no_recent_activity": "Aucune activité récente",
+    "no_packages": "Aucun package disponible",
+    "stats": {
+      "total_contracts": "Total contrats",
+      "my_contracts": "Mes contrats",
+      "draft_contracts": "Brouillons",
+      "deployed_contracts": "Déployés",
+      "total_automatons": "Total automates",
+      "total_packages": "Packages disponibles",
+      "all_users": "tous utilisateurs",
+      "active_on_blockchain": "actifs sur blockchain",
+      "available_functions": "fonctions disponibles",
+      "in_development": "en développement"
+    },
+    "chart": {
+      "draft_contracts": "Contrats brouillons",
+      "deployed_contracts": "Contrats déployés",
+      "automatons_count": "Nombre d'automates"
+    }
   }
 }

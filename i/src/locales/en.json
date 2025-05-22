@@ -38,7 +38,9 @@
     "warning": "Warning",
     "info": "Information",
     "clear": "Clear",
-    "saving": "Saving..."
+    "saving": "Saving...",
+    "active": "Active",
+    "inactive": "Inactive"
   },
   "errors": {
     "general": {
@@ -120,6 +122,7 @@
       "contract_creation_failed": "Failed to create contract",
       "contract_update_failed": "Failed to update contract",
       "contract_deletion_failed": "Failed to delete contract"
+      
     },
     "automaton": {
       "not_found": "Automaton not found",
@@ -457,7 +460,46 @@
     "exportingMessage": "Preparing download...",
     "dropToImport": "Drop contract file here to import",
     "dropDescription": "Drop the .slc contract file here to import it.",
-    "invalidDate": "Invalid date"
+    "invalidDate": "Invalid date",
+    "details": "Contract Details",
+    "noDescription": "No description",
+    "status": "Status", 
+    "updatedAt": "Updated on",
+    "automates": "Automata",
+    "statesCount": "{count} state(s)",
+    "transitionsCount": "{count} transition(s)"
+    
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "loading": "Loading data...",
+    "contracts_distribution": "Contracts Distribution",
+    "contracts_evolution": "Contracts Evolution",
+    "packages_overview": "Packages Overview",
+    "automatons_overview": "Automatons per Contract",
+    "admin_overview": "Admin Overview",
+    "recent_activity": "Recent Activity",
+    "automatons": "automatons",
+    "functions": "functions",
+    "no_recent_activity": "No recent activity",
+    "no_packages": "No packages available",
+    "stats": {
+      "total_contracts": "Total Contracts",
+      "my_contracts": "My Contracts",
+      "draft_contracts": "Drafts",
+      "deployed_contracts": "Deployed",
+      "total_automatons": "Total Automatons",
+      "total_packages": "Available Packages",
+      "all_users": "all users",
+      "active_on_blockchain": "active on blockchain",
+      "available_functions": "available functions",
+      "in_development": "in development"
+    },
+    "chart": {
+      "draft_contracts": "Draft Contracts",
+      "deployed_contracts": "Deployed Contracts",
+      "automatons_count": "Automatons Count"
+    }
   }
   
 }

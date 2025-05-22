@@ -257,51 +257,5 @@ const totalConditionsCount = computed(() => {
 </script>
 
 <style scoped>
-/* Personnalisation améliorée de la barre de défilement */
-.custom-scrollbar {
-  scrollbar-width: auto;
-}
 
-/* Styles pour les navigateurs webkit (Chrome, Safari, etc.) */
-.custom-scrollbar::-webkit-scrollbar {
-  width: 10px;
-}
-
-.custom-scrollbar::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 8px;
-}
-
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  background-color: #c0c0c0;
-  border-radius: 8px;
-  border: 2px solid #f1f1f1;
-}
-
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background-color: #a0a0a0;
-}
-
-/* Styles pour le mode sombre */
-.dark .custom-scrollbar::-webkit-scrollbar-track {
-  background: #2d3748;
-}
-
-.dark .custom-scrollbar::-webkit-scrollbar-thumb {
-  background-color: #4a5568;
-  border: 2px solid #2d3748;
-}
-
-.dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background-color: #718096;
-}
-
-/* Ajustements CSS pour éviter les problèmes de débordement */
-.min-h-0 {
-  min-height: 50px;
-}
-
-.scrolling-touch {
-  -webkit-overflow-scrolling: touch;
-}
 </style>

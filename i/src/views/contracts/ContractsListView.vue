@@ -213,7 +213,79 @@
       </div>
     </div>
   </div>
-  
+<!-- Modale de détails du contrat -->
+<Modal
+    v-if="showContractDetails"
+    v-model="showContractDetails"
+    :title="t('contracts.details')"
+    size="xl"
+    :show-footer="false"
+    @cancel="closeContractDetails"
+  >
+    <div v-if="selectedContract" class="space-y-6">
+      <!-- En-tête avec nom et description -->
+      <div>
+        <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-3">
+          {{ selectedContract.name }}
+        </h3>
+        <p class="text-gray-600 dark:text-gray-400">
+          {{ selectedContract.description || t('contracts.noDescription') }}
+        </p>
+      </div>
+      
+      <!-- Informations générales -->
+      <div class="grid grid-cols-2 gap-6">
+        <div>
+          <span class="font-medium text-gray-900 dark:text-white">{{ t('contracts.status') }}:</span>
+          <span :class="`ml-2 px-3 py-1 rounded-full text-sm ${statusClasses[selectedContract.status || 'draft']}`">
+            {{ t(`contract.status.${selectedContract.status || 'draft'}`) }}
+          </span>
+        </div>
+        <div>
+          <span class="font-medium text-gray-900 dark:text-white">Automates:</span>
+          <span class="ml-2 text-gray-600 dark:text-gray-400">
+            {{ getAutomateCount(selectedContract) }}
+          </span>
+        </div>
+        <div>
+          <span class="font-medium text-gray-900 dark:text-white">{{ t('contracts.createdAt') }}:</span>
+          <span class="ml-2 text-gray-600 dark:text-gray-400">
+            {{ formatDate(selectedContract.createdAt) }}
+          </span>
+        </div>
+        <div v-if="selectedContract.updatedAt">
+          <span class="font-medium text-gray-900 dark:text-white">{{ t('contracts.updatedAt') }}:</span>
+          <span class="ml-2 text-gray-600 dark:text-gray-400">
+            {{ formatDate(selectedContract.updatedAt) }}
+          </span>
+        </div>
+      </div>
+      
+      <!-- Liste des automates -->
+      <div v-if="selectedContract.automates && selectedContract.automates.length > 0">
+        <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Automates:</h4>
+        <div class="space-y-3">
+          <div 
+            v-for="automate in selectedContract.automates" 
+            :key="automate.id"
+            class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600"
+          >
+            <div class="mb-2">
+              <span class="font-medium text-gray-900 dark:text-white text-lg">{{ automate.name }}</span>
+            </div>
+            <div class="text-sm text-gray-600 dark:text-gray-400">
+              {{ automate.states?.length || 0 }} état(s) • {{ automate.transitions?.length || 0 }} transition(s)
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Message si pas d'automates -->
+      <div v-else class="text-center py-8">
+        <p class="text-gray-500 dark:text-gray-400">Aucun automate dans ce contrat</p>
+      </div>
+    </div>
+  </Modal>
   <!-- Modale de suppression -->
   <Modal
     v-if="showDeleteModal"
@@ -494,9 +566,26 @@ const exportContract = async (contract) => {
   }
 };
 
-// Voir les détails du contrat déployé
+
+// Ajouter ces refs
+const showContractDetails = ref(false);
+const selectedContract = ref(null);
+
+// Modifier la fonction viewContract
 const viewContract = (contractID) => {
-  router.push({ name: 'contract-details', params: { id: contractID } });
+  const contract = contracts.value.find(c => c.id === contractID);
+  if (contract) {
+    selectedContract.value = contract;
+    showContractDetails.value = true;
+  } else {
+    toast.error(t('errors.contract.not_found'));
+  }
+};
+
+// Ajouter cette fonction
+const closeContractDetails = () => {
+  showContractDetails.value = false;
+  selectedContract.value = null;
 };
 
 // Exécuter un contrat
