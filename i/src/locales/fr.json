@@ -206,7 +206,18 @@
       "result": "Résultat",
       "success": "Fonction exécutée avec succès",
       "state_changed": "L'état du contrat a changé"
-    }
+    },
+    "no_file_selected": "Aucun fichier sélectionné.",
+    "no_file_dropped": "Aucun fichier déposé. Veuillez déposer un fichier de contrat .slc valide.",
+    "multiple_files": "Veuillez déposer un seul fichier de contrat.",
+    "invalid_format": "Format de fichier invalide. Veuillez utiliser des fichiers .slc.",
+    "invalid_structure": "Structure de contrat invalide.",
+    "already_exists": "Ce contrat existe déjà.",
+    "already_exists_id": "Un contrat avec l'ID « {id} » existe déjà.",
+    "load_failed": "Échec du chargement des contrats",
+    "import_failed": "Échec de l'importation du contrat",
+    "export_failed": "Échec de l'exportation du contrat",
+    "deletion_failed": "Échec de la suppression du contrat"
   },
   "automate": {
     "name": "Nom de la clause",
@@ -394,6 +405,8 @@
     "descriptionPlaceholder": "Décrivez ce que fait ce package",
     "dropToImport": "Déposez le fichier ici pour importer",
     "dropDescription": "Faites glisser et déposez le fichier JSON du package ici pour l'importer.",
+    "noDescription": "Aucune description fournie",
+    "noPackagesDesc": "Aucun package trouvé. Créez-en un nouveau ou importez-en un pour commencer.",
 
     "function": {
       "title": "Fonctions",
@@ -432,7 +445,31 @@
       "noVariables": "Aucune variable ajoutée pour l'instant",
       "noVariablesDesc": "Ce package ne contient aucune variable. Ajoutez des variables pour stocker des données."
 
-    },
-    "noDescription": "Aucune description fournie"
+    }
+  },
+  "contracts": {
+    "title": "Contrats",
+    "create": "Nouveau contrat",
+    "import": "Importer un contrat",
+    "export": "Exporter le contrat",
+    "execute": "Exécuter le contrat",
+    "searchPlaceholder": "Rechercher un contrat...",
+    "allStatuses": "Tous les statuts",
+    "automateCount": "{count} automate | {count} automates",
+    "createdAt": "Créé le",
+    "noContracts": "Aucun contrat disponible",
+    "noContractsDesc": "Aucun contrat trouvé. Créez-en un nouveau ou importez-en un pour commencer.",
+    "confirmDelete": "Supprimer le contrat ?",
+    "confirmDeleteMessage": "Êtes-vous sûr de vouloir supprimer le contrat « {name} » ? Cette action est irréversible.",
+    "deleteSuccess": "Contrat « {name} » supprimé avec succès",
+    "importSuccess": "Contrat « {name} » importé avec succès",
+    "exportSuccess": "Contrat « {name} » téléchargé avec succès",
+    "loadingMessage": "Chargement des contrats...",
+    "importingMessage": "Importation du contrat...",
+    "deletingMessage": "Suppression du contrat...",
+    "exportingMessage": "Préparation du téléchargement...",
+    "dropToImport": "Déposez ici le fichier du contrat à importer",
+    "dropDescription": "Déposez le fichier de contrat .slc ici pour l'importer.",
+    "invalidDate": "Date invalide"
   }
 }

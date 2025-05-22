@@ -16,6 +16,7 @@ import PackageListView from '../views/packages/PackageListView.vue';
 import PackageEditorView from '../views/packages/PackageEditorView.vue';
 import PackageDetailsView from '../views/packages/PackageDetailsView.vue';
 
+import DeploymentView from '../views/contracts/DeploymentView.vue';
 import LoginView from '../views/auth/LoginView.vue';
 import RegisterView from '../views/auth/RegisterView.vue';
 import ForgotPasswordView from '../views/auth/ForgotPasswordView.vue';
@@ -110,6 +111,15 @@ const routes = [
           title: 'Execute Contract', 
           icon: 'contract-execution',
           group: 'Contrats'
+        }
+      },
+      {
+        path: '/contracts/deploy/:id/:name?',
+        name: 'deployment',
+        component: DeploymentView,
+        meta: {
+          requiresAuth: true,
+          title: 'Déploiement de contrat'
         }
       },
       

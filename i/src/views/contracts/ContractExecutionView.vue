@@ -1,4 +1,3 @@
-// src/views/contracts/ContractExecutionView.vue
 <template>
   <div class="container mx-auto p-4">
     <!-- En-tête -->
@@ -153,7 +152,7 @@
             </div>
 
             <!-- Paramètres de la fonction (s'il y en a) -->
-            <div v-if="selectedFunction.inputs && selectedFunction.inputs.length > 0" class="mb-4">
+            <div  class="mb-4">
               <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Paramètres
               </h4>
@@ -226,11 +225,14 @@ import {
   LucideArrowLeft as LucideArrowLeftIcon,
   LucideAlertTriangle
 } from 'lucide-vue-next';
-import ContractDeploymentService from '@/services/contractDeploymentService';
+import { useSmartContractStore } from '@/stores/smartContractStore';
 import toast from '@/composables/Toast/useToast';
 
 const route = useRoute();
 const router = useRouter();
+
+// Store
+const smartContractStore = useSmartContractStore();
 
 // États
 const contractName = ref('');
@@ -242,7 +244,10 @@ const selectedFunction = ref(null);
 const functionInputs = ref([]);
 const executionResult = ref(null);
 const executionError = ref(null);
-const executionLoading = ref(false);
+const executionLoading = computed(() => smartContractStore.executionLoading);
+
+const argsString = ref('');
+const argsError = ref('');
 
 // Formater le nom d'une clause pour l'affichage
 const formatClauseName = (name) => {
@@ -386,57 +391,55 @@ const executeFunction = async () => {
     toast.error('Veuillez sélectionner une clause et une fonction');
     return;
   }
-  
+
   try {
-    executionLoading.value = true;
     executionResult.value = null;
     executionError.value = null;
-    
-    // Convertir les inputs au format approprié selon leur type
+
+    // Convertir les inputs selon leur type
     const processedInputs = functionInputs.value.map((value, index) => {
       const inputType = selectedFunction.value.inputs[index].type;
-      
-      // Conversion selon le type
+
       if (inputType.includes('int')) {
         return Number(value);
       } else if (inputType === 'bool') {
         return value.toLowerCase() === 'true';
       }
-      
-      // Strings, addresses, bytes, etc. restent inchangés
+
+      // Adresse, string, etc.
       return value;
     });
-    
-    // Appeler le service pour exécuter la fonction
-    const result = await ContractDeploymentService.executeContractFunction(
+
+    // Exécution via le store
+    const result = await smartContractStore.executeContractFunction(
       contractName.value,
       selectedClause.value,
       selectedFunction.value.name,
       processedInputs
     );
-    
+
     if (result.success) {
-      executionResult.value = result.data.result;
+      // ✅ La nouvelle structure : `result.data.result`
+      executionResult.value = result.data.result ?? result.data;
       toast.success('Fonction exécutée avec succès');
     } else {
       executionError.value = result.error;
       toast.error(`Erreur: ${result.error}`);
     }
   } catch (error) {
-    console.error('Erreur lors de l\'exécution de la fonction:', error);
+    console.error("Erreur lors de l'exécution de la fonction :", error);
     executionError.value = error.message;
     toast.error(`Erreur: ${error.message}`);
-  } finally {
-    executionLoading.value = false;
   }
 };
+
 
 // Charger les informations du contrat
 const loadContractInfo = async () => {
   isLoading.value = true;
   
   try {
-    // Récupérer le nom du contrat depuis l'URL (utiliser le paramètre 'name' au lieu de 'id')
+    // Récupérer le nom du contrat depuis l'URL
     const name = route.params.name;
     if (!name) {
       isLoading.value = false;
@@ -462,11 +465,10 @@ const loadContractInfo = async () => {
     } else {
       // Si pas d'infos dans localStorage, récupérer depuis l'API
       try {
-        // Appeler le service pour récupérer les informations du contrat déployé
-        const contractResponse = await ContractDeploymentService.getContractInfo(name);
+        const result = await smartContractStore.fetchDeployedContractInfo(name);
         
-        if (contractResponse.success) {
-          deploymentInfo.value = contractResponse.data.automatons;
+        if (result.success) {
+          deploymentInfo.value = result.data.automatons || result.data;
           
           // Sélectionner la première clause par défaut
           const clauseNames = Object.keys(deploymentInfo.value);
@@ -478,7 +480,7 @@ const loadContractInfo = async () => {
         } else {
           // Si l'API ne retourne pas de données, afficher un message d'erreur
           deploymentInfo.value = null;
-          toast.error(`Impossible de récupérer les informations du contrat: ${contractResponse.error}`);
+          toast.error(`Impossible de récupérer les informations du contrat: ${result.error}`);
         }
       } catch (apiError) {
         console.error('Erreur lors de l\'appel à l\'API:', apiError);
@@ -495,20 +497,14 @@ const loadContractInfo = async () => {
   }
 };
 
-// Modifiez également le watch pour surveiller le changement de 'name' au lieu de 'id'
-watch(() => route.params.name, (newName) => {
-  if (newName && newName !== contractName.value) {
-    loadContractInfo();
-  }
-});
 // Charger les informations au montage du composant
 onMounted(() => {
   loadContractInfo();
 });
 
 // Réagir aux changements de route
-watch(() => route.params.name, (newId) => {
-  if (newId && newId !== contractId.value) {
+watch(() => route.params.name, (newName) => {
+  if (newName && newName !== contractName.value) {
     loadContractInfo();
   }
 });

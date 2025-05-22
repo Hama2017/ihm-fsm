@@ -58,72 +58,91 @@ export const usePackageStore = defineStore('packages', {
   },
 
   actions: {
-    /**
-     * Charge tous les packages depuis le serveur.
-     * @returns {Promise<Object>} Résultat avec les packages ou code d'erreur
-     */
-    async fetchPackages() {
-      this.loading = true;
-      this.error = null;
-      
-      try {
-        console.log('Fetching packages from service...');
-        const packages = await packageService.getAllPackages();
-        console.log('Raw response from service:', packages);
-        
-        // Vérifier que packages est bien un Array
-        if (Array.isArray(packages)) {
-          console.log('Packages is an array, processing...');
-          // Convertir les packages au format interne
-          this.packages = packages.map(pkg => {
-            try {
-              return packageService.convertToInternalFormat(pkg);
-            } catch (err) {
-              console.error('Error converting package:', err);
-              return null;
-            }
-          }).filter(Boolean);
+  /**
+ * Charge tous les packages depuis le serveur.
+ * @returns {Promise<Object>} Résultat avec les packages ou code d'erreur
+ */
+async fetchPackages() {
+  this.loading = true;
+  this.error = null;
+  
+  try {
+    console.log('Fetching packages from service...');
+    const packages = await packageService.getAllPackages();
+    console.log('Raw response from service:', packages);
+    
+    // Vérifier que packages est bien un Array
+    if (Array.isArray(packages)) {
+      console.log('Packages is an array, processing...');
+      // Convertir les packages au format interne
+      this.packages = packages.map(pkg => {
+        try {
+          const converted = packageService.convertToInternalFormat(pkg);
           
-          return {
-            success: true,
-            data: this.packages
-          };
-        } else if (packages && typeof packages === 'object') {
-          // Si un seul package est retourné comme objet
-          try {
-            const converted = packageService.convertToInternalFormat(packages);
-            this.packages = [converted];
-            
-            return {
-              success: true,
-              data: this.packages
-            };
-          } catch (err) {
-            console.error('Error converting single package:', err);
+          // CORRECTION: Forcer name = id si name est null ou undefined
+          if (!converted.name || converted.name === null) {
+            converted.name = converted.id;
           }
+          
+          console.log('📦 Package après correction:', {
+            id: converted.id,
+            name: converted.name,
+            label: converted.label
+          });
+          
+          return converted;
+        } catch (err) {
+          console.error('Error converting package:', err);
+          return null;
+        }
+      }).filter(Boolean);
+      
+      return {
+        success: true,
+        data: this.packages
+      };
+    } else if (packages && typeof packages === 'object') {
+      // Si un seul package est retourné comme objet
+      try {
+        const converted = packageService.convertToInternalFormat(packages);
+        
+        // CORRECTION: Forcer name = id si name est null
+        if (!converted.name || converted.name === null) {
+          converted.name = converted.id;
         }
         
-        // Si on arrive ici, c'est que le format est invalide
-        console.error('Les données reçues ne sont pas au format attendu:', packages);
-        this.error = 'invalid_format';
+        this.packages = [converted];
         
         return {
-          success: false,
-          errorCode: 'errors.package.invalid_format'
+          success: true,
+          data: this.packages
         };
-      } catch (error) {
-        console.error('Error in fetchPackages:', error);
-        const errorCode = extractErrorCode(error, 'not_found', 'package');
-        this.error = errorCode;
-        
-        return {
-          success: false,
-          errorCode
-        };
-      } finally {
-        this.loading = false;
+      } catch (err) {
+        console.error('Error converting single package:', err);
       }
-    },
+    }
+    
+    // Si on arrive ici, c'est que le format est invalide
+    console.error('Les données reçues ne sont pas au format attendu:', packages);
+    this.error = 'invalid_format';
+    
+    return {
+      success: false,
+      errorCode: 'errors.package.invalid_format'
+    };
+  } catch (error) {
+    console.error('Error in fetchPackages:', error);
+    const errorCode = extractErrorCode(error, 'not_found', 'package');
+    this.error = errorCode;
+    
+    return {
+      success: false,
+      errorCode
+    };
+  } finally {
+    this.loading = false;
+  }
+},
     
     /**
      * Supprime une fonction d'un package.

@@ -78,7 +78,7 @@
     <!-- Liste des packages -->
     <div v-else-if="!packageStore.loading && !isFirstLoading">
       <div v-if="filteredPackages.length > 0" class="bg-white dark:bg-gray-800 shadow-md rounded-xl p-6 border border-gray-200 dark:border-gray-700 mb-6">
-        <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">{{ t('packages.title') }}</h2>
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">{{ t('packages.title') }} ({{ filteredPackages.length }})</h2>
         
         <div class="overflow-x-auto">
           <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
@@ -153,9 +153,7 @@
         <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">
           {{ t('packages.noPackages') }}
         </h3>
-        <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">
-          {{ t('packages.noPackagesDesc') }}
-        </p>
+
         <div class="flex justify-center space-x-4">
           <button 
             @click="triggerFileInput"
@@ -365,6 +363,17 @@ async function processFile(file) {
       throw new Error('invalid_structure');
     }
     
+    // NOUVELLE LOGIQUE: Gérer le name/label
+    // Si le name/label est null, vide ou non défini, utiliser l'ID
+    if (!packageData.name || packageData.name.trim() === '') {
+      packageData.name = packageData.id;
+    }
+    
+    // Si vous utilisez 'label' au lieu de 'name', faire la même chose
+    if (!packageData.label || packageData.label.trim() === '') {
+      packageData.label = packageData.id;
+    }
+    
     // Étape 2: Vérifier si un package avec cet ID existe déjà
     const existingPackage = packageStore.getPackageById(packageData.id);
     
@@ -375,8 +384,12 @@ async function processFile(file) {
       return;
     }
     
-    // Étape 3: Importer le package si tout est OK (via l'API)
-    const result = await packageStore.importPackage(file);
+    // Étape 3: Importer le package modifié (via l'API)
+    // Créer un nouveau fichier avec les données modifiées
+    const modifiedContent = JSON.stringify(packageData, null, 2);
+    const modifiedFile = new File([modifiedContent], file.name, { type: 'application/json' });
+    
+    const result = await packageStore.importPackage(modifiedFile);
     
     // Attendre avec un délai minimum pour l'animation
     await new Promise(resolve => setTimeout(resolve, MIN_FILE_OPERATION_DELAY));

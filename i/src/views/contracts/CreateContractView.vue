@@ -51,18 +51,18 @@
         
         <!-- Boutons principaux -->
         <button 
-          @click="saveContract"
-          :disabled="!contractName.trim() || isSaving"
-          class="px-4 py-2 rounded-lg font-medium flex items-center gap-2 transition duration-200
-                 text-white
-                 bg-blue-600 hover:bg-blue-700
-                 disabled:bg-gray-400 disabled:cursor-not-allowed
-                 dark:disabled:bg-gray-700"
-        >
-          <LucideSave v-if="!isSaving" class="h-4 w-4" />
-          <LucideLoader v-else class="h-4 w-4 animate-spin" />
-          <span>Sauvegarder</span>
-        </button>
+  @click="saveContract"
+  :disabled="!contractName.trim() || isSaving"
+  class="px-4 py-2 rounded-lg font-medium flex items-center gap-2 transition duration-200
+         text-white
+         bg-blue-600 hover:bg-blue-700
+         disabled:bg-gray-400 disabled:cursor-not-allowed
+         dark:disabled:bg-gray-700"
+>
+  <LucideSave v-if="!isSaving" class="h-4 w-4" />
+  <LucideLoader v-else class="h-4 w-4 animate-spin" />
+  <span>{{ saveButtonText }}</span>
+</button>
         
         <button 
           @click="startDeploymentProcess"
@@ -211,6 +211,7 @@
   :snapToGrid="snapToGrid"
   :snapGrid="[15, 15]"
   :disabled="isSimulating || isDeploymentView"
+  :deleteKeyCode="null"
 >
 
             <MiniMap v-if="showMinimap && !isDeploymentView" pannable zoomable position="top-right" />
@@ -439,7 +440,7 @@
     
     <!-- Modals -->
     <!-- Modal pour la simulation -->
-    <Modal
+    <!-- <Modal
       v-model="showSimulationModal"
       title="Simulation de l'automate"
       confirm-text="Lancer la simulation"
@@ -451,7 +452,7 @@
       <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">
         Cette simulation vous permettra de visualiser l'ordre de déploiement des états selon leur dépendance.
       </p>
-    </Modal>
+    </Modal> -->
     
     <!-- Modal récapitulatif de déploiement -->
     <Modal
@@ -751,133 +752,12 @@
 
 
 
+ 
 
 
 
-     <!-- Modal d'animation de déploiement -->
-     <Modal
-    v-model="showDeployAnimation"
-    title="Déploiement du contrat en cours"
-    showCancel="false"
-    showConfirm="false"
-    size="lg"
-  >
-    <DeploymentAnimation 
-      :step="deploymentAnimationStep"
-      :progress="deploymentProgress"
-      :animationTexts="deploymentAnimationTexts"
-      @complete="onDeploymentAnimationComplete"
-    />
-  </Modal>
-    <!-- Modal de résultat de simulation du déploiement -->
-    <Modal
-      v-model="showDeploymentSimulationResultModal"
-      title="Résultat de la simulation de déploiement"
-      confirm-text="Fermer"
-      @confirm="closeDeploymentSimulationResultModal"
-    >
-      <div class="space-y-4">
-        <div class="p-3 bg-green-50 dark:bg-green-900/20 border border-green-100 dark:border-green-800 rounded-lg text-center">
-          <LucideCheck class="w-6 h-6 text-green-500 dark:text-green-400 mx-auto mb-2" />
-          <p class="text-green-700 dark:text-green-300 font-medium">
-            Simulation de déploiement terminée avec succès!
-          </p>
-        </div>
-        
-        <h3 class="font-medium text-gray-800 dark:text-gray-200">Ordre de déploiement:</h3>
-        <div class="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-          <ol class="list-decimal list-inside space-y-2">
-            <li v-for="(automateId, index) in deploymentOrderSimulation" :key="index" class="flex items-center py-1">
-              <span class="ml-2 text-gray-800 dark:text-gray-200">
-                {{ getAutomateName(automateId) }}
-              </span>
-            </li>
-          </ol>
-        </div>
-        
-        <div class="border-t border-gray-200 dark:border-gray-700 pt-4 mt-4">
-          <p class="text-sm text-gray-600 dark:text-gray-400">
-            Cette simulation montre l'ordre dans lequel les automates seront déployés en fonction de leurs dépendances.
-            Vous pouvez maintenant procéder au déploiement réel ou modifier vos automates si nécessaire.
-          </p>
-        </div>
-      </div>
-    </Modal>
 
-<!-- Modal de résultat de simulation du déploiement avec titre mis à jour -->
-<Modal
-  v-model="showDeploymentSimulationResultModal"
-  title="Simulation de déploiement terminée"
-  confirm-text="Fermer"
-  @confirm="closeDeploymentSimulationResultModal"
->
-  <div class="space-y-4">
-    <div class="p-3 bg-green-50 dark:bg-green-900/20 border border-green-100 dark:border-green-800 rounded-lg text-center">
-      <LucideCheck class="w-6 h-6 text-green-500 dark:text-green-400 mx-auto mb-2" />
-      <p class="text-green-700 dark:text-green-300 font-medium">
-        Simulation de déploiement terminée avec succès!
-      </p>
-    </div>
-    
-    <h3 class="font-medium text-gray-800 dark:text-gray-200">Ordre de déploiement des clauses:</h3>
-    <div class="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-      <ol class="list-decimal list-inside space-y-2">
-        <li v-for="(automateId, index) in deploymentOrderSimulation" :key="index" class="flex items-center py-1">
-          <span class="ml-2 text-gray-800 dark:text-gray-200">
-            {{ getAutomateName(automateId) }}
-          </span>
-        </li>
-      </ol>
-    </div>
-    
-    <div class="border-t border-gray-200 dark:border-gray-700 pt-4 mt-4">
-      <p class="text-sm text-gray-600 dark:text-gray-400">
-        Cette simulation montre l'ordre dans lequel les clauses seront déployées en fonction de leurs dépendances.
-        Vous pouvez maintenant procéder au déploiement réel ou modifier vos clauses si nécessaire.
-      </p>
-    </div>
-  </div>
-</Modal>
 
-<!-- Modal de résultat de déploiement avec titre mis à jour -->
-<Modal
-  v-model="showDeploymentResultModal"
-  title="Déploiement réussi"
-  confirm-text="Fermer"
->
-  <div class="space-y-4">
-    <div class="p-3 bg-green-50 dark:bg-green-900/20 border border-green-100 dark:border-green-800 rounded-lg text-center">
-      <LucideCheck class="w-6 h-6 text-green-500 dark:text-green-400 mx-auto mb-2" />
-      <p class="text-green-700 dark:text-green-300 font-medium">
-        Contrat déployé avec succès sur la blockchain!
-      </p>
-    </div>
-    
-    <p class="text-gray-700 dark:text-gray-300">
-      Votre contrat intelligent a été correctement déployé sur la blockchain et est maintenant prêt à être utilisé.
-      Voici les informations détaillées du déploiement :
-    </p>
-    
-    <DeploymentInfo :deployment-info="deploymentResult" />
-
-    <div class="flex justify-center mt-4">
-      <button
-        @click="goToContractExecution"
-        class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors flex items-center"
-      >
-        <LucidePlay class="w-4 h-4 mr-2" />
-        Interagir avec le contrat
-      </button>
-    </div>
-    
-    <div class="border-t border-gray-200 dark:border-gray-700 pt-4 mt-4">
-      <p class="text-sm text-gray-600 dark:text-gray-400">
-        Vous pouvez maintenant interagir avec ce contrat depuis l'interface d'administration.
-        Utilisez ces informations pour référencer votre contrat dans d'autres applications.
-      </p>
-    </div>
-  </div>
-</Modal>
 
     <!-- Container pour les toasts -->
     <UiToastContainer />
@@ -907,14 +787,15 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted } from 'vue';
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { storeToRefs } from 'pinia';
 import { VueFlow, useVueFlow, MarkerType } from '@vue-flow/core';
 import { Background } from '@vue-flow/background';
 import { MiniMap } from '@vue-flow/minimap';
 import { useThemeStore } from '@/stores/theme';
-import { useContractStore } from '@/stores/contractStore';
+import { useAutomatonContractStore } from '@/stores/automatonContractStore';
+import { useSmartContractStore } from '@/stores/smartContractStore';
 import UiToastContainer from '@/components/ui/UiToastContainer.vue';
 import toast from '@/composables/Toast/useToast';
 import CustomEdge from '@/components/contract/CustomEdge.vue';
@@ -923,8 +804,7 @@ import ConditionList from '@/components/contract/ConditionList.vue';
 import SlidableTabs from '@/components/ui/UiSlidableTabs.vue';
 import '@vue-flow/core/dist/style.css';
 import packageService from '@/services/packageService';
-import ContractAutomatonService from '@/services/contractAutomaton';
-import ContractDeploymentService from '@/services/contractDeploymentService';
+
 import DeploymentInfo from '@/components/contract/DeploymentInfo.vue';
 import { ContractStatus } from '@/enums/ContractStatus.js';
 
@@ -937,65 +817,31 @@ import FunctionList from '@/components/contract/FunctionList.vue';
 import EditorToolbar from '@/components/contract/EditorToolbar.vue';
 import AutomatonAnalyzer from '@/components/contract/AutomatonAnalyzer.vue';
 import DeploymentAnimation from '@/components/contract/DeploymentAnimation.vue';
-import { DotLottieVue } from '@lottiefiles/dotlottie-vue';
+
 // Icônes
 import {
-  LucideUndo2,
-  LucideRedo2,
-  LucideSave,
-  LucideLoader,
-  LucideRocket,
-  LucideFileWarning,
-  LucidePencil,
-  LucideTrash2,
-  LucideCheckSquare,
-  LucideAlertTriangle,
-  LucideRefreshCcw,
-  LucideX,
-  LucideCheck,
-  LucideArrowDownUp,
-  LucideArrowRight,
-  LucideArrowDown,
-  LucideChevronsDown,
-  LucideChevronsRight,
-  LucidePlayCircle,
-  LucidePlay
+  LucideUndo2, LucideRedo2, LucideSave, LucideLoader, LucideRocket,
+  LucideFileWarning, LucidePencil, LucideTrash2, LucideCheckSquare,
+  LucideAlertTriangle, LucideX, LucideCheck, LucideArrowDownUp,
+  LucideArrowRight, LucideChevronsDown, LucideChevronsRight,
+  LucidePlayCircle, LucidePlay
 } from 'lucide-vue-next';
 
-const rightPanelTabs = [
-  { id: 'states', label: 'États' },
-  { id: 'declencheurs', label: 'Déclencheurs' },
-  { id: 'guide', label: 'Guide' },
-  { id: 'analyzer', label: 'Analyse' },
-];
+// Import des composables
+import useGraphStyles from '@/composables/contract/useGraphStyles';
+import useState from '@/composables/contract/useState';
+import useTransition from '@/composables/contract/useTransition';
+import useAutomate from '@/composables/contract/useAutomate';
+import useHistory from '@/composables/contract/useHistory';
+import useEditorToolbar from '@/composables/contract/useEditorToolbar';
+import useSimulation from '@/composables/contract/useSimulation';
+import useValidation from '@/composables/contract/useValidation';
+import useContractActions from '@/composables/contract/useContractActions';
+import { useI18n } from '@/composables/i18n/useI18n';
+import { useConfirmation } from '@/composables/useConfirmation';
+import UiConfirmationModal from '@/components/ui/UiConfirmationModal.vue';
 
-
-
-// Ajouter un état pour l'animation de déploiement
-const showDeployAnimation = ref(false);
-const deploymentAnimationStep = ref(0);
-const deploymentProgress = ref(0);
-const deploymentAnimationTexts = [
-"Préparation du déploiement...",
-"Lancement du déploiement...",
-"Déploiement des contrats intelligents...",
-"Déploiement terminé avec succès!"
-];
-const deploymentOrderSimulation = ref([]);
-const showDeploymentSimulationResultModal = ref(false);
-
-
-const goToContractExecution = () => {
-  showDeploymentResultModal.value = false;
-  // Rediriger vers la page d'exécution du contrat
-  router.push({
-    name: 'contract-execution',
-    params: { id: currentContractId.value || 'temp' }
-  });
-};
-
-const showDeploymentResultModal = ref(false);
-const deploymentResult = ref(null);
+// ===== 1. SETUP INITIAL =====
 
 // Router et route
 const router = useRouter();
@@ -1005,10 +851,21 @@ const route = useRoute();
 const themeStore = useThemeStore();
 const { darkMode } = storeToRefs(themeStore);
 const isDarkMode = darkMode;
-const contractStore = useContractStore();
 
 // Référence au composant TransitionModal
 const transitionModalRef = ref(null);
+
+// Internationalisation et confirmation
+const { t } = useI18n();
+const { 
+  confirm, 
+  isModalOpen: isConfirmationModalOpen, 
+  confirmOptions,
+  handleConfirm,
+  handleCancel
+} = useConfirmation();
+
+// ===== 2. ÉTAT RÉACTIF =====
 
 // État du contrat
 const contractName = ref('');
@@ -1020,22 +877,8 @@ const isDeploymentView = ref(false);
 const deploymentAutomateId = ref(null);
 const originalActiveAutomateId = ref(null);
 
+// Données des packages
 const packetCondition = ref([]);
-
-onMounted(() => {
-  packageService.getAllPackages()
-    .then((apiPackages) => {
-      const internalPackages = apiPackages.map(apiPackage => 
-        packageService.convertToInternalFormat(apiPackage)
-      );
-      
-      console.log('Packages récupérés et convertis avec succès:', internalPackages);
-      packetCondition.value = internalPackages;
-    })
-    .catch((error) => {
-      console.error('Erreur lors de la récupération des packages:', error);
-    });
-});
 
 // État des noeuds et transitions
 const contractAutomates = ref([]);
@@ -1059,38 +902,21 @@ const availableFunctions = ref([
   { value: 'rejeter', label: 'Rejeter' }
 ]);
 
-// Import et destructuration des composables
-import useGraphStyles from '@/composables/contract/useGraphStyles';
-import useState from '@/composables/contract/useState';
-import useTransition from '@/composables/contract/useTransition';
-import useAutomate from '@/composables/contract/useAutomate';
-import useHistory from '@/composables/contract/useHistory';
-import useEditorToolbar from '@/composables/contract/useEditorToolbar';
-import useSimulation from '@/composables/contract/useSimulation';
-import useValidation from '@/composables/contract/useValidation';
-import useContractActions from '@/composables/contract/useContractActions';
-// Système d'internationalisation
-import { useI18n } from '@/composables/i18n/useI18n';
-// Service de gestion d'erreurs
-import ErrorService from '@/services/errorService';
-// Composable de confirmation
-import { useConfirmation } from '@/composables/useConfirmation';
-// Composant UiConfirmationModal
-import UiConfirmationModal from '@/components/ui/UiConfirmationModal.vue';
+const deploymentOrderSimulation = ref([]);
+const showDeploymentSimulationResultModal = ref(false);
+const showDeploymentResultModal = ref(false);
+const showConditionsOnGraph = ref(false);
 
-// Internationalisation
-const { t } = useI18n();
+const rightPanelTabs = [
+  { id: 'states', label: 'États' },
+  { id: 'declencheurs', label: 'Déclencheurs' },
+  { id: 'guide', label: 'Guide' },
+  { id: 'analyzer', label: 'Analyse' },
+];
 
-// Confirmation (pour les actions importantes)
-const { 
-  confirm, 
-  isModalOpen: isConfirmationModalOpen, 
-  confirmOptions,
-  handleConfirm,
-  handleCancel
-} = useConfirmation();
+// ===== 3. COMPOSABLES (ORDRE IMPORTANT) =====
 
-//  Styles des noeuds
+// Styles des noeuds
 const { 
   getBaseNodeStyle, 
   getSelectedNodeStyle, 
@@ -1098,7 +924,7 @@ const {
   getSelectedEdgeStyle
 } = useGraphStyles({ isDarkMode });
 
-//  Obtenir les fonctions VueFlow
+// Fonctions VueFlow
 const { findNode, onNodeClick, addSelectedNodes, nodesSelectionActive } = useVueFlow();
 
 // Fonction auxiliaire pour obtenir la configuration des noeuds
@@ -1131,7 +957,7 @@ function getNodeConfig(type) {
   }
 }
 
-// Gestion de validation
+// 1️⃣ D'ABORD: Gestion de validation (DOIT être défini en premier)
 const {
   validateAutomate,
   detectCycle,
@@ -1141,10 +967,11 @@ const {
   validationErrorMessage
 } = useValidation({
   currentNodes,
-  currentEdges
+  currentEdges,
+  activeAutomateId // ✅ Ajouter cette ligne
 });
 
-//  Gestion d'historique
+// 2️⃣ Gestion d'historique (utilise updateNodeStyles et updateEdgeStyles qui seront définis plus tard)
 const {
   historyStack, 
   historyIndex,
@@ -1159,11 +986,21 @@ const {
   edges: currentEdges,
   activeStateId,
   activeTransitionId,
-  updateNodeStyles: (id) => updateNodeStyles(id),
-  updateEdgeStyles: (id) => updateEdgeStyles(id)
+  updateNodeStyles: (id) => {
+    // Référence forward - sera définie plus tard
+    if (typeof updateNodeStyles === 'function') {
+      updateNodeStyles(id);
+    }
+  },
+  updateEdgeStyles: (id) => {
+    // Référence forward - sera définie plus tard
+    if (typeof updateEdgeStyles === 'function') {
+      updateEdgeStyles(id);
+    }
+  }
 });
 
-// Gestion des états
+// 3️⃣ Gestion des états
 const {
   contextMenu,
   showAddStateModal,
@@ -1177,7 +1014,7 @@ const {
   addStateError,
   editStateError,
   stateUsedInEdges,
-  updateNodeStyles,
+  updateNodeStyles, // ✅ Maintenant défini
   openAddStateModal,
   openEditStateModal,
   openRemoveStateModal,
@@ -1187,7 +1024,6 @@ const {
   selectState,
   confirmAddState,
   confirmEditState,
-  //confirmRemoveState,
   addInitialState,
   addStandardState,
   addFinalState,
@@ -1207,7 +1043,7 @@ const {
   getNodeConfig
 });
 
-// Gestion des transitions
+// 4️⃣ Gestion des transitions
 const {
   edgeContextMenu,
   showAddTransitionModal,
@@ -1222,7 +1058,7 @@ const {
   edgeUpdateData,
   edgeUpdateSourceName,
   edgeUpdateTargetName,
-  updateEdgeStyles,
+  updateEdgeStyles, // ✅ Maintenant défini
   handleConnectNodes,
   onEdgeClick,
   handleEdgeUpdate,
@@ -1254,7 +1090,7 @@ const {
   getSelectedEdgeStyle
 });
 
-// Gestion de l'éditeur
+// 5️⃣ Gestion de l'éditeur
 const {
   zoomLevel,
   showMinimap,
@@ -1274,7 +1110,7 @@ const {
   toggleFullScreen,
 } = useEditorToolbar();
 
-// Gestion de la simulation
+// 6️⃣ Gestion de la simulation
 const {
   isSimulating,
   simulationCurrentState,
@@ -1292,8 +1128,7 @@ const {
   currentEdges, 
   darkMode
 );
-
-//  Gestion des automates
+// 7️⃣ Gestion des automates (DOIT être défini AVANT useContractActions)
 const {
   showAutomateModal,
   editingAutomateId,
@@ -1304,8 +1139,8 @@ const {
   editAutomate,
   removeAutomate,
   confirmAutomateEdit,
-  saveCurrentAutomateState,
-  loadAutomateState,
+  saveCurrentAutomateState, // ✅ Maintenant défini
+  loadAutomateState, // ✅ Maintenant défini
   activeAutomateName
 } = useAutomate({
   contractAutomates,
@@ -1326,11 +1161,13 @@ const {
   getBaseEdgeStyle
 });
 
-// Gestion des actions du contrat
+// 8️⃣ ENFIN: Gestion des actions du contrat (utilise toutes les dépendances définies ci-dessus)
 const {
   isSaving,
   saveContract,
   deployContract,
+  deployContractToBlockchain,
+  loadContract,
   currentContractId,
   currentCreatedAt
 } = useContractActions({
@@ -1339,279 +1176,28 @@ const {
   contractAutomates,
   activeAutomateId,
   isSaved,
-  hasValidationErrors,
-  saveCurrentAutomateState,
-  validateAutomate,
+  hasValidationErrors, // ✅ Maintenant disponible
+  saveCurrentAutomateState, // ✅ Maintenant disponible
+  validateAutomate, // ✅ Maintenant disponible
+  loadAutomateState // ✅ Ajouter ce paramètre manquant
+});
+// ===== 4. FONCTIONS LIFECYCLE =====
 
+// Chargement des packages
+onMounted(() => {
+  packageService.getAllPackages()
+    .then((apiPackages) => {
+      const internalPackages = apiPackages.map(apiPackage => 
+        packageService.convertToInternalFormat(apiPackage)
+      );
+      packetCondition.value = internalPackages;
+    })
+    .catch((error) => {
+      console.error('Erreur lors de la récupération des packages:', error);
+    });
 });
 
-
-
-// Fonction pour annuler le déploiement
-const cancelDeployment = () => {
-  // Supprimer l'automate de déploiement
-  const deploymentIndex = contractAutomates.value.findIndex(a => a.id === 'flow-deploiement');
-  if (deploymentIndex !== -1) {
-    contractAutomates.value.splice(deploymentIndex, 1);
-  }
-  
-  // Revenir à l'automate actif original
-  if (originalActiveAutomateId.value) {
-    activeAutomateId.value = originalActiveAutomateId.value;
-    loadAutomateState(originalActiveAutomateId.value);
-  }
-  
-  // Désactiver le mode vue déploiement
-  isDeploymentView.value = false;
-  
-  toast.info('Déploiement annulé');
-};
-
-
-
-// Fonction pour transformer le contrat au format requis
-// Fonction pour normaliser un texte en nom de variable valide
-const normalizeVariableName = (text) => {
-  if (!text) return 'q0';
-  
-  // Convertir en minuscules
-  let result = text.toLowerCase();
-  
-  // Supprimer les accents
-  result = result.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-  
-  // Remplacer les espaces et caractères spéciaux par des underscores
-  result = result.replace(/[^a-z0-9_]/g, '_');
-  
-  // S'assurer que le résultat ne commence pas par un chiffre
-  if (/^[0-9]/.test(result)) {
-    result = 'q' + result;
-  }
-  
-  // Si le résultat est vide (cas rare), utiliser un nom par défaut
-  if (!result) {
-    return 'q0';
-  }
-  
-  return result;
-};
-
-// Fonction pour transformer le contrat au format requis
-const transformContractToRequiredFormat = () => {
-  try {
-    // Structure de sortie
-    const transformedContract = {
-      name: contractName.value.trim() || "Test",
-      automatons: {},
-      required_packages: []
-    };
-
-    // Map pour suivre l'index des automates
-    const automateIndexMap = {};
-    let automateCounter = 0;
-
-    // Parcourir chaque automate du contrat pour créer le mapping des index
-    contractAutomates.value.forEach(automate => {
-      // Ignorer l'automate de déploiement
-      if (automate.id === 'flow-deploiement') return;
-      
-      // Attribuer un index séquentiel à cet automate
-      automateIndexMap[automate.id] = automateCounter++;
-    });
-
-    // Parcourir chaque automate du contrat
-    contractAutomates.value.forEach(automate => {
-      // Ignorer l'automate de déploiement
-      if (automate.id === 'flow-deploiement') return;
-      
-      // Obtenir l'index de cet automate
-      const automateIndex = automateIndexMap[automate.id];
-      
-      // Créer un objet pour cet automate
-      const automatonObj = {
-        states: [],
-        transitions: []
-      };
-      
-      // Map pour stocker la correspondance entre libellés originaux et noms normalisés
-      const stateNameMap = {};
-      
-      // Extraire les états et normaliser leurs noms
-      automate.states.forEach(state => {
-        const normalizedName = normalizeVariableName(state.label);
-        stateNameMap[state.id] = normalizedName;
-        automatonObj.states.push(normalizedName);
-      });
-      
-      // S'assurer que "completed" est dans les états si ce n'est pas déjà le cas
-      if (!automatonObj.states.includes("completed")) {
-        const finalState = automate.states.find(s => s.type === 'final');
-        if (finalState) {
-          // Remplacement du libellé de l'état final par "completed"
-          stateNameMap[finalState.id] = "completed";
-          const finalStateIndex = automatonObj.states.findIndex(name => name === normalizeVariableName(finalState.label));
-          if (finalStateIndex !== -1) {
-            automatonObj.states[finalStateIndex] = "completed";
-          } else {
-            automatonObj.states.push("completed");
-          }
-        } else {
-          // Ajouter "completed" s'il n'y a pas d'état final
-          automatonObj.states.push("completed");
-        }
-      }
-
-      // Extraire et transformer les transitions
-      automate.transitions.forEach(transition => {
-        if (transition.source && transition.target) {
-          let sourceLabel = stateNameMap[transition.source] || normalizeVariableName('state');
-          let targetLabel = stateNameMap[transition.target] || normalizeVariableName('state');
-          
-          // Si la cible est un état final, utiliser "completed"
-          const targetState = automate.states.find(s => s.id === transition.target);
-          if (targetState && targetState.type === 'final') {
-            targetLabel = "completed";
-          }
-          
-          // Créer un objet pour cette transition
-          const transitionObj = {
-            source: sourceLabel,
-            destination: targetLabel,
-            trigger: normalizeVariableName(transition.label),
-            conditions: []
-          };
-          
-          // Ajouter les conditions standard
-          if (Array.isArray(transition.conditions)) {
-            transitionObj.conditions = [...transition.conditions];
-          }
-          
-          // Ajouter les dépendances d'automates au format "automata__AutomataX__is_completed"
-          if (Array.isArray(transition.automataDependencies) && transition.automataDependencies.length > 0) {
-            const automataConditions = transition.automataDependencies.map(depId => {
-              const depIndex = automateIndexMap[depId];
-              return `automata__Automata${depIndex}__is_completed`;
-            });
-            transitionObj.conditions = [...transitionObj.conditions, ...automataConditions];
-          }
-          
-          // Ajouter cette transition à l'automate
-          automatonObj.transitions.push(transitionObj);
-        }
-      });
-      
-      // Ajouter cet automate à la structure de sortie
-      transformedContract.automatons[`Automata${automateIndex}`] = automatonObj;
-    });
-    
-    // Collecter les packages utilisés
-    const packagesUsed = new Set();
-    
-    // Parcourir toutes les conditions pour identifier les packages
-    contractAutomates.value.forEach(automate => {
-      automate.transitions.forEach(transition => {
-        if (Array.isArray(transition.conditions)) {
-          transition.conditions.forEach(conditionId => {
-            // Si la condition est au format package__pX__cY
-            if (conditionId.startsWith('package__')) {
-              const parts = conditionId.split('__');
-              if (parts.length >= 2) {
-                packagesUsed.add(parts[1]);
-              }
-            }
-          });
-        }
-      });
-    });
-    
-    // Si aucun package n'est détecté, ajouter les packages par défaut comme dans l'exemple
-    if (packagesUsed.size === 0) {
-      packagesUsed.add('p1');
-      packagesUsed.add('p2');
-    }
-    
-    // Ajouter les packages utilisés
-    transformedContract.required_packages = Array.from(packagesUsed);
-    
-    return transformedContract;
-  } catch (error) {
-    console.error('Erreur lors de la transformation du contrat:', error);
-    return null;
-  }
-};
-
-// Fonction pour obtenir le nom d'un nœud par son ID
-const getNodeName = (nodeId) => {
-  const node = currentNodes.value.find(n => n.id === nodeId);
-  return node ? node.data.label : nodeId;
-};
-
-
-// ---- Chargement principal du contrat ----
-/**
- * Charge un contrat depuis l'API
- * @param {string} contractId - ID ou nom du contrat à charger
- * @returns {Promise<boolean>} - True si le chargement a réussi
- */
- const loadContract = async (contractId) => {
-  try {
-    console.log("Chargement du contrat:", contractId);
-    
-    const response = await ContractAutomatonService.getContractAutomaton(contractId);
-    const contract = response.data;
-
-    console.log("Contrat chargé:", contract);
-
-    // Mise à jour des variables d'état
-    contractName.value = contract.name;
-    contractStatus.value = contract.status || ContractStatus.DRAFT;
-    contractAutomates.value = contract.automates.map(automate => ({ ...automate }));
-
-    // IMPORTANT: Stocker l'ID du contrat pour les futures sauvegardes
-    // Utiliser l'ID de l'API s'il est disponible, sinon utiliser le nom comme ID
-    currentContractId.value = contract.id || contractId;
-    console.log("ID du contrat stocké:", currentContractId.value);
-    
-    currentCreatedAt.value = contract.createdAt;
-
-    // Trouver et charger l'automate actif
-    if (contractAutomates.value.length > 0) {
-      const activeAutomate = contractAutomates.value.find(a => a.active) || contractAutomates.value[0];
-      activeAutomateId.value = activeAutomate.id;
-      loadAutomateState(activeAutomate.id);
-    }
-
-    // Indiquer que le contrat a été sauvegardé
-    isSaved.value = true;
-    
-    return true;
-  } catch (error) {
-    console.error('Erreur lors du chargement du contrat:', error);
-    
-    // Message d'erreur plus informatif
-    if (error.response) {
-      const status = error.response.status;
-      
-      if (status === 404) {
-        toast.error(`Le contrat "${contractId}" n'existe pas`);
-      } else {
-        const message = error.response.data?.detail || 'Erreur lors du chargement';
-        toast.error(`Erreur (${status}): ${message}`);
-      }
-    } else {
-      toast.error("Erreur lors du chargement du contrat");
-    }
-    
-    // Redirection vers la liste des contrats après un délai
-    setTimeout(() => {
-      router.push({ name: 'contracts' });
-    }, 2000);
-    
-    return false;
-  }
-};
-
-// ---- Chargement à l'initialisation ----
+// Chargement principal du contrat
 onMounted(async () => {
   const contractId = route.params.id;
   const isEditMode = route.name === 'edit-contract' && contractId;
@@ -1622,8 +1208,10 @@ onMounted(async () => {
   } else {
     console.log('Mode création activé');
     contractName.value = '';
-    contractStatus.value = ContractStatus.DRAFT ;
-    loadAutomateState(activeAutomateId.value);
+    contractStatus.value = ContractStatus.DRAFT;
+    if (activeAutomateId.value) {
+      loadAutomateState(activeAutomateId.value);
+    }
   }
 
   saveToHistory();
@@ -1638,7 +1226,7 @@ onMounted(async () => {
   window.addEventListener('click', () => (edgeContextMenu.value.visible = false));
 });
 
-// ---- Observer les changements de route (au cas où changement d'id sans recharger la page) ----
+// Observer les changements de route
 watch(
   () => route.params.id,
   async (newId) => {
@@ -1648,38 +1236,33 @@ watch(
     } else {
       console.log('Changement vers création');
       contractName.value = '';
-      contractStatus.value = ContractStatus.DRAFT ;
+      contractStatus.value = ContractStatus.DRAFT;
       contractAutomates.value = [];
     }
   }
 );
+
 // Observer les changements dans currentNodes et currentEdges pour valider l'automate
 watch([currentNodes, currentEdges], () => {
   validateAutomate();
   isSaved.value = false;
 }, { deep: true });
 
+// ===== 5. GESTION DES INTERACTIONS VUEFLOW =====
+
 // Sélection d'un nœud dans VueFlow
 onNodeClick(({ node }) => {
-  // Ne pas traiter les clics si en mode déploiement
   if (isDeploymentView.value) return;
   
-  // Si le nœud cliqué est déjà le nœud actif, le désélectionner
   if (activeStateId.value === node.id) {
     activeStateId.value = null;
     updateNodeStyles(null);
   } else {
-    // Sinon, sélectionner le nouveau nœud
     activeStateId.value = node.id;
     updateNodeStyles(node.id);
   }
 });
 
-/**
- * Capturé depuis @connect de VueFlow.
- * Valide la connexion et, si OK, ouvre le modal en lui passant source/target.
- * Ne pas traiter si en mode déploiement
- */
 function onNodeConnect(params) {
   if (isDeploymentView.value) return;
   
@@ -1691,7 +1274,6 @@ function onNodeConnect(params) {
     return;
   }
 
-  // ouvre le modal exposé par TransitionModal.vue
   transitionModalRef.value.open(
     result.source,
     result.target,
@@ -1700,10 +1282,6 @@ function onNodeConnect(params) {
   );
 }
 
-/**
- * Capturé depuis @confirm du TransitionModal.
- * Ajoute vraiment la transition, affiche un toast et recentre si tout est OK.
- */
 function onTransitionConfirmOnConnect({ source, target, transition, conditions }) {
   const { success, message } = addTransition({
     source,
@@ -1720,127 +1298,166 @@ function onTransitionConfirmOnConnect({ source, target, transition, conditions }
   }
 }
 
-// Fonction pour mettre à jour les conditions d'une transition
+// ===== 6. FONCTIONS SPÉCIFIQUES AU DÉPLOIEMENT =====
+
+// Texte du bouton de sauvegarde selon le mode
+const saveButtonText = computed(() => {
+  const isEditMode = route.name === 'edit-contract' && route.params.id;
+  
+  if (isSaving.value) {
+    return isEditMode ? 'Enregistrement...' : 'Création...';
+  }
+  
+  return isEditMode ? 'Enregistrer' : 'Créer contrat';
+});
+
+// Vérifier si le contrat peut être déployé
+const canDeploy = computed(() => {
+  const allAutomatesHaveFinalState = contractAutomates.value.every(automate => {
+    if (automate.id === 'flow-deploiement') return true;
+    return automate.states.some(state => {
+      return !automate.transitions.some(transition => transition.source === state.id);
+    });
+  });
+  
+  const noCyclicDependencies = !hasAutomataCyclicDependencies();
+  
+  return contractAutomates.value.length > 0 && 
+         allAutomatesHaveFinalState && 
+         noCyclicDependencies &&
+         contractName.value.trim() !== '';
+});
+const startDeploymentProcess = async () => {
+  if (!canDeploy.value) {
+    toast.error('Le contrat ne peut pas être déployé. Vérifiez que chaque automate a un état final et qu\'il n\'y a pas de dépendances cycliques.');
+    return;
+  }
+
+  try {
+    const success = await deployContract();
+    
+    if (success) {
+      originalActiveAutomateId.value = activeAutomateId.value;
+      
+      const deploymentAutomate = contractAutomates.value.find(a => a.id === 'flow-deploiement');
+      if (deploymentAutomate) {
+        deploymentAutomateId.value = deploymentAutomate.id;
+        activeAutomateId.value = deploymentAutomate.id;
+        loadAutomateState(deploymentAutomate.id);
+        isDeploymentView.value = true;
+        
+        setTimeout(() => {
+          centerGraph();
+        }, 100);
+      }
+    }
+  } catch (error) {
+    console.error('Erreur lors du démarrage du déploiement:', error);
+    toast.error('Erreur lors de la préparation du déploiement');
+  }
+};
+
+const confirmDeployment = async () => {
+  try {
+
+    // Supprimer le flow de déploiement
+    const deploymentFlowIndex = contractAutomates.value.findIndex(a => a.id === 'flow-deploiement');
+    if (deploymentFlowIndex !== -1) {
+      contractAutomates.value.splice(deploymentFlowIndex, 1);
+      console.log('✅ Flow de déploiement supprimé avant redirection');
+    }
+
+    // Restaurer l'automate actif
+    if (originalActiveAutomateId.value) {
+      activeAutomateId.value = originalActiveAutomateId.value;
+      loadAutomateState(originalActiveAutomateId.value);
+    }
+
+    isDeploymentView.value = false;
+    deploymentAutomateId.value = null;
+    originalActiveAutomateId.value = null;
+
+    // ✅ NOUVEAU: Rediriger vers la vue de déploiement
+    const contractId = route.params.id || contractName.value;
+    router.push({
+      name: 'deployment',
+      params: { 
+        id: contractId,
+        name: contractName.value 
+      }
+    });
+
+  } catch (error) {
+    console.error('Erreur lors du déploiement:', error);
+    toast.error(`Erreur lors du déploiement: ${error.message}`);
+  }
+};
+
+// 3. ✅ SIMPLIFIER la fonction simulateDeploymentFlow
+const simulateDeploymentFlow = async () => {
+  try {
+    toast.info('Simulation du déploiement en cours...');
+    
+    const deploymentOrder = getDeploymentOrder();
+    
+    // Créer un tableau avec les noms des automates
+    const deploymentOrderWithNames = deploymentOrder.map(automateId => ({
+      id: automateId,
+      name: getAutomateName(automateId)
+    }));
+
+    // Afficher le résultat dans une notification ou un toast étendu
+    const orderText = deploymentOrderWithNames
+      .map((automate, index) => `${index + 1}. ${automate.name}`)
+      .join('\n');
+    
+    toast.success(`Ordre de déploiement:\n${orderText}`, { duration: 8000 });
+    
+  } catch (error) {
+    console.error('Erreur lors de la simulation:', error);
+    toast.error('Erreur lors de la simulation du déploiement');
+  }
+};
+
+
+
+
+// ===== 7. FONCTIONS UTILITAIRES =====
+
 const updateTransitionConditions = (data) => {
   const { id, conditions } = data;
   
-  // Trouver la transition dans currentEdges et mettre à jour ses conditions
   const edgeIndex = currentEdges.value.findIndex(edge => edge.id === id);
   if (edgeIndex !== -1) {
-    // Créer une nouvelle référence pour que Vue détecte le changement
     const updatedEdges = [...currentEdges.value];
     updatedEdges[edgeIndex] = {
       ...updatedEdges[edgeIndex],
       conditions
     };
     
-    // Mettre à jour currentEdges
     currentEdges.value = updatedEdges;
-    
-    // Mettre à jour l'historique
     saveToHistory();
-    
-    // Mettre à jour l'état de sauvegarde
     isSaved.value = false;
     
     toast.success('Conditions mises à jour avec succès');
   }
 };
 
-const showConditionsOnGraph = ref(false);
-
 const toggleConditionsDisplay = () => {
   showConditionsOnGraph.value = !showConditionsOnGraph.value;
 };
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// Vérifier si le contrat peut être déployé
-const canDeploy = computed(() => {
-  // Vérifier si tous les automates ont un état final
-  const allAutomatesHaveFinalState = contractAutomates.value.every(automate => {
-    if (automate.id === 'flow-deploiement') return true;
-    
-    // Vérifier si l'automate a au moins un état final
-    return automate.states.some(state => {
-      // Un état est final s'il n'a pas de transitions sortantes
-      return !automate.transitions.some(transition => transition.source === state.id);
-    });
-  });
-  
-  // Vérifier s'il n'y a pas de dépendances cycliques entre automates
-  const noCyclicDependencies = !hasAutomataCyclicDependencies();
-  
-  // Le contrat peut être déployé s'il y a au moins un automate,
-  // tous les automates ont un état final, et il n'y a pas de dépendances cycliques
-  return contractAutomates.value.length > 0 && 
-         allAutomatesHaveFinalState && 
-         noCyclicDependencies &&
-         contractName.value.trim() !== '';
-});
-
-// Fonction pour vérifier si un état est le dernier état final d'un automate
-const isLastFinalState = (stateId) => {
-  if (!activeAutomateId.value) return false;
-  
-  const automate = contractAutomates.value.find(a => a.id === activeAutomateId.value);
-  if (!automate) return false;
-  
-  // Trouver tous les états finaux (états sans transitions sortantes)
-  const finalStates = automate.states.filter(state => 
-    !automate.transitions.some(transition => transition.source === state.id)
-  );
-  
-  // Si c'est le seul état final et que c'est l'état qu'on essaie de supprimer
-  return finalStates.length === 1 && finalStates[0].id === stateId;
-};
-
-// Fonction pour détecter les cycles dans les dépendances d'automates
 const hasAutomataCyclicDependencies = () => {
   const graph = {};
   const automateIds = contractAutomates.value.map(a => a.id);
   
-  // Initialiser le graphe
   automateIds.forEach(id => {
     graph[id] = [];
   });
   
-  // Construire le graphe de dépendances
   contractAutomates.value.forEach(automate => {
     automate.transitions.forEach(transition => {
       if (transition.automataDependencies && transition.automataDependencies.length > 0) {
-        // Pour chaque dépendance, ajouter un lien dans le graphe
         transition.automataDependencies.forEach(dependencyId => {
           if (!graph[dependencyId]) graph[dependencyId] = [];
           graph[dependencyId].push(automate.id);
@@ -1849,7 +1466,6 @@ const hasAutomataCyclicDependencies = () => {
     });
   });
   
-  // Fonction DFS pour détecter les cycles
   const visited = new Set();
   const recStack = new Set();
   
@@ -1871,7 +1487,6 @@ const hasAutomataCyclicDependencies = () => {
     return false;
   };
   
-  // Vérifier chaque nœud
   for (const node of automateIds) {
     if (hasCycle(node)) {
       return true;
@@ -1881,18 +1496,19 @@ const hasAutomataCyclicDependencies = () => {
   return false;
 };
 
-// Fonction pour vérifier si l'ajout d'une dépendance créerait un cycle
+const getAutomateName = (automateId) => {
+  const automate = contractAutomates.value.find(a => a.id === automateId);
+  return automate ? automate.name : `Automate ${automateId}`;
+};
+
 const wouldCreateCycle = (sourceAutomateId, targetAutomateId) => {
-  // Créer une copie du graphe de dépendances actuel
   const graph = {};
   const automateIds = contractAutomates.value.map(a => a.id);
   
-  // Initialiser le graphe
   automateIds.forEach(id => {
     graph[id] = [];
   });
   
-  // Construire le graphe de dépendances
   contractAutomates.value.forEach(automate => {
     automate.transitions.forEach(transition => {
       if (transition.automataDependencies && transition.automataDependencies.length > 0) {
@@ -1904,11 +1520,9 @@ const wouldCreateCycle = (sourceAutomateId, targetAutomateId) => {
     });
   });
   
-  // Ajouter la nouvelle dépendance
   if (!graph[targetAutomateId]) graph[targetAutomateId] = [];
   graph[targetAutomateId].push(sourceAutomateId);
   
-  // Fonction DFS pour détecter les cycles
   const visited = new Set();
   const recStack = new Set();
   
@@ -1930,20 +1544,11 @@ const wouldCreateCycle = (sourceAutomateId, targetAutomateId) => {
     return false;
   };
   
-  // Vérifier s'il y a un cycle à partir du nœud cible
   return hasCycle(targetAutomateId);
 };
 
-// Obtenir le nom d'un automate à partir de son ID
-const getAutomateName = (automateId) => {
-  const automate = contractAutomates.value.find(a => a.id === automateId);
-  return automate ? automate.name : `Automate ${automateId}`;
-};
-
-// Surcharger la fonction updateTransitionAutomataDependencies pour vérifier les cycles
 const updateTransitionAutomataDependencies = (data) => {
   try {
-    // Pour chaque nouvelle dépendance, vérifier si elle créerait un cycle
     const edge = currentEdges.value.find(edge => edge.id === data.id);
     if (!edge) throw new Error('Transition non trouvée');
     
@@ -1952,38 +1557,27 @@ const updateTransitionAutomataDependencies = (data) => {
       automataDependencies: data.automataDependencies || []
     };
     
-    // Vérifier chaque nouvelle dépendance
     for (const dependencyId of targetEdge.automataDependencies) {
       if (wouldCreateCycle(activeAutomateId.value, dependencyId)) {
         toast.error(`Impossible d'ajouter cette dépendance: créerait un cycle entre les automates`);
-        return; // Ne pas appliquer les modifications
+        return;
       }
     }
     
-    // Si on arrive ici, aucune dépendance ne crée de cycle
-    // Trouver l'index de la transition dans la liste des transitions actuelles
     const edgeIndex = currentEdges.value.findIndex(edge => edge.id === data.id);
     
     if (edgeIndex !== -1) {
-      // Créer une copie du tableau des transitions pour déclencher la réactivité de Vue
       const updatedEdges = [...currentEdges.value];
       
-      // Mettre à jour la transition spécifique avec les nouvelles dépendances
       updatedEdges[edgeIndex] = {
         ...updatedEdges[edgeIndex],
         automataDependencies: data.automataDependencies
       };
       
-      // Remplacer le tableau de transitions par la nouvelle version
       currentEdges.value = updatedEdges;
-      
-      // Sauvegarder l'état actuel dans l'historique pour permettre l'annulation/rétablissement
       saveToHistory();
-      
-      // Indiquer que le contrat n'est pas sauvegardé
       isSaved.value = false;
       
-      // Afficher un message de confirmation
       toast.success('Dépendances de clauses mises à jour avec succès');
     }
   } catch (error) {
@@ -1992,10 +1586,21 @@ const updateTransitionAutomataDependencies = (data) => {
   }
 };
 
-// Surcharger la fonction confirmRemoveState pour empêcher la suppression du dernier état final
+const isLastFinalState = (stateId) => {
+  if (!activeAutomateId.value) return false;
+  
+  const automate = contractAutomates.value.find(a => a.id === activeAutomateId.value);
+  if (!automate) return false;
+  
+  const finalStates = automate.states.filter(state => 
+    !automate.transitions.some(transition => transition.source === state.id)
+  );
+  
+  return finalStates.length === 1 && finalStates[0].id === stateId;
+};
+
 const confirmRemoveState = () => {
   try {
-    // Vérifier si c'est le dernier état final
     if (isLastFinalState(removeStateId.value)) {
       toast.error('Impossible de supprimer le dernier état final de l\'automate');
       showRemoveStateModal.value = false;
@@ -2015,87 +1620,44 @@ const confirmRemoveState = () => {
   }
 };
 
-// Surcharger la fonction startDeploymentProcess
-const startDeploymentProcess = async () => {
-  if (!canDeploy.value) {
-    toast.error('Le contrat ne peut pas être déployé. Vérifiez que chaque automate a un état final et qu\'il n\'y a pas de dépendances cycliques.');
-    return;
-  }
 
-  try {
-    // Sauvegarder d'abord le contrat (en brouillon)
-    await saveContract();
-    
-    // Stocker l'ID d'automate actif original pour pouvoir le restaurer si annulation
-    originalActiveAutomateId.value = activeAutomateId.value;
-    
-    // Générer l'automate de déploiement
-    await deployContract();
-    
-    // Trouver l'ID de l'automate de déploiement
-    const deploymentAutomate = contractAutomates.value.find(a => a.id === 'flow-deploiement');
-    if (deploymentAutomate) {
-      deploymentAutomateId.value = deploymentAutomate.id;
-      
-      // Basculer vers l'automate de déploiement
-      activeAutomateId.value = deploymentAutomate.id;
-      loadAutomateState(deploymentAutomate.id);
-      
-      // Activer le mode vue déploiement
-      isDeploymentView.value = true;
-      
-      // Ajuster la vue pour être sûr de tout voir
-      setTimeout(() => {
-        centerGraph();
-      }, 100);
-    }
-  } catch (error) {
-    console.error('Erreur lors du démarrage du déploiement:', error);
-    toast.error('Erreur lors de la préparation du déploiement');
+
+const cancelDeployment = () => {
+  // Supprimer le flow de déploiement
+  const deploymentIndex = contractAutomates.value.findIndex(a => a.id === 'flow-deploiement');
+  if (deploymentIndex !== -1) {
+    contractAutomates.value.splice(deploymentIndex, 1);
+    console.log('Flow de déploiement supprimé lors de l\'annulation');
   }
+  
+  // Restaurer l'automate actif
+  if (originalActiveAutomateId.value) {
+    activeAutomateId.value = originalActiveAutomateId.value;
+    loadAutomateState(originalActiveAutomateId.value);
+  }
+  
+  isDeploymentView.value = false;
+  deploymentAutomateId.value = null;
+  originalActiveAutomateId.value = null;
+  
+  toast.info('Déploiement annulé');
 };
 
-// Fonction pour simuler le déploiement avec affichage des résultats
-const simulateDeploymentFlow = async () => {
-  try {
-    toast.info('Simulation du déploiement en cours...');
-    
-    // Obtenir l'ordre de déploiement des automates
-    const deploymentOrder = getDeploymentOrder();
-    deploymentOrderSimulation.value = deploymentOrder;
-    
-    // Utiliser la fonction de simulation existante qui parcourt l'ordre topologique
-    await toggleSimulation();
-    
-    // Afficher le modal avec l'ordre de déploiement
-    showDeploymentSimulationResultModal.value = true;
-  } catch (error) {
-    console.error('Erreur lors de la simulation:', error);
-    toast.error('Erreur lors de la simulation du déploiement');
-  }
-};
-
-// Fonction pour calculer l'ordre de déploiement des automates
 const getDeploymentOrder = () => {
-  // Créer un graphe de dépendances
   const graph = {};
   const indegree = {};
   
-  // Exclure l'automate de déploiement
   const realAutomates = contractAutomates.value.filter(a => a.id !== 'flow-deploiement');
   
-  // Initialiser
   realAutomates.forEach(automate => {
     graph[automate.id] = [];
     indegree[automate.id] = 0;
   });
   
-  // Construire le graphe
   realAutomates.forEach(automate => {
     automate.transitions.forEach(transition => {
       if (transition.automataDependencies && transition.automataDependencies.length > 0) {
         transition.automataDependencies.forEach(dependencyId => {
-          // Ajouter une arête du automate dépendant au automate actuel
           graph[dependencyId].push(automate.id);
           indegree[automate.id]++;
         });
@@ -2103,23 +1665,19 @@ const getDeploymentOrder = () => {
     });
   });
   
-  // Tri topologique
   const queue = [];
   const result = [];
   
-  // Trouver les nœuds sans dépendances
   for (const automateId in indegree) {
     if (indegree[automateId] === 0) {
       queue.push(automateId);
     }
   }
   
-  // Parcourir le graphe
   while (queue.length > 0) {
     const automateId = queue.shift();
     result.push(automateId);
     
-    // Réduire le degré d'entrée des voisins
     for (const neighbor of graph[automateId]) {
       indegree[neighbor]--;
       if (indegree[neighbor] === 0) {
@@ -2131,109 +1689,31 @@ const getDeploymentOrder = () => {
   return result;
 };
 
-// Fermer le modal de résultat de simulation
-const closeDeploymentSimulationResultModal = () => {
-  showDeploymentSimulationResultModal.value = false;
-};
 
-// Confirmer le déploiement avec animation
-const confirmDeployment = async () => {
-  try {
-    // Afficher l'animation de déploiement
-    showDeployAnimation.value = true;
-    deploymentAnimationStep.value = 0;
-    deploymentProgress.value = 0;
-    
-    // Étape 1: Préparation du déploiement
-    await new Promise(resolve => {
-      setTimeout(() => {
-        deploymentAnimationStep.value = 1;
-        deploymentProgress.value = 30;
-        resolve();
-      }, 2000); // Augmenter la durée pour voir l'animation
-    });
-    
-    // Étape 2: Lancement du déploiement
-    await new Promise(resolve => {
-      setTimeout(() => {
-        deploymentAnimationStep.value = 2;
-        deploymentProgress.value = 60;
-        resolve();
-      }, 2500); // Augmenter la durée pour voir l'animation
-    });
-    
-    // Transformer le contrat au format requis
-    const transformedContract = transformContractToRequiredFormat();
-    
-    // Appeler le service de déploiement
-    const result = await ContractDeploymentService.deployContract(transformedContract);
-    
-    // Étape 3: Déploiement terminé - Afficher l'animation de succès
-    await new Promise(resolve => {
-      setTimeout(() => {
-        deploymentAnimationStep.value = 3;
-        deploymentProgress.value = 100;
-        resolve();
-      }, 2000);
-    });
-    
-    // Laisser l'animation de succès visible un moment
-    await new Promise(resolve => {
-      setTimeout(resolve, 3000);
-    });
-    
-    // Fermer l'animation
-    showDeployAnimation.value = false;
-    
-    if (result.success) {
-      // Stocker le résultat pour l'affichage dans le modal
-      deploymentResult.value = result.data;
-      
-      // Mettre à jour le statut du contrat
-      contractStatus.value = 'Actif';
-      
-      // Désactiver le mode vue déploiement
-      isDeploymentView.value = false;
-      
-      // Revenir à l'automate actif original
-      if (originalActiveAutomateId.value) {
-        activeAutomateId.value = originalActiveAutomateId.value;
-        loadAutomateState(originalActiveAutomateId.value);
-      }
-      
-      // Sauvegarder le contrat localement avec les informations de déploiement
-      saveContract();
-      
-      // Afficher le modal de résultat
-      showDeploymentResultModal.value = true;
-      
-      // Stocker localement les informations de déploiement
-      localStorage.setItem(`contract_deployment_${currentContractId.value || 'temp'}`, 
-        JSON.stringify(result.data));
+
+
+
+
+
+const handleKeyDown = (e) => {
+  if (e.key === 'Delete') {
+    if (activeStateId.value) {
+      openRemoveStateModal(activeStateId.value)
     } else {
-      // Gérer l'échec du déploiement
-      console.error('Échec du déploiement:', result.error);
-      toast.error(`Échec du déploiement: ${result.error}`);
+      toast.error("Veuillez sélectionner un état à supprimer.")
     }
-  } catch (error) {
-    // Gérer les erreurs
-    console.error('Erreur lors du déploiement:', error);
-    toast.error('Une erreur inattendue est survenue pendant le déploiement');
-    
-    // Fermer l'animation
-    showDeployAnimation.value = false;
   }
-};
+}
 
+onMounted(() => {
+  window.addEventListener('keydown', handleKeyDown)
+})
 
-const onDeploymentAnimationComplete = () => {
-  // Cette fonction peut être utilisée pour déclencher des actions
-  // une fois l'animation de déploiement terminée
-  console.log('Animation de déploiement terminée');
-};
-          
+onUnmounted(() => {
+  window.removeEventListener('keydown', handleKeyDown)
+})
+
 </script>
-
 <style scoped>
 /* Animations pour les transitions actives en mode simulation */
 @keyframes pulse-line {

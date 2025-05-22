@@ -6,11 +6,13 @@ import { ref, computed } from 'vue';
  * @param {Object} options Configuration du composable
  * @param {Ref<Array>} options.currentNodes Nœuds de l'automate actif
  * @param {Ref<Array>} options.currentEdges Arêtes de l'automate actif
+ * @param {Ref<String>} options.activeAutomateId ID de l'automate actif (ajouté)
  * @returns {Object} Fonctions et états pour la gestion de la validation
  */
 export default function useValidation({
   currentNodes,
-  currentEdges
+  currentEdges,
+  activeAutomateId // ✅ Ajouter ce paramètre
 }) {
   // États pour la validation
   const validationErrors = ref([]);
@@ -20,6 +22,12 @@ export default function useValidation({
   
   // Vérifier si l'automate a des cycles
   const detectCycle = () => {
+    // ✅ Ignorer la détection de cycle pour le flow de déploiement
+    if (activeAutomateId?.value === 'flow-deploiement') {
+      cyclePath.value = [];
+      return false;
+    }
+
     // Initialisation du graphe
     const graph = {};
     currentNodes.value.forEach(n => { graph[n.id] = []; });
@@ -65,6 +73,15 @@ export default function useValidation({
   
   // Valider l'automate
   const validateAutomate = () => {
+    // ✅ NE PAS valider le flow de déploiement
+    if (activeAutomateId?.value === 'flow-deploiement') {
+      validationErrors.value = [];
+      cyclePath.value = [];
+      hasValidationErrors.value = false;
+      validationErrorMessage.value = '';
+      return true;
+    }
+
     const errors = [];
     
     // 1. Vérifier s'il y a un cycle
@@ -114,6 +131,17 @@ export default function useValidation({
   
   // Statistiques sur l'automate
   const stats = computed(() => {
+    // ✅ Retourner des stats vides pour le flow de déploiement
+    if (activeAutomateId?.value === 'flow-deploiement') {
+      return {
+        states: 0,
+        transitions: 0,
+        initialStates: 0,
+        finalStates: 0,
+        isolatedStates: 0
+      };
+    }
+
     const incomingTransitions = new Set(currentEdges.value.map(edge => edge.target));
     const outgoingTransitions = new Set(currentEdges.value.map(edge => edge.source));
     

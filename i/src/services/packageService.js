@@ -185,131 +185,134 @@ const PackageService = {
     }
   },
 
-  /**
-   * Convertit les données de package du format interne au format API.
-   * @param {Object} packageData - Données du package au format interne (avec functions en tableau)
-   * @returns {Object} Données au format API (avec functions en objet)
-   */
-  convertToApiFormat(packageData) {
-    // Créer l'objet functions au format attendu par l'API
-    const functions = {};
-    
-    // Vérifier si packageData.functions est un tableau
-    if (Array.isArray(packageData.functions)) {
-      packageData.functions.forEach(func => {
-        // Extraire l'ID original de la fonction depuis l'ID formaté
-        // Format: "package__[packageName]__[funcId]"
-        let originalFuncId = func.id;
-        if (func.id && func.id.includes('__')) {
-          originalFuncId = func.id.split('__').pop();
-        } else if (!func.id && func.name) {
-          originalFuncId = func.name;
-        }
-          
-        functions[originalFuncId] = {
-          code: func.code || '',
-          default: func.default || false,
-          label: func.label || originalFuncId,
-          description: func.description || ''
-        };
+/**
+ * Convertit les données de package du format interne au format API.
+ * @param {Object} packageData - Données du package au format interne (avec functions en tableau)
+ * @returns {Object} Données au format API (avec functions en objet)
+ */
+convertToApiFormat(packageData) {
+  // Créer l'objet functions au format attendu par l'API
+  const functions = {};
+  
+  // Vérifier si packageData.functions est un tableau
+  if (Array.isArray(packageData.functions)) {
+    packageData.functions.forEach(func => {
+      // Extraire l'ID original de la fonction depuis l'ID formaté
+      // Format: "package__[packageName]__[funcId]"
+      let originalFuncId = func.id;
+      if (func.id && func.id.includes('__')) {
+        originalFuncId = func.id.split('__').pop();
+      } else if (!func.id && func.name) {
+        originalFuncId = func.name;
+      }
+        
+      functions[originalFuncId] = {
+        code: func.code || '',
+        default: func.default || false,
+        label: func.label || originalFuncId,
+        description: func.description || ''
+      };
+    });
+  }
+  
+  // Variables et Structs
+  const variables = Array.isArray(packageData.variables) 
+    ? packageData.variables 
+    : [];
+  
+  const structs = Array.isArray(packageData.structs) 
+    ? packageData.structs 
+    : [];
+  
+  // CORRECTION: Toujours inclure name = id pour être explicite
+  return {
+    id: packageData.id,
+    name: packageData.id,  // ← FORCÉ À ID EXPLICITEMENT
+    label: packageData.label || packageData.id,
+    description: packageData.description || '',
+    functions,
+    variables,
+    structs
+  };
+},
+
+
+/**
+ * Convertit les données de package du format API au format interne.
+ * @param {Object} apiPackage - Données du package au format API (avec functions en objet)
+ * @returns {Object} Données au format interne (avec functions en tableau)
+ */
+convertToInternalFormat(apiPackage) {
+  // S'assurer que apiPackage est un objet valide
+  if (!apiPackage || typeof apiPackage !== 'object') {
+    console.error('Package invalide:', apiPackage);
+    return {
+      id: 'invalid',
+      name: 'invalid',
+      label: 'Package invalide',
+      description: '',
+      functions: [],
+      variables: [],
+      structs: []
+    };
+  }
+  
+  // Convertir l'objet functions en tableau
+  const functions = [];
+  
+  if (apiPackage.functions && typeof apiPackage.functions === 'object') {
+    for (const [funcId, funcDetails] of Object.entries(apiPackage.functions)) {
+      functions.push({
+        id: funcId.includes('__') ? funcId : `package__${apiPackage.id}__${funcId}`,
+        name: funcId,
+        label: funcDetails.label || funcId,
+        description: funcDetails.description || '',
+        code: funcDetails.code || '',
+        default: funcDetails.default || false
       });
     }
-    
-    // Variables et Structs
-    const variables = Array.isArray(packageData.variables) 
-      ? packageData.variables 
-      : [];
-    
-    const structs = Array.isArray(packageData.structs) 
-      ? packageData.structs 
-      : [];
-    
-    // Retourner le package au format API
-    return {
-      id: packageData.id,
-      label: packageData.label || packageData.id,
-      description: packageData.description || '',
-      functions,
-      variables,
-      structs
-    };
-  },
-
-  /**
-   * Convertit les données de package du format API au format interne.
-   * @param {Object} apiPackage - Données du package au format API (avec functions en objet)
-   * @returns {Object} Données au format interne (avec functions en tableau)
-   */
-  convertToInternalFormat(apiPackage) {
-    // S'assurer que apiPackage est un objet valide
-    if (!apiPackage || typeof apiPackage !== 'object') {
-      console.error('Package invalide:', apiPackage);
-      return {
-        id: 'invalid',
-        name: 'invalid',
-        label: 'Package invalide',
-        description: '',
-        functions: [],
-        variables: [],
-        structs: []
-      };
+  }
+  
+  // Gérer les variables
+  let variables = [];
+  if (apiPackage.variables) {
+    if (Array.isArray(apiPackage.variables)) {
+      variables = [...apiPackage.variables];
+    } else if (typeof apiPackage.variables === 'object') {
+      // Convertir de l'objet au tableau si nécessaire
+      variables = Object.entries(apiPackage.variables).map(([varId, varDetails]) => ({
+        name: varId,
+        ...varDetails
+      }));
     }
-    
-    // Convertir l'objet functions en tableau
-    const functions = [];
-    
-    if (apiPackage.functions && typeof apiPackage.functions === 'object') {
-      for (const [funcId, funcDetails] of Object.entries(apiPackage.functions)) {
-        functions.push({
-          id: funcId.includes('__') ? funcId : `package__${apiPackage.id}__${funcId}`,
-          name: funcId,
-          label: funcDetails.label || funcId,
-          description: funcDetails.description || '',
-          code: funcDetails.code || '',
-          default: funcDetails.default || false
-        });
-      }
+  }
+  
+  // Gérer les structs
+  let structs = [];
+  if (apiPackage.structs) {
+    if (Array.isArray(apiPackage.structs)) {
+      structs = [...apiPackage.structs];
+    } else if (typeof apiPackage.structs === 'object') {
+      // Convertir de l'objet au tableau si nécessaire
+      structs = Object.entries(apiPackage.structs).map(([structId, structDetails]) => ({
+        name: structId,
+        ...structDetails
+      }));
     }
-    
-    // Gérer les variables
-    let variables = [];
-    if (apiPackage.variables) {
-      if (Array.isArray(apiPackage.variables)) {
-        variables = [...apiPackage.variables];
-      } else if (typeof apiPackage.variables === 'object') {
-        // Convertir de l'objet au tableau si nécessaire
-        variables = Object.entries(apiPackage.variables).map(([varId, varDetails]) => ({
-          name: varId,
-          ...varDetails
-        }));
-      }
-    }
-    
-    // Gérer les structs
-    let structs = [];
-    if (apiPackage.structs) {
-      if (Array.isArray(apiPackage.structs)) {
-        structs = [...apiPackage.structs];
-      } else if (typeof apiPackage.structs === 'object') {
-        // Convertir de l'objet au tableau si nécessaire
-        structs = Object.entries(apiPackage.structs).map(([structId, structDetails]) => ({
-          name: structId,
-          ...structDetails
-        }));
-      }
-    }
-    
-    // Retourner le package au format interne
-    return {
-      id: apiPackage.id,
-      name: apiPackage.id,
-      label: apiPackage.label || apiPackage.id,
-      description: apiPackage.description || '',
-      functions,
-      variables,
-      structs
-    };
-  },
+  }
+  
+  // SOLUTION SIMPLE: Forcer name = id dans tous les cas
+  // Retourner le package au format interne
+  return {
+    id: apiPackage.id,
+    name: apiPackage.id,  // ← FORCÉ À ÉGAL ID
+    label: apiPackage.label || apiPackage.id,
+    description: apiPackage.description || '',
+    functions,
+    variables,
+    structs
+  };
+},
 
   /**
    * Exporte un package au format JSON pour téléchargement.

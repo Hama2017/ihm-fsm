@@ -431,6 +431,33 @@
       "noVariables": "No variables added yet",
       "noVariablesDesc": "This package contains no variables. Add variables to store data."
     },
-    "noDescription": "No description provided"
+    "noDescription": "No description provided",
+    "noPackagesDesc" : "This package contains no elements. Add functions, variables, or structures to get started."
+  },
+   "contracts": {
+    "title": "Contracts",
+    "create": "New contract",
+    "import": "Import contract",
+    "export": "Export contract",
+    "execute": "Execute contract",
+    "searchPlaceholder": "Search for a contract...",
+    "allStatuses": "All statuses",
+    "automateCount": "{count} automaton | {count} automatons",
+    "createdAt": "Created on",
+    "noContracts": "No contracts available",
+    "noContractsDesc": "No contracts found. Create a new one or import one to get started.",
+    "confirmDelete": "Delete contract?",
+    "confirmDeleteMessage": "Are you sure you want to delete the contract \"{name}\"? This action is irreversible.",
+    "deleteSuccess": "Contract \"{name}\" deleted successfully",
+    "importSuccess": "Contract \"{name}\" imported successfully",
+    "exportSuccess": "Contract \"{name}\" downloaded successfully",
+    "loadingMessage": "Loading contracts...",
+    "importingMessage": "Importing contract...",
+    "deletingMessage": "Deleting contract...",
+    "exportingMessage": "Preparing download...",
+    "dropToImport": "Drop contract file here to import",
+    "dropDescription": "Drop the .slc contract file here to import it.",
+    "invalidDate": "Invalid date"
   }
+  
 }
