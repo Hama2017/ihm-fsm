@@ -1,31 +1,22 @@
-import apiWrapper from './api.config';
-import ErrorService from './errorService';
-import { withMinDelay } from '@/utils/services/delayService';
-
-// Durée minimale pour les opérations (1 seconde)
-const MIN_OPERATION_DELAY = 1000;
+import apiClient from './api.config';
 
 /**
  * Service de gestion des contrats automatiques.
  * Permet la création, modification, suppression et récupération des contrats.
  */
-const ContractService = {
+const automatonContractService = {
   /**
    * Crée un nouveau contrat automatisé.
    * @param {Object} contractData - Données du contrat à créer
    * @returns {Promise<Object>} Contrat créé
-   * @throws {Error} Erreur formatée avec code internationalisation
+   * @throws {Error} Erreur en cas d'échec
    */
   async createContract(contractData) {
     try {
-      // Utilisation de withMinDelay pour garantir un temps minimal d'opération
-      const response = await withMinDelay(
-        apiWrapper.post('automaton-contracts/', contractData),
-        MIN_OPERATION_DELAY
-      );
-      return response;
+      const response = await apiClient.post('/automaton-contracts/', contractData);
+      return response.data;
     } catch (error) {
-      throw ErrorService.handleApiError(error, 'errors.contract.contract_creation_failed', false);
+      throw error;
     }
   },
 
@@ -33,14 +24,14 @@ const ContractService = {
    * Récupère un contrat par son ID.
    * @param {string} contractId - ID du contrat à récupérer
    * @returns {Promise<Object>} Contrat récupéré
-   * @throws {Error} Erreur formatée avec code internationalisation
+   * @throws {Error} Erreur en cas d'échec
    */
   async getContract(contractId) {
     try {
-      const response = await apiWrapper.get(`automaton-contracts/${contractId}`);
-      return response;
+      const response = await apiClient.get(`/automaton-contracts/${contractId}`);
+      return response.data;
     } catch (error) {
-      throw ErrorService.handleApiError(error, 'errors.contract.not_found', false);
+      throw error;
     }
   },
 
@@ -49,41 +40,14 @@ const ContractService = {
    * @param {string} contractId - ID du contrat à mettre à jour
    * @param {Object} contractData - Nouvelles données du contrat
    * @returns {Promise<Object>} Contrat mis à jour
-   * @throws {Error} Erreur formatée avec code internationalisation
+   * @throws {Error} Erreur en cas d'échec
    */
   async updateContract(contractId, contractData) {
     try {
-      // Gérer le cas particulier de changement de nom qui nécessite une recréation
-      if (contractId !== contractData.name) {
-        console.log(`Changement de nom détecté: ${contractId} -> ${contractData.name}`);
-        
-        try {
-          // 1. Créer un nouveau contrat avec le nouveau nom
-          const createResponse = await this.createContract(contractData);
-          
-          // 2. Supprimer l'ancien contrat
-          try {
-            await this.deleteContract(contractId);
-            console.log(`Ancien contrat "${contractId}" supprimé`);
-          } catch (deleteError) {
-            console.error(`Échec de la suppression de l'ancien contrat "${contractId}"`, deleteError);
-            // On continue même si la suppression échoue
-          }
-          
-          return createResponse;
-        } catch (error) {
-          throw ErrorService.handleApiError(error, 'errors.contract.contract_update_failed', false);
-        }
-      }
-      
-      // Mise à jour normale si pas de changement de nom
-      const response = await withMinDelay(
-        apiWrapper.put(`automaton-contracts/${contractId}`, contractData),
-        MIN_OPERATION_DELAY
-      );
-      return response;
+      const response = await apiClient.put(`/automaton-contracts/${contractId}`, contractData);
+      return response.data;
     } catch (error) {
-      throw ErrorService.handleApiError(error, 'errors.contract.contract_update_failed', false);
+      throw error;
     }
   },
 
@@ -91,31 +55,28 @@ const ContractService = {
    * Supprime un contrat par son ID.
    * @param {string} contractId - ID du contrat à supprimer
    * @returns {Promise<Object>} Confirmation de suppression
-   * @throws {Error} Erreur formatée avec code internationalisation
+   * @throws {Error} Erreur en cas d'échec
    */
   async deleteContract(contractId) {
     try {
-      const response = await withMinDelay(
-        apiWrapper.delete(`automaton-contracts/${contractId}`),
-        MIN_OPERATION_DELAY
-      );
-      return response;
+      const response = await apiClient.delete(`/automaton-contracts/${contractId}`);
+      return response.data;
     } catch (error) {
-      throw ErrorService.handleApiError(error, 'errors.contract.contract_deletion_failed', false);
+      throw error;
     }
   },
 
   /**
    * Récupère la liste de tous les contrats.
    * @returns {Promise<Array>} Liste des contrats
-   * @throws {Error} Erreur formatée avec code internationalisation
+   * @throws {Error} Erreur en cas d'échec
    */
   async getAllContracts() {
     try {
-      const response = await apiWrapper.get('automaton-contracts/');
-      return response;
+      const response = await apiClient.get('/automaton-contracts/');
+      return response.data;
     } catch (error) {
-      throw ErrorService.handleApiError(error, 'errors.general.get_failed', false);
+      throw error;
     }
   },
   
@@ -123,14 +84,14 @@ const ContractService = {
    * Récupère les contrats créés par un utilisateur spécifique.
    * @param {string} userId - ID de l'utilisateur
    * @returns {Promise<Array>} Liste des contrats de l'utilisateur
-   * @throws {Error} Erreur formatée avec code internationalisation
+   * @throws {Error} Erreur en cas d'échec
    */
   async getContractsByUser(userId) {
     try {
-      const response = await apiWrapper.get(`automaton-contracts/by-user/${userId}`);
-      return response;
+      const response = await apiClient.get(`/automaton-contracts/by-user/${userId}`);
+      return response.data;
     } catch (error) {
-      throw ErrorService.handleApiError(error, 'errors.general.get_failed', false);
+      throw error;
     }
   },
   
@@ -265,4 +226,4 @@ const ContractService = {
   }
 };
 
-export default ContractService;
+export default automatonContractService;
