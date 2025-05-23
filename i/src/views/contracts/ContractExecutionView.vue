@@ -48,31 +48,36 @@
 
       <!-- Si des données sont trouvées -->
       <div v-else class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <!-- Colonne gauche: liste des clauses -->
+        <!-- Colonne gauche: liste des automates -->
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700">
           <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-            Clauses disponibles
+            Automates disponibles
           </h2>
           
           <div class="space-y-3">
-            <div v-for="(info, clauseName) in deploymentInfo" :key="clauseName"
-                 @click="selectClause(clauseName)"
+            <div v-for="(info, clauseKey) in deploymentInfo" :key="clauseKey"
+                 @click="selectClause(clauseKey)"
                  :class="[
                    'p-3 rounded-lg cursor-pointer transition-colors border',
-                   selectedClause === clauseName 
+                   selectedClause === clauseKey 
                      ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800'
                      : 'bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600'
                  ]"
             >
-              <div class="flex justify-between items-center">
-                <h3 class="font-medium" :class="selectedClause === clauseName ? 'text-blue-700 dark:text-blue-300' : 'text-gray-700 dark:text-gray-300'">
-                  {{ formatClauseName(clauseName) }}
-                </h3>
-                <LucideChevronRight v-if="selectedClause === clauseName" class="w-5 h-5 text-blue-500 dark:text-blue-400" />
+              <div class="flex justify-between items-start">
+                <div class="flex-1">
+                  <h3 class="font-medium" :class="selectedClause === clauseKey ? 'text-blue-700 dark:text-blue-300' : 'text-gray-700 dark:text-gray-300'">
+                    {{ getAutomateName(clauseKey) }}
+                  </h3>
+                  <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                    {{ clauseKey }}
+                  </p>
+                  <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 truncate">
+                    {{ info.address }}
+                  </p>
+                </div>
+                <LucideChevronRight v-if="selectedClause === clauseKey" class="w-5 h-5 text-blue-500 dark:text-blue-400 flex-shrink-0 ml-2" />
               </div>
-              <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 truncate">
-                {{ info.address }}
-              </p>
             </div>
           </div>
         </div>
@@ -82,18 +87,18 @@
           <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
             <span>Fonctions disponibles</span>
             <span v-if="selectedClause" class="ml-2 text-sm font-normal text-gray-500 dark:text-gray-400">
-              ({{ formatClauseName(selectedClause) }})
+              ({{ getAutomateName(selectedClause) }})
             </span>
           </h2>
 
           <div v-if="!selectedClause" class="text-center py-8 text-gray-500 dark:text-gray-400">
             <LucideFileSearch class="w-12 h-12 mx-auto mb-3 opacity-40" />
-            <p>Veuillez sélectionner une clause pour voir les fonctions disponibles</p>
+            <p>Veuillez sélectionner un automate pour voir les fonctions disponibles</p>
           </div>
 
           <div v-else-if="availableFunctions.length === 0" class="text-center py-8 text-gray-500 dark:text-gray-400">
             <LucideFileX class="w-12 h-12 mx-auto mb-3 opacity-40" />
-            <p>Aucune fonction disponible pour cette clause</p>
+            <p>Aucune fonction disponible pour cet automate</p>
           </div>
 
           <div v-else class="space-y-3">
@@ -152,24 +157,30 @@
             </div>
 
             <!-- Paramètres de la fonction (s'il y en a) -->
-            <div  class="mb-4">
+            <div class="mb-4">
               <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Paramètres
               </h4>
               
-              <div v-for="(input, index) in selectedFunction.inputs" :key="index" class="mb-3">
-                <label :for="`input-${index}`" class="block text-sm text-gray-600 dark:text-gray-400 mb-1">
-                  {{ input.name || `Paramètre ${index + 1}` }} 
-                  <span class="text-xs text-gray-500">
-                    ({{ input.type }})
-                  </span>
-                </label>
-                <input 
-                  :id="`input-${index}`"
-                  v-model="functionInputs[index]"
-                  :placeholder="getInputPlaceholder(input)"
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
-                />
+              <div v-if="selectedFunction.inputs && selectedFunction.inputs.length > 0">
+                <div v-for="(input, index) in selectedFunction.inputs" :key="index" class="mb-3">
+                  <label :for="`input-${index}`" class="block text-sm text-gray-600 dark:text-gray-400 mb-1">
+                    {{ input.name || `Paramètre ${index + 1}` }} 
+                    <span class="text-xs text-gray-500">
+                      ({{ input.type }})
+                    </span>
+                  </label>
+                  <input 
+                    :id="`input-${index}`"
+                    v-model="functionInputs[index]"
+                    :placeholder="getInputPlaceholder(input)"
+                    class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-300"
+                  />
+                </div>
+              </div>
+              
+              <div v-else class="text-sm text-gray-500 dark:text-gray-400 italic">
+                Cette fonction ne nécessite aucun paramètre
               </div>
             </div>
 
@@ -226,18 +237,21 @@ import {
   LucideAlertTriangle
 } from 'lucide-vue-next';
 import { useSmartContractStore } from '@/stores/smartContractStore';
+import { useAutomatonContractStore } from '@/stores/automatonContractStore';
 import toast from '@/composables/Toast/useToast';
 
 const route = useRoute();
 const router = useRouter();
 
-// Store
+// Stores
 const smartContractStore = useSmartContractStore();
+const automatonContractStore = useAutomatonContractStore();
 
 // États
 const contractName = ref('');
 const contractId = ref('');
 const deploymentInfo = ref(null);
+const originalContractData = ref(null); // : Stockage des données originales du contrat
 const isLoading = ref(true);
 const selectedClause = ref(null);
 const selectedFunction = ref(null);
@@ -249,15 +263,32 @@ const executionLoading = computed(() => smartContractStore.executionLoading);
 const argsString = ref('');
 const argsError = ref('');
 
-// Formater le nom d'une clause pour l'affichage
-const formatClauseName = (name) => {
-  if (!name) return 'Clause';
+// : Fonction pour obtenir le vrai nom de l'automate
+const getAutomateName = (clauseKey) => {
+  // Si on a les données originales du contrat, utiliser les vrais noms
+  if (originalContractData.value && originalContractData.value.automates) {
+    // Extraire le numéro de l'automate depuis la clé (ex: "Automata0" -> 0)
+    const automatonIndex = parseInt(clauseKey.replace('Automata', ''));
+    
+    if (!isNaN(automatonIndex) && originalContractData.value.automates[automatonIndex]) {
+      const automate = originalContractData.value.automates[automatonIndex];
+      return automate.name || `Automate ${automatonIndex + 1}`;
+    }
+  }
   
-  // Transformer "Automata0" en "Clause 1"
+  // Fallback: formatage par défaut si pas de données originales
+  return formatClauseName(clauseKey);
+};
+
+// Formater le nom d'une clause pour l'affichage (fallback)
+const formatClauseName = (name) => {
+  if (!name) return 'Automate';
+  
+  // Transformer "Automata0" en "Automate 1"
   if (name.startsWith('Automata')) {
     const num = name.replace('Automata', '');
     if (!isNaN(parseInt(num))) {
-      return `Clause ${parseInt(num) + 1}`;
+      return `Automate ${parseInt(num) + 1}`;
     }
   }
   
@@ -388,7 +419,7 @@ const formatExecutionResult = (result) => {
 // Exécuter la fonction sélectionnée
 const executeFunction = async () => {
   if (!selectedClause.value || !selectedFunction.value) {
-    toast.error('Veuillez sélectionner une clause et une fonction');
+    toast.error('Veuillez sélectionner un automate et une fonction');
     return;
   }
 
@@ -410,16 +441,23 @@ const executeFunction = async () => {
       return value;
     });
 
-    // Exécution via le store
+    // Utiliser contractId.value au lieu de contractName.value
     const result = await smartContractStore.executeContractFunction(
-      contractName.value,
+      contractId.value, 
       selectedClause.value,
       selectedFunction.value.name,
       processedInputs
     );
 
+    console.log('🚀 Exécution avec:', {
+      contractId: contractId.value,
+      contractName: contractName.value,
+      clause: selectedClause.value,
+      function: selectedFunction.value.name,
+      inputs: processedInputs
+    });
+
     if (result.success) {
-      // ✅ La nouvelle structure : `result.data.result`
       executionResult.value = result.data.result ?? result.data;
       toast.success('Fonction exécutée avec succès');
     } else {
@@ -432,7 +470,22 @@ const executeFunction = async () => {
     toast.error(`Erreur: ${error.message}`);
   }
 };
-
+// Charger les données originales du contrat
+const loadOriginalContractData = async (contractName) => {
+  try {
+    
+    const result = await automatonContractStore.fetchContractById(contractName);
+    
+    if (result.success && result.data) {
+      originalContractData.value = result.data;
+      return true;
+    } else {
+      return false;
+    }
+  } catch (error) {
+    return false;
+  }
+};
 
 // Charger les informations du contrat
 const loadContractInfo = async () => {
@@ -447,7 +500,19 @@ const loadContractInfo = async () => {
     }
     
     contractId.value = name;
-    contractName.value = name;
+    
+    // : Charger d'abord les données originales du contrat
+    const originalDataLoaded = await loadOriginalContractData(name);
+    
+    // : Utiliser le vrai nom du contrat si disponible
+    if (originalDataLoaded && originalContractData.value && originalContractData.value.name) {
+      contractName.value = originalContractData.value.name;
+      console.log('Nom du contrat récupéré:', contractName.value);
+    } else {
+      // Fallback: utiliser l'ID comme nom
+      contractName.value = name;
+      console.log(' Utilisation de l\'ID comme nom:', contractName.value);
+    }
     
     // Essayer d'abord de récupérer depuis localStorage (pour compatibilité)
     const storedData = localStorage.getItem(`contract_deployment_${name}`);
