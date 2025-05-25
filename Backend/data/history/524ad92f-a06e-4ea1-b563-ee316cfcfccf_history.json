@@ -1,0 +1,62 @@
+{
+  "events": [
+    {
+      "timestamp": "2025-05-22T13:43:18.276198+00:00",
+      "contract_id": "524ad92f-a06e-4ea1-b563-ee316cfcfccf",
+      "event_type": "create",
+      "user_id": "admin@localhost.com",
+      "details": {
+        "automatons_count": 1
+      }
+    },
+    {
+      "timestamp": "2025-05-22T13:43:26.731441+00:00",
+      "contract_id": "524ad92f-a06e-4ea1-b563-ee316cfcfccf",
+      "event_type": "deploy",
+      "user_id": "admin@localhost.com",
+      "details": {
+        "automatons_count": 1
+      }
+    },
+    {
+      "timestamp": "2025-05-22T13:43:30.280490+00:00",
+      "contract_id": "524ad92f-a06e-4ea1-b563-ee316cfcfccf",
+      "event_type": "update",
+      "user_id": "admin@localhost.com",
+      "details": {
+        "automatons_count": 1
+      }
+    },
+    {
+      "timestamp": "2025-05-22T13:43:38.319373+00:00",
+      "contract_id": "524ad92f-a06e-4ea1-b563-ee316cfcfccf",
+      "event_type": "execute",
+      "user_id": "admin@localhost.com",
+      "details": {
+        "automaton": "Automata0",
+        "function": "to_completed",
+        "args": [],
+        "result": "True"
+      }
+    },
+    {
+      "timestamp": "2025-05-22T13:43:42.430404+00:00",
+      "contract_id": "524ad92f-a06e-4ea1-b563-ee316cfcfccf",
+      "event_type": "execute",
+      "user_id": "admin@localhost.com",
+      "details": {
+        "automaton": "Automata0",
+        "function": "is_completed",
+        "args": [],
+        "result": "True"
+      }
+    },
+    {
+      "timestamp": "2025-05-22T14:38:43.638697+00:00",
+      "contract_id": "524ad92f-a06e-4ea1-b563-ee316cfcfccf",
+      "event_type": "delete",
+      "user_id": "admin@localhost.com",
+      "details": {}
+    }
+  ]
+}

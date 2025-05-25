@@ -1,0 +1,31 @@
+{
+  "events": [
+    {
+      "timestamp": "2025-05-25T10:07:01.236016+00:00",
+      "contract_id": "31b2dbb9-8fb3-4aad-a339-1c7c5e078435",
+      "event_type": "create",
+      "user_id": "admin@localhost.com",
+      "details": {
+        "automatons_count": 2
+      }
+    },
+    {
+      "timestamp": "2025-05-25T10:07:11.823785+00:00",
+      "contract_id": "31b2dbb9-8fb3-4aad-a339-1c7c5e078435",
+      "event_type": "deploy",
+      "user_id": "admin@localhost.com",
+      "details": {
+        "automatons_count": 1
+      }
+    },
+    {
+      "timestamp": "2025-05-25T10:07:15.409941+00:00",
+      "contract_id": "31b2dbb9-8fb3-4aad-a339-1c7c5e078435",
+      "event_type": "update",
+      "user_id": "admin@localhost.com",
+      "details": {
+        "automatons_count": 2
+      }
+    }
+  ]
+}

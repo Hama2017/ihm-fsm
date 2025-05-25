@@ -1,0 +1,253 @@
+{
+  "events": [
+    {
+      "timestamp": "2025-05-25T08:58:44.327856+00:00",
+      "contract_id": "28ba114b-acdb-4979-b72f-ff47e5656793",
+      "event_type": "update",
+      "user_id": "t.diaye@slc.com",
+      "details": {
+        "automatons_count": 4
+      }
+    },
+    {
+      "timestamp": "2025-05-25T08:58:44.383557+00:00",
+      "contract_id": "28ba114b-acdb-4979-b72f-ff47e5656793",
+      "event_type": "execute",
+      "user_id": "t.diaye@slc.com",
+      "details": {
+        "automaton": "Automata1",
+        "function": "is_completed",
+        "args": [],
+        "result": "True"
+      }
+    },
+    {
+      "timestamp": "2025-05-25T08:58:44.457857+00:00",
+      "contract_id": "28ba114b-acdb-4979-b72f-ff47e5656793",
+      "event_type": "execute",
+      "user_id": "t.diaye@slc.com",
+      "details": {
+        "automaton": "Automata2",
+        "function": "is_completed",
+        "args": [],
+        "result": "True"
+      }
+    },
+    {
+      "timestamp": "2025-05-25T08:58:44.728574+00:00",
+      "contract_id": "28ba114b-acdb-4979-b72f-ff47e5656793",
+      "event_type": "execute",
+      "user_id": "t.diaye@slc.com",
+      "details": {
+        "automaton": "Automata0",
+        "function": "is_completed",
+        "args": [],
+        "result": "True"
+      }
+    },
+    {
+      "timestamp": "2025-05-25T08:58:44.799450+00:00",
+      "contract_id": "28ba114b-acdb-4979-b72f-ff47e5656793",
+      "event_type": "execute",
+      "user_id": "t.diaye@slc.com",
+      "details": {
+        "automaton": "Automata1",
+        "function": "is_completed",
+        "args": [],
+        "result": "True"
+      }
+    },
+    {
+      "timestamp": "2025-05-25T08:58:44.863242+00:00",
+      "contract_id": "28ba114b-acdb-4979-b72f-ff47e5656793",
+      "event_type": "execute",
+      "user_id": "t.diaye@slc.com",
+      "details": {
+        "automaton": "Automata2",
+        "function": "is_completed",
+        "args": [],
+        "result": "True"
+      }
+    },
+    {
+      "timestamp": "2025-05-25T08:58:49.756885+00:00",
+      "contract_id": "28ba114b-acdb-4979-b72f-ff47e5656793",
+      "event_type": "execute",
+      "user_id": "t.diaye@slc.com",
+      "details": {
+        "automaton": "Automata0",
+        "function": "is_completed",
+        "args": [],
+        "result": "True"
+      }
+    },
+    {
+      "timestamp": "2025-05-25T08:58:49.837354+00:00",
+      "contract_id": "28ba114b-acdb-4979-b72f-ff47e5656793",
+      "event_type": "execute",
+      "user_id": "t.diaye@slc.com",
+      "details": {
+        "automaton": "Automata1",
+        "function": "is_completed",
+        "args": [],
+        "result": "True"
+      }
+    },
+    {
+      "timestamp": "2025-05-25T08:58:49.913159+00:00",
+      "contract_id": "28ba114b-acdb-4979-b72f-ff47e5656793",
+      "event_type": "execute",
+      "user_id": "t.diaye@slc.com",
+      "details": {
+        "automaton": "Automata2",
+        "function": "is_completed",
+        "args": [],
+        "result": "True"
+      }
+    },
+    {
+      "timestamp": "2025-05-25T08:58:55.036379+00:00",
+      "contract_id": "28ba114b-acdb-4979-b72f-ff47e5656793",
+      "event_type": "execute",
+      "user_id": "t.diaye@slc.com",
+      "details": {
+        "automaton": "Automata0",
+        "function": "is_completed",
+        "args": [],
+        "result": "True"
+      }
+    },
+    {
+      "timestamp": "2025-05-25T08:58:55.096860+00:00",
+      "contract_id": "28ba114b-acdb-4979-b72f-ff47e5656793",
+      "event_type": "execute",
+      "user_id": "t.diaye@slc.com",
+      "details": {
+        "automaton": "Automata1",
+        "function": "is_completed",
+        "args": [],
+        "result": "True"
+      }
+    },
+    {
+      "timestamp": "2025-05-25T08:58:55.147565+00:00",
+      "contract_id": "28ba114b-acdb-4979-b72f-ff47e5656793",
+      "event_type": "execute",
+      "user_id": "t.diaye@slc.com",
+      "details": {
+        "automaton": "Automata2",
+        "function": "is_completed",
+        "args": [],
+        "result": "True"
+      }
+    },
+    {
+      "timestamp": "2025-05-25T08:58:59.741656+00:00",
+      "contract_id": "28ba114b-acdb-4979-b72f-ff47e5656793",
+      "event_type": "execute",
+      "user_id": "t.diaye@slc.com",
+      "details": {
+        "automaton": "Automata0",
+        "function": "is_completed",
+        "args": [],
+        "result": "True"
+      }
+    },
+    {
+      "timestamp": "2025-05-25T08:58:59.817679+00:00",
+      "contract_id": "28ba114b-acdb-4979-b72f-ff47e5656793",
+      "event_type": "execute",
+      "user_id": "t.diaye@slc.com",
+      "details": {
+        "automaton": "Automata1",
+        "function": "is_completed",
+        "args": [],
+        "result": "True"
+      }
+    },
+    {
+      "timestamp": "2025-05-25T08:58:59.887680+00:00",
+      "contract_id": "28ba114b-acdb-4979-b72f-ff47e5656793",
+      "event_type": "execute",
+      "user_id": "t.diaye@slc.com",
+      "details": {
+        "automaton": "Automata2",
+        "function": "is_completed",
+        "args": [],
+        "result": "True"
+      }
+    },
+    {
+      "timestamp": "2025-05-25T08:59:04.717244+00:00",
+      "contract_id": "28ba114b-acdb-4979-b72f-ff47e5656793",
+      "event_type": "execute",
+      "user_id": "t.diaye@slc.com",
+      "details": {
+        "automaton": "Automata0",
+        "function": "is_completed",
+        "args": [],
+        "result": "True"
+      }
+    },
+    {
+      "timestamp": "2025-05-25T08:59:04.780493+00:00",
+      "contract_id": "28ba114b-acdb-4979-b72f-ff47e5656793",
+      "event_type": "execute",
+      "user_id": "t.diaye@slc.com",
+      "details": {
+        "automaton": "Automata1",
+        "function": "is_completed",
+        "args": [],
+        "result": "True"
+      }
+    },
+    {
+      "timestamp": "2025-05-25T08:59:04.843893+00:00",
+      "contract_id": "28ba114b-acdb-4979-b72f-ff47e5656793",
+      "event_type": "execute",
+      "user_id": "t.diaye@slc.com",
+      "details": {
+        "automaton": "Automata2",
+        "function": "is_completed",
+        "args": [],
+        "result": "True"
+      }
+    },
+    {
+      "timestamp": "2025-05-25T08:59:09.734974+00:00",
+      "contract_id": "28ba114b-acdb-4979-b72f-ff47e5656793",
+      "event_type": "execute",
+      "user_id": "t.diaye@slc.com",
+      "details": {
+        "automaton": "Automata0",
+        "function": "is_completed",
+        "args": [],
+        "result": "True"
+      }
+    },
+    {
+      "timestamp": "2025-05-25T08:59:09.804926+00:00",
+      "contract_id": "28ba114b-acdb-4979-b72f-ff47e5656793",
+      "event_type": "execute",
+      "user_id": "t.diaye@slc.com",
+      "details": {
+        "automaton": "Automata1",
+        "function": "is_completed",
+        "args": [],
+        "result": "True"
+      }
+    },
+    {
+      "timestamp": "2025-05-25T08:59:09.871844+00:00",
+      "contract_id": "28ba114b-acdb-4979-b72f-ff47e5656793",
+      "event_type": "execute",
+      "user_id": "t.diaye@slc.com",
+      "details": {
+        "automaton": "Automata2",
+        "function": "is_completed",
+        "args": [],
+        "result": "True"
+      }
+    }
+  ]
+}

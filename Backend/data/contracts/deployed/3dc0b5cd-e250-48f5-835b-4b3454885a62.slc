@@ -1,0 +1,46 @@
+{
+  "name": "3dc0b5cd-e250-48f5-835b-4b3454885a62",
+  "deployed_at": "2025-05-24T13:31:39.530216+00:00",
+  "deployed_by": "hamaba2016@gmail.com",
+  "source_contract": "3dc0b5cd-e250-48f5-835b-4b3454885a62.slac",
+  "automatons": {
+    "Automata0": {
+      "address": "0x7a2088a1bFc9d81c55368AE168C2C02570cB814F",
+      "abi": [
+        {
+          "inputs": [],
+          "name": "get_current_state",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "is_completed",
+          "outputs": [
+            {
+              "internalType": "bool",
+              "name": "",
+              "type": "bool"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "refuser",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        }
+      ]
+    }
+  }
+}

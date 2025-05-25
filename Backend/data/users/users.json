@@ -1,0 +1,68 @@
+[
+  {
+    "firstName": "MAXENCE",
+    "lastName": "LAMBARD",
+    "email": "admin@localhost.com",
+    "hashedPassword": "$2b$12$z0nM6v5OLpeYNN4vwZ5ymepj3cW6LXjiUN1lDbluFzOYA78WAQBLO",
+    "role": "admin",
+    "profilePicture": "284a8bef88f04e4fb392788fbb5dc11e.jpg",
+    "createdAt": "2025-05-19 09:26:55.029695+00:00",
+    "refreshToken": "yvEQr9OcC0qBzTpGknvlbnH02ixiRRtnjXwtVD4XzH-4hihtz7_vuravVxEwkaDZ7-4Mr_2tJtMLg3d86cHaDA",
+    "refreshTokenExpiresAt": "2025-06-01 09:55:01.379550+00:00"
+  },
+  {
+    "firstName": "Hamadou",
+    "lastName": "Ba",
+    "email": "hamaba2016@gmail.com",
+    "hashedPassword": "$2b$12$xQRY7e/qy4MMqHsdTQjqqufVVZiwdcgcrm6CLTOHtXvvMhsPydVgq",
+    "role": "user",
+    "profilePicture": null,
+    "createdAt": "2025-05-23 17:07:56.317724+00:00",
+    "refreshToken": "aOfJUGQJsf3H40pzKIwDpGblRfV4KGglFPLByyYkPA1MqIbG2_6F51FjAX5iiX88Y-OgrOimrnXLBlXhgTXLtQ",
+    "refreshTokenExpiresAt": "2025-05-31 18:25:16.528508+00:00"
+  },
+  {
+    "firstName": "asa",
+    "lastName": "sas",
+    "email": "asa@gmail.com",
+    "hashedPassword": "$2b$12$IviUEPgYaorZh2oNmRV54O46kgX5Pdt6QuJS0A3HP6miPFUZCYMJG",
+    "role": "user",
+    "profilePicture": null,
+    "createdAt": "2025-05-24 17:40:04.007596+00:00",
+    "refreshToken": "Cv2QF4gElUeRi6t94iWuBrj93U1HcQyJjAEEjQLMBvifXa9Agn3bJjf7FJnZkpV4FXesTrUUOg-2ynGUSQ7msw",
+    "refreshTokenExpiresAt": "2025-05-31 17:40:07.818960+00:00"
+  },
+  {
+    "firstName": "sd",
+    "lastName": "sds",
+    "email": "hamabaa2016@gmail.com",
+    "hashedPassword": "$2b$12$WPnd6hSimDBFRhiDBNzsAeY2mClkv5ekc1rKRMVlfq6Jjh8nkf2pi",
+    "role": "user",
+    "profilePicture": null,
+    "createdAt": "2025-05-24 18:37:22.638308+00:00",
+    "refreshToken": "i2iQCs9qqKChckIaN0e8ni6DDzPC-f_X3LZMbWOV94McFrpnnJS5jB8po6WvuBCD13KZfDPMu58imU6ay5EMfA",
+    "refreshTokenExpiresAt": "2025-05-31 18:37:26.900785+00:00"
+  },
+  {
+    "firstName": "Tacko",
+    "lastName": "Ndiaye",
+    "email": "t.diaye@slc.com",
+    "hashedPassword": "$2b$12$rPR4kJvO8lY.0WShFdaDHuMMybRewQIzl7bjJMLp2oZ6NNAugauyW",
+    "role": "user",
+    "profilePicture": null,
+    "createdAt": "2025-05-25 08:15:24.428097+00:00",
+    "refreshToken": "T4E05N1pWhJrHxpGI1gkQnkkjFagUdpdOqhwXkS8QhqL1TkU9BwgLc3Wu-OTCRKzXxkKCFEgGuvCQMuI3ujXOQ",
+    "refreshTokenExpiresAt": "2025-06-01 09:19:50.757506+00:00"
+  },
+  {
+    "firstName": "Hama",
+    "lastName": "BA",
+    "email": "h.ba@slc.com",
+    "hashedPassword": "$2b$12$7qqqJt42.pJb6L2YlRZWDOXyKrRcdr2mwrR1qA8.8cxn46Dc0BcDq",
+    "role": "user",
+    "profilePicture": "d016453553b0450ab3440938ec0ccb80.jpg",
+    "createdAt": "2025-05-25 10:36:41.637871+00:00",
+    "refreshToken": "zSkbRXereFuAXPxdDooI8_tOo0iyh7o3s4vDi2m4ERkuYhkoAve_TET4NcbYWPHXOI567N4kqypbdKkvJ15Y5A",
+    "refreshTokenExpiresAt": "2025-06-01 10:36:45.650592+00:00"
+  }
+]

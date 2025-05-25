@@ -1,0 +1,74 @@
+{
+  "name": "31b2dbb9-8fb3-4aad-a339-1c7c5e078435",
+  "deployed_at": "2025-05-25T10:07:11.821339+00:00",
+  "deployed_by": "admin@localhost.com",
+  "source_contract": "31b2dbb9-8fb3-4aad-a339-1c7c5e078435.slac",
+  "automatons": {
+    "Automata0": {
+      "address": "0x68B1D87F95878fE05B998F19b66F4baba5De1aed",
+      "abi": [
+        {
+          "inputs": [],
+          "name": "etat1_to_etat2",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "etat2_to_completed",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "etat2_to_etat1",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "get_current_state",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "initial_to_etat1",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "is_completed",
+          "outputs": [
+            {
+              "internalType": "bool",
+              "name": "",
+              "type": "bool"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "to_completed",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        }
+      ]
+    }
+  }
+}

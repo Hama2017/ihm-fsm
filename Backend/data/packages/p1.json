@@ -1,0 +1,23 @@
+{
+  "id": "p1",
+  "label": "Package 1",
+  "description": "This is the first package in the test suite.",
+  "name": "p1",
+  "functions": {
+    "get_current_state": {
+      "code": "function get_current_state() public view returns (uint) { return uint(currentState); }",
+      "default": true
+    },
+    "is_completed": {
+      "code": "function is_completed() public view returns (bool) { return currentState == State.COMPLETED; }",
+      "default": true
+    },
+    "to_completed": {
+      "code": "function to_completed() public {currentState = State.COMPLETED;}",
+      "default": true
+    }
+  },
+  "structs": [],
+  "variables": [],
+  "required_packages": null
+}

@@ -1,0 +1,159 @@
+{
+  "id": "3b062a9d-2f3a-43f8-9d0c-1b692b33efcf",
+  "name": "Contrat de prestation TACKO X HAMADOU",
+  "status": "completed",
+  "createdAt": "2025-05-25 08:17:33.704946+00:00",
+  "updatedAt": "2025-05-25 09:10:28.417883+00:00",
+  "createdBy": "t.diaye@slc.com",
+  "description": "",
+  "automates": [
+    {
+      "id": "01",
+      "name": "Clause de paiement",
+      "active": false,
+      "states": [
+        {
+          "id": "state-initial",
+          "label": "INITIAL",
+          "position": {
+            "x": 20.0,
+            "y": 0.0
+          },
+          "type": "default",
+          "sourcePosition": "bottom",
+          "targetPosition": "top",
+          "automataKey": null,
+          "automateId": null,
+          "executionStatus": null
+        },
+        {
+          "id": "state-completed",
+          "label": "COMPLETED",
+          "position": {
+            "x": 300.0,
+            "y": 150.0
+          },
+          "type": "default",
+          "sourcePosition": "bottom",
+          "targetPosition": "top",
+          "automataKey": null,
+          "automateId": null,
+          "executionStatus": null
+        }
+      ],
+      "transitions": [
+        {
+          "id": "edge-1748161046852",
+          "source": "state-initial",
+          "target": "state-completed",
+          "label": "initial_to_completed",
+          "markerEnd": "arrowclosed",
+          "conditions": [],
+          "automataDependencies": []
+        }
+      ],
+      "executionMetadata": null
+    },
+    {
+      "id": "02",
+      "name": "b",
+      "active": true,
+      "states": [
+        {
+          "id": "state-initial",
+          "label": "INITIAL",
+          "position": {
+            "x": 20.0,
+            "y": 0.0
+          },
+          "type": "default",
+          "sourcePosition": "bottom",
+          "targetPosition": null,
+          "automataKey": null,
+          "automateId": null,
+          "executionStatus": null
+        },
+        {
+          "id": "state-completed",
+          "label": "COMPLETED",
+          "position": {
+            "x": 300.0,
+            "y": 150.0
+          },
+          "type": "default",
+          "sourcePosition": null,
+          "targetPosition": "top",
+          "automataKey": null,
+          "automateId": null,
+          "executionStatus": null
+        }
+      ],
+      "transitions": [
+        {
+          "id": "edge-1748163566494",
+          "source": "state-initial",
+          "target": "state-completed",
+          "label": "initial_to_completed",
+          "markerEnd": "arrowclosed",
+          "conditions": [],
+          "automataDependencies": [
+            "01"
+          ]
+        }
+      ],
+      "executionMetadata": null
+    },
+    {
+      "id": "flow-deploiement",
+      "name": "Flow D\u00e9ploiement",
+      "active": false,
+      "states": [
+        {
+          "id": "deployment-state-01",
+          "label": "Clause de paiement",
+          "position": {
+            "x": 200.0,
+            "y": 200.0
+          },
+          "type": "standard",
+          "sourcePosition": null,
+          "targetPosition": null,
+          "automataKey": "Automata0",
+          "automateId": "01",
+          "executionStatus": "active"
+        },
+        {
+          "id": "deployment-state-02",
+          "label": "b",
+          "position": {
+            "x": 500.0,
+            "y": 200.0
+          },
+          "type": "standard",
+          "sourcePosition": null,
+          "targetPosition": null,
+          "automataKey": "Automata1",
+          "automateId": "02",
+          "executionStatus": "pending"
+        }
+      ],
+      "transitions": [
+        {
+          "id": "deployment-edge-01-to-02",
+          "source": "deployment-state-01",
+          "target": "deployment-state-02",
+          "label": "Depends On",
+          "markerEnd": "arrowclosed",
+          "conditions": [],
+          "automataDependencies": null
+        }
+      ],
+      "executionMetadata": {
+        "completedAutomates": [],
+        "contractId": "3b062a9d-2f3a-43f8-9d0c-1b692b33efcf",
+        "globalStatus": "pending",
+        "lastUpdated": "2025-05-25 08:59:44.041000+00:00"
+      }
+    }
+  ]
+}

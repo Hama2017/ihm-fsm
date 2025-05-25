@@ -1,0 +1,220 @@
+{
+  "id": "28ba114b-acdb-4979-b72f-ff47e5656793",
+  "name": "Contract de prestation KOUDITECH X GOOGLE",
+  "status": "completed",
+  "createdAt": "2025-05-25 08:16:28.114269+00:00",
+  "updatedAt": "2025-05-25 08:58:44.324836+00:00",
+  "createdBy": "t.diaye@slc.com",
+  "description": "",
+  "automates": [
+    {
+      "id": "01",
+      "name": "Clause 1",
+      "active": false,
+      "states": [
+        {
+          "id": "state-initial",
+          "label": "INITIAL",
+          "position": {
+            "x": 49.0,
+            "y": 18.75
+          },
+          "type": "default",
+          "sourcePosition": "bottom",
+          "targetPosition": null,
+          "automataKey": null,
+          "automateId": null,
+          "executionStatus": null
+        },
+        {
+          "id": "state-completed",
+          "label": "COMPLETED",
+          "position": {
+            "x": 300.0,
+            "y": 150.0
+          },
+          "type": "default",
+          "sourcePosition": null,
+          "targetPosition": "top",
+          "automataKey": null,
+          "automateId": null,
+          "executionStatus": null
+        }
+      ],
+      "transitions": [
+        {
+          "id": "edge-1748160975090",
+          "source": "state-initial",
+          "target": "state-completed",
+          "label": "initial_to_completed",
+          "markerEnd": "arrowclosed",
+          "conditions": [],
+          "automataDependencies": []
+        }
+      ],
+      "executionMetadata": null
+    },
+    {
+      "id": "02",
+      "name": "Clause 2",
+      "active": false,
+      "states": [
+        {
+          "id": "state-initial",
+          "label": "INITIAL",
+          "position": {
+            "x": 110.0,
+            "y": 91.125
+          },
+          "type": "default",
+          "sourcePosition": "bottom",
+          "targetPosition": "top",
+          "automataKey": null,
+          "automateId": null,
+          "executionStatus": null
+        },
+        {
+          "id": "state-completed",
+          "label": "COMPLETED",
+          "position": {
+            "x": 313.0,
+            "y": 195.0
+          },
+          "type": "default",
+          "sourcePosition": "bottom",
+          "targetPosition": "top",
+          "automataKey": null,
+          "automateId": null,
+          "executionStatus": null
+        }
+      ],
+      "transitions": [
+        {
+          "id": "edge-1748160984977",
+          "source": "state-initial",
+          "target": "state-completed",
+          "label": "initial_to_completed",
+          "markerEnd": "arrowclosed",
+          "conditions": [],
+          "automataDependencies": []
+        }
+      ],
+      "executionMetadata": null
+    },
+    {
+      "id": "NaN",
+      "name": "a",
+      "active": true,
+      "states": [
+        {
+          "id": "state-initial",
+          "label": "INITIAL",
+          "position": {
+            "x": 20.0,
+            "y": 0.0
+          },
+          "type": "default",
+          "sourcePosition": "bottom",
+          "targetPosition": null,
+          "automataKey": null,
+          "automateId": null,
+          "executionStatus": null
+        },
+        {
+          "id": "state-completed",
+          "label": "COMPLETED",
+          "position": {
+            "x": 300.0,
+            "y": 150.0
+          },
+          "type": "default",
+          "sourcePosition": null,
+          "targetPosition": "top",
+          "automataKey": null,
+          "automateId": null,
+          "executionStatus": null
+        }
+      ],
+      "transitions": [
+        {
+          "id": "edge-1748163311245",
+          "source": "state-initial",
+          "target": "state-completed",
+          "label": "initial_to_completed",
+          "markerEnd": "arrowclosed",
+          "conditions": [],
+          "automataDependencies": [
+            "02"
+          ]
+        }
+      ],
+      "executionMetadata": null
+    },
+    {
+      "id": "flow-deploiement",
+      "name": "Flow D\u00e9ploiement",
+      "active": false,
+      "states": [
+        {
+          "id": "deployment-state-01",
+          "label": "Clause 1",
+          "position": {
+            "x": 200.0,
+            "y": 200.0
+          },
+          "type": "standard",
+          "sourcePosition": null,
+          "targetPosition": null,
+          "automataKey": "Automata0",
+          "automateId": "01",
+          "executionStatus": "active"
+        },
+        {
+          "id": "deployment-state-02",
+          "label": "Clause 2",
+          "position": {
+            "x": 500.0,
+            "y": 200.0
+          },
+          "type": "standard",
+          "sourcePosition": null,
+          "targetPosition": null,
+          "automataKey": "Automata1",
+          "automateId": "02",
+          "executionStatus": "active"
+        },
+        {
+          "id": "deployment-state-NaN",
+          "label": "a",
+          "position": {
+            "x": 800.0,
+            "y": 200.0
+          },
+          "type": "standard",
+          "sourcePosition": null,
+          "targetPosition": null,
+          "automataKey": "Automata2",
+          "automateId": "NaN",
+          "executionStatus": "pending"
+        }
+      ],
+      "transitions": [
+        {
+          "id": "deployment-edge-02-to-NaN",
+          "source": "deployment-state-02",
+          "target": "deployment-state-NaN",
+          "label": "Depends On",
+          "markerEnd": "arrowclosed",
+          "conditions": [],
+          "automataDependencies": null
+        }
+      ],
+      "executionMetadata": {
+        "completedAutomates": [],
+        "contractId": "28ba114b-acdb-4979-b72f-ff47e5656793",
+        "globalStatus": "pending",
+        "lastUpdated": "2025-05-25 08:55:45.380000+00:00"
+      }
+    }
+  ]
+}

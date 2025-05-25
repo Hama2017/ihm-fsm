@@ -1,0 +1,53 @@
+{
+  "name": "c2d128ac-b1e8-4554-82f1-a3026d369949",
+  "deployed_at": "2025-05-25T09:54:15.283828+00:00",
+  "deployed_by": "admin@localhost.com",
+  "source_contract": "c2d128ac-b1e8-4554-82f1-a3026d369949.slac",
+  "automatons": {
+    "Automata0": {
+      "address": "0x0B306BF915C4d645ff596e518fAf3F9669b97016",
+      "abi": [
+        {
+          "inputs": [],
+          "name": "completed_to_initial",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "get_current_state",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "is_completed",
+          "outputs": [
+            {
+              "internalType": "bool",
+              "name": "",
+              "type": "bool"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "to_completed",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        }
+      ]
+    }
+  }
+}

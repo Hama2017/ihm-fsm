@@ -1,0 +1,251 @@
+{
+  "events": [
+    {
+      "timestamp": "2025-05-23T04:38:33.687493+00:00",
+      "contract_id": "a3af391f-cfd7-41b7-b376-32ea83bd7c0d",
+      "event_type": "create",
+      "user_id": "admin@localhost.com",
+      "details": {
+        "automatons_count": 2
+      }
+    },
+    {
+      "timestamp": "2025-05-23T04:38:34.623930+00:00",
+      "contract_id": "a3af391f-cfd7-41b7-b376-32ea83bd7c0d",
+      "event_type": "update",
+      "user_id": "admin@localhost.com",
+      "details": {
+        "automatons_count": 2
+      }
+    },
+    {
+      "timestamp": "2025-05-23T04:38:48.846932+00:00",
+      "contract_id": "a3af391f-cfd7-41b7-b376-32ea83bd7c0d",
+      "event_type": "deploy",
+      "user_id": "admin@localhost.com",
+      "details": {
+        "automatons_count": 2
+      }
+    },
+    {
+      "timestamp": "2025-05-23T04:38:52.393226+00:00",
+      "contract_id": "a3af391f-cfd7-41b7-b376-32ea83bd7c0d",
+      "event_type": "update",
+      "user_id": "admin@localhost.com",
+      "details": {
+        "automatons_count": 2
+      }
+    },
+    {
+      "timestamp": "2025-05-23T04:42:33.457042+00:00",
+      "contract_id": "a3af391f-cfd7-41b7-b376-32ea83bd7c0d",
+      "event_type": "execute",
+      "user_id": "admin@localhost.com",
+      "details": {
+        "automaton": "Automata1",
+        "function": "get_current_state",
+        "args": [],
+        "result": "0"
+      }
+    },
+    {
+      "timestamp": "2025-05-23T04:42:45.273597+00:00",
+      "contract_id": "a3af391f-cfd7-41b7-b376-32ea83bd7c0d",
+      "event_type": "execute",
+      "user_id": "admin@localhost.com",
+      "details": {
+        "automaton": "Automata1",
+        "function": "automata__Automata0__is_completed",
+        "args": [],
+        "result": "False"
+      }
+    },
+    {
+      "timestamp": "2025-05-23T04:42:53.086067+00:00",
+      "contract_id": "a3af391f-cfd7-41b7-b376-32ea83bd7c0d",
+      "event_type": "execute",
+      "user_id": "admin@localhost.com",
+      "details": {
+        "automaton": "Automata1",
+        "function": "is_completed",
+        "args": [],
+        "result": "False"
+      }
+    },
+    {
+      "timestamp": "2025-05-23T04:44:50.503649+00:00",
+      "contract_id": "a3af391f-cfd7-41b7-b376-32ea83bd7c0d",
+      "event_type": "execute",
+      "user_id": "admin@localhost.com",
+      "details": {
+        "automaton": "Automata0",
+        "function": "get_current_state",
+        "args": [],
+        "result": "0"
+      }
+    },
+    {
+      "timestamp": "2025-05-23T04:45:04.060770+00:00",
+      "contract_id": "a3af391f-cfd7-41b7-b376-32ea83bd7c0d",
+      "event_type": "execute",
+      "user_id": "admin@localhost.com",
+      "details": {
+        "automaton": "Automata0",
+        "function": "is_completed",
+        "args": [],
+        "result": "False"
+      }
+    },
+    {
+      "timestamp": "2025-05-23T04:45:08.596710+00:00",
+      "contract_id": "a3af391f-cfd7-41b7-b376-32ea83bd7c0d",
+      "event_type": "execute",
+      "user_id": "admin@localhost.com",
+      "details": {
+        "automaton": "Automata0",
+        "function": "get_current_state",
+        "args": [],
+        "result": "0"
+      }
+    },
+    {
+      "timestamp": "2025-05-23T04:45:11.539248+00:00",
+      "contract_id": "a3af391f-cfd7-41b7-b376-32ea83bd7c0d",
+      "event_type": "execute",
+      "user_id": "admin@localhost.com",
+      "details": {
+        "automaton": "Automata0",
+        "function": "valider",
+        "args": [],
+        "result": "True"
+      }
+    },
+    {
+      "timestamp": "2025-05-23T04:45:14.403883+00:00",
+      "contract_id": "a3af391f-cfd7-41b7-b376-32ea83bd7c0d",
+      "event_type": "execute",
+      "user_id": "admin@localhost.com",
+      "details": {
+        "automaton": "Automata0",
+        "function": "get_current_state",
+        "args": [],
+        "result": "1"
+      }
+    },
+    {
+      "timestamp": "2025-05-23T04:45:17.176424+00:00",
+      "contract_id": "a3af391f-cfd7-41b7-b376-32ea83bd7c0d",
+      "event_type": "execute",
+      "user_id": "admin@localhost.com",
+      "details": {
+        "automaton": "Automata0",
+        "function": "is_completed",
+        "args": [],
+        "result": "False"
+      }
+    },
+    {
+      "timestamp": "2025-05-23T04:45:19.433145+00:00",
+      "contract_id": "a3af391f-cfd7-41b7-b376-32ea83bd7c0d",
+      "event_type": "execute",
+      "user_id": "admin@localhost.com",
+      "details": {
+        "automaton": "Automata0",
+        "function": "to_completed",
+        "args": [],
+        "result": "True"
+      }
+    },
+    {
+      "timestamp": "2025-05-23T04:45:21.650836+00:00",
+      "contract_id": "a3af391f-cfd7-41b7-b376-32ea83bd7c0d",
+      "event_type": "execute",
+      "user_id": "admin@localhost.com",
+      "details": {
+        "automaton": "Automata0",
+        "function": "get_current_state",
+        "args": [],
+        "result": "2"
+      }
+    },
+    {
+      "timestamp": "2025-05-23T04:45:24.984832+00:00",
+      "contract_id": "a3af391f-cfd7-41b7-b376-32ea83bd7c0d",
+      "event_type": "execute",
+      "user_id": "admin@localhost.com",
+      "details": {
+        "automaton": "Automata1",
+        "function": "get_current_state",
+        "args": [],
+        "result": "0"
+      }
+    },
+    {
+      "timestamp": "2025-05-23T04:45:29.112142+00:00",
+      "contract_id": "a3af391f-cfd7-41b7-b376-32ea83bd7c0d",
+      "event_type": "execute",
+      "user_id": "admin@localhost.com",
+      "details": {
+        "automaton": "Automata1",
+        "function": "valider",
+        "args": [],
+        "result": "True"
+      }
+    },
+    {
+      "timestamp": "2025-05-23T04:45:35.375573+00:00",
+      "contract_id": "a3af391f-cfd7-41b7-b376-32ea83bd7c0d",
+      "event_type": "execute",
+      "user_id": "admin@localhost.com",
+      "details": {
+        "automaton": "Automata1",
+        "function": "get_current_state",
+        "args": [],
+        "result": "1"
+      }
+    },
+    {
+      "timestamp": "2025-05-23T04:45:41.255250+00:00",
+      "contract_id": "a3af391f-cfd7-41b7-b376-32ea83bd7c0d",
+      "event_type": "execute",
+      "user_id": "admin@localhost.com",
+      "details": {
+        "automaton": "Automata1",
+        "function": "is_completed",
+        "args": [],
+        "result": "False"
+      }
+    },
+    {
+      "timestamp": "2025-05-23T04:45:43.154114+00:00",
+      "contract_id": "a3af391f-cfd7-41b7-b376-32ea83bd7c0d",
+      "event_type": "execute",
+      "user_id": "admin@localhost.com",
+      "details": {
+        "automaton": "Automata1",
+        "function": "to_completed",
+        "args": [],
+        "result": "True"
+      }
+    },
+    {
+      "timestamp": "2025-05-23T04:45:44.984054+00:00",
+      "contract_id": "a3af391f-cfd7-41b7-b376-32ea83bd7c0d",
+      "event_type": "execute",
+      "user_id": "admin@localhost.com",
+      "details": {
+        "automaton": "Automata1",
+        "function": "is_completed",
+        "args": [],
+        "result": "True"
+      }
+    },
+    {
+      "timestamp": "2025-05-23T17:40:26.830312+00:00",
+      "contract_id": "a3af391f-cfd7-41b7-b376-32ea83bd7c0d",
+      "event_type": "delete",
+      "user_id": "hamaba2016@gmail.com",
+      "details": {}
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "id": "ptest",
+  "label": "Packet Test",
+  "description": "Packet test",
+  "name": "ptest",
+  "functions": {
+    "test1": {
+      "code": "function package__ptest__test1() public pure returns(bool) { return true;}",
+      "default": false
+    }
+  },
+  "structs": [],
+  "variables": [],
+  "required_packages": null
+}

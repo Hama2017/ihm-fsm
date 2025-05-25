@@ -1,0 +1,86 @@
+{
+  "id": "09544112-18f4-4c11-a289-eac65c03dec8",
+  "name": "test",
+  "status": "completed",
+  "createdAt": "2025-05-25 07:42:48.432496+00:00",
+  "updatedAt": "2025-05-25 07:54:37.882609+00:00",
+  "createdBy": "admin@localhost.com",
+  "description": "",
+  "automates": [
+    {
+      "id": "01",
+      "name": "a",
+      "active": true,
+      "states": [
+        {
+          "id": "state-initial",
+          "label": "INITIAL",
+          "position": {
+            "x": 179.0,
+            "y": 33.0
+          },
+          "type": "default",
+          "sourcePosition": "bottom",
+          "targetPosition": null,
+          "automataKey": null,
+          "automateId": null,
+          "executionStatus": null
+        },
+        {
+          "id": "state-completed",
+          "label": "COMPLETED",
+          "position": {
+            "x": 300.0,
+            "y": 150.0
+          },
+          "type": "default",
+          "sourcePosition": null,
+          "targetPosition": "top",
+          "automataKey": null,
+          "automateId": null,
+          "executionStatus": null
+        }
+      ],
+      "transitions": [
+        {
+          "id": "edge-1748158967312",
+          "source": "state-initial",
+          "target": "state-completed",
+          "label": "initial_to_completed",
+          "markerEnd": "arrowclosed",
+          "conditions": [],
+          "automataDependencies": []
+        }
+      ],
+      "executionMetadata": null
+    },
+    {
+      "id": "flow-deploiement",
+      "name": "Flow D\u00e9ploiement",
+      "active": false,
+      "states": [
+        {
+          "id": "deployment-state-01",
+          "label": "a",
+          "position": {
+            "x": 200.0,
+            "y": 200.0
+          },
+          "type": "standard",
+          "sourcePosition": null,
+          "targetPosition": null,
+          "automataKey": "Automata0",
+          "automateId": "01",
+          "executionStatus": "active"
+        }
+      ],
+      "transitions": [],
+      "executionMetadata": {
+        "completedAutomates": [],
+        "contractId": "09544112-18f4-4c11-a289-eac65c03dec8",
+        "globalStatus": "pending",
+        "lastUpdated": "2025-05-25 07:43:00.619000+00:00"
+      }
+    }
+  ]
+}

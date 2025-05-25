@@ -1,0 +1,158 @@
+{
+  "events": [
+    {
+      "timestamp": "2025-05-22T15:32:16.171089+00:00",
+      "contract_id": "c37750d4-7ef9-4fed-be66-1ca660003ab0",
+      "event_type": "create",
+      "user_id": "admin@localhost.com",
+      "details": {
+        "automatons_count": 2
+      }
+    },
+    {
+      "timestamp": "2025-05-22T15:32:25.820271+00:00",
+      "contract_id": "c37750d4-7ef9-4fed-be66-1ca660003ab0",
+      "event_type": "deploy",
+      "user_id": "admin@localhost.com",
+      "details": {
+        "automatons_count": 2
+      }
+    },
+    {
+      "timestamp": "2025-05-22T15:32:29.408205+00:00",
+      "contract_id": "c37750d4-7ef9-4fed-be66-1ca660003ab0",
+      "event_type": "update",
+      "user_id": "admin@localhost.com",
+      "details": {
+        "automatons_count": 2
+      }
+    },
+    {
+      "timestamp": "2025-05-22T15:32:45.389670+00:00",
+      "contract_id": "c37750d4-7ef9-4fed-be66-1ca660003ab0",
+      "event_type": "execute",
+      "user_id": "admin@localhost.com",
+      "details": {
+        "automaton": "Automata1",
+        "function": "get_current_state",
+        "args": [],
+        "result": "0"
+      }
+    },
+    {
+      "timestamp": "2025-05-22T15:33:09.896953+00:00",
+      "contract_id": "c37750d4-7ef9-4fed-be66-1ca660003ab0",
+      "event_type": "execute",
+      "user_id": "admin@localhost.com",
+      "details": {
+        "automaton": "Automata1",
+        "function": "is_completed",
+        "args": [],
+        "result": "False"
+      }
+    },
+    {
+      "timestamp": "2025-05-22T15:33:11.700104+00:00",
+      "contract_id": "c37750d4-7ef9-4fed-be66-1ca660003ab0",
+      "event_type": "execute",
+      "user_id": "admin@localhost.com",
+      "details": {
+        "automaton": "Automata1",
+        "function": "is_completed",
+        "args": [],
+        "result": "False"
+      }
+    },
+    {
+      "timestamp": "2025-05-22T15:33:12.303211+00:00",
+      "contract_id": "c37750d4-7ef9-4fed-be66-1ca660003ab0",
+      "event_type": "execute",
+      "user_id": "admin@localhost.com",
+      "details": {
+        "automaton": "Automata1",
+        "function": "is_completed",
+        "args": [],
+        "result": "False"
+      }
+    },
+    {
+      "timestamp": "2025-05-22T15:33:12.607932+00:00",
+      "contract_id": "c37750d4-7ef9-4fed-be66-1ca660003ab0",
+      "event_type": "execute",
+      "user_id": "admin@localhost.com",
+      "details": {
+        "automaton": "Automata1",
+        "function": "is_completed",
+        "args": [],
+        "result": "False"
+      }
+    },
+    {
+      "timestamp": "2025-05-22T15:33:12.896132+00:00",
+      "contract_id": "c37750d4-7ef9-4fed-be66-1ca660003ab0",
+      "event_type": "execute",
+      "user_id": "admin@localhost.com",
+      "details": {
+        "automaton": "Automata1",
+        "function": "is_completed",
+        "args": [],
+        "result": "False"
+      }
+    },
+    {
+      "timestamp": "2025-05-22T15:33:13.200188+00:00",
+      "contract_id": "c37750d4-7ef9-4fed-be66-1ca660003ab0",
+      "event_type": "execute",
+      "user_id": "admin@localhost.com",
+      "details": {
+        "automaton": "Automata1",
+        "function": "is_completed",
+        "args": [],
+        "result": "False"
+      }
+    },
+    {
+      "timestamp": "2025-05-22T15:33:13.464321+00:00",
+      "contract_id": "c37750d4-7ef9-4fed-be66-1ca660003ab0",
+      "event_type": "execute",
+      "user_id": "admin@localhost.com",
+      "details": {
+        "automaton": "Automata1",
+        "function": "is_completed",
+        "args": [],
+        "result": "False"
+      }
+    },
+    {
+      "timestamp": "2025-05-22T15:33:13.776990+00:00",
+      "contract_id": "c37750d4-7ef9-4fed-be66-1ca660003ab0",
+      "event_type": "execute",
+      "user_id": "admin@localhost.com",
+      "details": {
+        "automaton": "Automata1",
+        "function": "is_completed",
+        "args": [],
+        "result": "False"
+      }
+    },
+    {
+      "timestamp": "2025-05-22T15:34:45.735431+00:00",
+      "contract_id": "c37750d4-7ef9-4fed-be66-1ca660003ab0",
+      "event_type": "execute",
+      "user_id": "admin@localhost.com",
+      "details": {
+        "automaton": "Automata1",
+        "function": "terminer",
+        "args": [],
+        "result": "True"
+      }
+    },
+    {
+      "timestamp": "2025-05-23T04:36:36.708140+00:00",
+      "contract_id": "c37750d4-7ef9-4fed-be66-1ca660003ab0",
+      "event_type": "delete",
+      "user_id": "admin@localhost.com",
+      "details": {}
+    }
+  ]
+}

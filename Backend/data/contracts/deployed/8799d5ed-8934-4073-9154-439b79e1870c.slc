@@ -1,0 +1,60 @@
+{
+  "name": "8799d5ed-8934-4073-9154-439b79e1870c",
+  "deployed_at": "2025-05-24T09:25:01.843725+00:00",
+  "deployed_by": "admin@localhost.com",
+  "source_contract": "8799d5ed-8934-4073-9154-439b79e1870c.slac",
+  "automatons": {
+    "Automata0": {
+      "address": "0x8A791620dd6260079BF849Dc5567aDC3F2FdC318",
+      "abi": [
+        {
+          "inputs": [],
+          "name": "get_current_state",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "is_completed",
+          "outputs": [
+            {
+              "internalType": "bool",
+              "name": "",
+              "type": "bool"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "reporter",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "to_completed",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "valider",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        }
+      ]
+    }
+  }
+}

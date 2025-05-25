@@ -1,0 +1,60 @@
+{
+  "name": "8bb2c84c-984b-44f2-994d-04900967551a",
+  "deployed_at": "2025-05-24T16:29:50.511720+00:00",
+  "deployed_by": "hamaba2016@gmail.com",
+  "source_contract": "8bb2c84c-984b-44f2-994d-04900967551a.slac",
+  "automatons": {
+    "Automata0": {
+      "address": "0x4826533B4897376654Bb4d4AD88B7faFD0C98528",
+      "abi": [
+        {
+          "inputs": [],
+          "name": "etat1_to_etat2",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "etat2_to_completed",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "get_current_state",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "is_completed",
+          "outputs": [
+            {
+              "internalType": "bool",
+              "name": "",
+              "type": "bool"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "to_completed",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        }
+      ]
+    }
+  }
+}

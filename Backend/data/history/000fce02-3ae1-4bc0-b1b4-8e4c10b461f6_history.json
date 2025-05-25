@@ -1,0 +1,38 @@
+{
+  "events": [
+    {
+      "timestamp": "2025-05-23T23:27:09.160047+00:00",
+      "contract_id": "000fce02-3ae1-4bc0-b1b4-8e4c10b461f6",
+      "event_type": "create",
+      "user_id": "hamaba2016@gmail.com",
+      "details": {
+        "automatons_count": 3
+      }
+    },
+    {
+      "timestamp": "2025-05-23T23:27:19.469994+00:00",
+      "contract_id": "000fce02-3ae1-4bc0-b1b4-8e4c10b461f6",
+      "event_type": "deploy",
+      "user_id": "hamaba2016@gmail.com",
+      "details": {
+        "automatons_count": 2
+      }
+    },
+    {
+      "timestamp": "2025-05-23T23:27:23.085460+00:00",
+      "contract_id": "000fce02-3ae1-4bc0-b1b4-8e4c10b461f6",
+      "event_type": "update",
+      "user_id": "hamaba2016@gmail.com",
+      "details": {
+        "automatons_count": 3
+      }
+    },
+    {
+      "timestamp": "2025-05-23T23:56:31.314722+00:00",
+      "contract_id": "000fce02-3ae1-4bc0-b1b4-8e4c10b461f6",
+      "event_type": "delete",
+      "user_id": "hamaba2016@gmail.com",
+      "details": {}
+    }
+  ]
+}

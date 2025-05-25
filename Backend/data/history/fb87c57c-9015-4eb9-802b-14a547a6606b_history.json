@@ -1,0 +1,35 @@
+{
+  "events": [
+    {
+      "timestamp": "2025-05-24T02:13:12.503411+00:00",
+      "contract_id": "fb87c57c-9015-4eb9-802b-14a547a6606b",
+      "event_type": "execute",
+      "user_id": "hamaba2016@gmail.com",
+      "details": {
+        "automaton": "Automata1",
+        "function": "is_completed",
+        "args": [],
+        "result": "True"
+      }
+    },
+    {
+      "timestamp": "2025-05-24T02:13:12.617140+00:00",
+      "contract_id": "fb87c57c-9015-4eb9-802b-14a547a6606b",
+      "event_type": "execute",
+      "user_id": "hamaba2016@gmail.com",
+      "details": {
+        "automaton": "Automata2",
+        "function": "is_completed",
+        "args": [],
+        "result": "True"
+      }
+    },
+    {
+      "timestamp": "2025-05-24T04:21:38.859402+00:00",
+      "contract_id": "fb87c57c-9015-4eb9-802b-14a547a6606b",
+      "event_type": "delete",
+      "user_id": "hamaba2016@gmail.com",
+      "details": {}
+    }
+  ]
+}

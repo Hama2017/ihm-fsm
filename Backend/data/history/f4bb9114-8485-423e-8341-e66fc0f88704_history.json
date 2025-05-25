@@ -1,0 +1,89 @@
+{
+  "events": [
+    {
+      "timestamp": "2025-05-24T17:46:16.100418+00:00",
+      "contract_id": "f4bb9114-8485-423e-8341-e66fc0f88704",
+      "event_type": "create",
+      "user_id": "asa@gmail.com",
+      "details": {
+        "automatons_count": 1
+      }
+    },
+    {
+      "timestamp": "2025-05-24T17:46:28.472279+00:00",
+      "contract_id": "f4bb9114-8485-423e-8341-e66fc0f88704",
+      "event_type": "update",
+      "user_id": "asa@gmail.com",
+      "details": {
+        "automatons_count": 2
+      }
+    },
+    {
+      "timestamp": "2025-05-24T17:46:55.091062+00:00",
+      "contract_id": "f4bb9114-8485-423e-8341-e66fc0f88704",
+      "event_type": "update",
+      "user_id": "asa@gmail.com",
+      "details": {
+        "automatons_count": 2
+      }
+    },
+    {
+      "timestamp": "2025-05-24T17:47:17.744444+00:00",
+      "contract_id": "f4bb9114-8485-423e-8341-e66fc0f88704",
+      "event_type": "update",
+      "user_id": "asa@gmail.com",
+      "details": {
+        "automatons_count": 2
+      }
+    },
+    {
+      "timestamp": "2025-05-24T17:47:24.680073+00:00",
+      "contract_id": "f4bb9114-8485-423e-8341-e66fc0f88704",
+      "event_type": "deploy",
+      "user_id": "asa@gmail.com",
+      "details": {
+        "automatons_count": 1
+      }
+    },
+    {
+      "timestamp": "2025-05-24T17:47:28.221488+00:00",
+      "contract_id": "f4bb9114-8485-423e-8341-e66fc0f88704",
+      "event_type": "update",
+      "user_id": "asa@gmail.com",
+      "details": {
+        "automatons_count": 2
+      }
+    },
+    {
+      "timestamp": "2025-05-24T17:47:31.065635+00:00",
+      "contract_id": "f4bb9114-8485-423e-8341-e66fc0f88704",
+      "event_type": "execute",
+      "user_id": "asa@gmail.com",
+      "details": {
+        "automaton": "Automata0",
+        "function": "is_completed",
+        "args": [],
+        "result": "False"
+      }
+    },
+    {
+      "timestamp": "2025-05-24T17:47:31.106500+00:00",
+      "contract_id": "f4bb9114-8485-423e-8341-e66fc0f88704",
+      "event_type": "execute",
+      "user_id": "asa@gmail.com",
+      "details": {
+        "automaton": "Automata0",
+        "function": "is_completed",
+        "args": [],
+        "result": "False"
+      }
+    },
+    {
+      "timestamp": "2025-05-24T18:36:52.782639+00:00",
+      "contract_id": "f4bb9114-8485-423e-8341-e66fc0f88704",
+      "event_type": "delete",
+      "user_id": "admin@localhost.com",
+      "details": {}
+    }
+  ]
+}

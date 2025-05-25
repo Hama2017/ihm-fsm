@@ -1,0 +1,22 @@
+{
+  "events": [
+    {
+      "timestamp": "2025-05-22T06:43:02.481707+00:00",
+      "contract_id": "grgr",
+      "event_type": "deploy",
+      "user_id": "admin@localhost.com",
+      "details": {
+        "automatons_count": 1
+      }
+    },
+    {
+      "timestamp": "2025-05-22T06:44:26.004844+00:00",
+      "contract_id": "grgr",
+      "event_type": "deploy",
+      "user_id": "admin@localhost.com",
+      "details": {
+        "automatons_count": 1
+      }
+    }
+  ]
+}

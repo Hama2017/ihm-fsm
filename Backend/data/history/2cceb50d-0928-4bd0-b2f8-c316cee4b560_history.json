@@ -1,0 +1,29 @@
+{
+  "events": [
+    {
+      "timestamp": "2025-05-24T17:52:49.062773+00:00",
+      "contract_id": "2cceb50d-0928-4bd0-b2f8-c316cee4b560",
+      "event_type": "create",
+      "user_id": "asa@gmail.com",
+      "details": {
+        "automatons_count": 1
+      }
+    },
+    {
+      "timestamp": "2025-05-24T17:52:57.541015+00:00",
+      "contract_id": "2cceb50d-0928-4bd0-b2f8-c316cee4b560",
+      "event_type": "update",
+      "user_id": "asa@gmail.com",
+      "details": {
+        "automatons_count": 1
+      }
+    },
+    {
+      "timestamp": "2025-05-24T17:53:07.899046+00:00",
+      "contract_id": "2cceb50d-0928-4bd0-b2f8-c316cee4b560",
+      "event_type": "delete",
+      "user_id": "asa@gmail.com",
+      "details": {}
+    }
+  ]
+}

@@ -1,0 +1,76 @@
+{
+  "events": [
+    {
+      "timestamp": "2025-05-25T10:10:06.726786+00:00",
+      "contract_id": "1e68ab72-ec22-4cf2-8d88-00211ea478b0",
+      "event_type": "update",
+      "user_id": "admin@localhost.com",
+      "details": {
+        "automatons_count": 2
+      }
+    },
+    {
+      "timestamp": "2025-05-25T10:10:06.751147+00:00",
+      "contract_id": "1e68ab72-ec22-4cf2-8d88-00211ea478b0",
+      "event_type": "update",
+      "user_id": "admin@localhost.com",
+      "details": {
+        "automatons_count": 2
+      }
+    },
+    {
+      "timestamp": "2025-05-25T10:10:09.244539+00:00",
+      "contract_id": "1e68ab72-ec22-4cf2-8d88-00211ea478b0",
+      "event_type": "execute",
+      "user_id": "admin@localhost.com",
+      "details": {
+        "automaton": "Automata0",
+        "function": "get_current_state",
+        "args": [],
+        "result": "4"
+      }
+    },
+    {
+      "timestamp": "2025-05-25T10:10:09.311665+00:00",
+      "contract_id": "1e68ab72-ec22-4cf2-8d88-00211ea478b0",
+      "event_type": "execute",
+      "user_id": "admin@localhost.com",
+      "details": {
+        "automaton": "Automata0",
+        "function": "is_completed",
+        "args": [],
+        "result": "True"
+      }
+    },
+    {
+      "timestamp": "2025-05-25T10:10:09.418836+00:00",
+      "contract_id": "1e68ab72-ec22-4cf2-8d88-00211ea478b0",
+      "event_type": "execute",
+      "user_id": "admin@localhost.com",
+      "details": {
+        "automaton": "Automata0",
+        "function": "is_completed",
+        "args": [],
+        "result": "True"
+      }
+    },
+    {
+      "timestamp": "2025-05-25T10:10:09.427847+00:00",
+      "contract_id": "1e68ab72-ec22-4cf2-8d88-00211ea478b0",
+      "event_type": "update",
+      "user_id": "admin@localhost.com",
+      "details": {
+        "automatons_count": 2
+      }
+    },
+    {
+      "timestamp": "2025-05-25T10:10:09.444316+00:00",
+      "contract_id": "1e68ab72-ec22-4cf2-8d88-00211ea478b0",
+      "event_type": "update",
+      "user_id": "admin@localhost.com",
+      "details": {
+        "automatons_count": 2
+      }
+    }
+  ]
+}

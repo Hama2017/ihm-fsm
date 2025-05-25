@@ -1,0 +1,49 @@
+{
+  "events": [
+    {
+      "timestamp": "2025-05-22T06:11:51.042551+00:00",
+      "contract_id": "Test",
+      "event_type": "deploy",
+      "user_id": "admin@localhost.com",
+      "details": {
+        "automatons_count": 5
+      }
+    },
+    {
+      "timestamp": "2025-05-22T06:12:05.990885+00:00",
+      "contract_id": "Test",
+      "event_type": "deploy",
+      "user_id": "admin@localhost.com",
+      "details": {
+        "automatons_count": 2
+      }
+    },
+    {
+      "timestamp": "2025-05-22T06:20:45.922314+00:00",
+      "contract_id": "Test",
+      "event_type": "deploy",
+      "user_id": "admin@localhost.com",
+      "details": {
+        "automatons_count": 5
+      }
+    },
+    {
+      "timestamp": "2025-05-22T06:20:52.931163+00:00",
+      "contract_id": "Test",
+      "event_type": "deploy",
+      "user_id": "admin@localhost.com",
+      "details": {
+        "automatons_count": 5
+      }
+    },
+    {
+      "timestamp": "2025-05-22T06:25:43.547998+00:00",
+      "contract_id": "Test",
+      "event_type": "deploy",
+      "user_id": "admin@localhost.com",
+      "details": {
+        "automatons_count": 2
+      }
+    }
+  ]
+}

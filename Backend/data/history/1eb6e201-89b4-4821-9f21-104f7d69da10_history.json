@@ -1,0 +1,29 @@
+{
+  "events": [
+    {
+      "timestamp": "2025-05-22T06:42:52.419865+00:00",
+      "contract_id": "1eb6e201-89b4-4821-9f21-104f7d69da10",
+      "event_type": "create",
+      "user_id": "admin@localhost.com",
+      "details": {
+        "automatons_count": 2
+      }
+    },
+    {
+      "timestamp": "2025-05-22T06:44:18.967391+00:00",
+      "contract_id": "1eb6e201-89b4-4821-9f21-104f7d69da10",
+      "event_type": "update",
+      "user_id": "admin@localhost.com",
+      "details": {
+        "automatons_count": 2
+      }
+    },
+    {
+      "timestamp": "2025-05-22T07:39:22.004200+00:00",
+      "contract_id": "1eb6e201-89b4-4821-9f21-104f7d69da10",
+      "event_type": "delete",
+      "user_id": "admin@localhost.com",
+      "details": {}
+    }
+  ]
+}

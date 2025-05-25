@@ -1,0 +1,31 @@
+{
+  "events": [
+    {
+      "timestamp": "2025-05-23T18:29:43.901329+00:00",
+      "contract_id": "92100867-e4e9-4da3-bc3e-2e067d9d4900",
+      "event_type": "create",
+      "user_id": "hamaba2016@gmail.com",
+      "details": {
+        "automatons_count": 2
+      }
+    },
+    {
+      "timestamp": "2025-05-23T18:29:53.251410+00:00",
+      "contract_id": "92100867-e4e9-4da3-bc3e-2e067d9d4900",
+      "event_type": "deploy",
+      "user_id": "hamaba2016@gmail.com",
+      "details": {
+        "automatons_count": 2
+      }
+    },
+    {
+      "timestamp": "2025-05-23T18:29:57.033802+00:00",
+      "contract_id": "92100867-e4e9-4da3-bc3e-2e067d9d4900",
+      "event_type": "update",
+      "user_id": "hamaba2016@gmail.com",
+      "details": {
+        "automatons_count": 2
+      }
+    }
+  ]
+}

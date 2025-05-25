@@ -1,0 +1,38 @@
+{
+  "events": [
+    {
+      "timestamp": "2025-05-22T12:00:29.027655+00:00",
+      "contract_id": "bbe73835-a567-434b-b5d0-2caf1e3349b4",
+      "event_type": "create",
+      "user_id": "admin@localhost.com",
+      "details": {
+        "automatons_count": 1
+      }
+    },
+    {
+      "timestamp": "2025-05-22T12:00:36.302782+00:00",
+      "contract_id": "bbe73835-a567-434b-b5d0-2caf1e3349b4",
+      "event_type": "deploy",
+      "user_id": "admin@localhost.com",
+      "details": {
+        "automatons_count": 1
+      }
+    },
+    {
+      "timestamp": "2025-05-22T12:00:39.842737+00:00",
+      "contract_id": "bbe73835-a567-434b-b5d0-2caf1e3349b4",
+      "event_type": "update",
+      "user_id": "admin@localhost.com",
+      "details": {
+        "automatons_count": 1
+      }
+    },
+    {
+      "timestamp": "2025-05-22T13:16:06.624338+00:00",
+      "contract_id": "bbe73835-a567-434b-b5d0-2caf1e3349b4",
+      "event_type": "delete",
+      "user_id": "admin@localhost.com",
+      "details": {}
+    }
+  ]
+}

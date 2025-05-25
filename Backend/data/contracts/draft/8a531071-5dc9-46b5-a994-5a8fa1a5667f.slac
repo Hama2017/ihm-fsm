@@ -1,0 +1,88 @@
+{
+  "id": "8a531071-5dc9-46b5-a994-5a8fa1a5667f",
+  "name": "Contrat de prestation TEst",
+  "status": "completed",
+  "createdAt": "2025-05-25 08:20:53.741701+00:00",
+  "updatedAt": "2025-05-25 08:28:39.059058+00:00",
+  "createdBy": "t.diaye@slc.com",
+  "description": "",
+  "automates": [
+    {
+      "id": "01",
+      "name": "Clause Test",
+      "active": true,
+      "states": [
+        {
+          "id": "state-initial",
+          "label": "INITIAL",
+          "position": {
+            "x": 20.0,
+            "y": 0.0
+          },
+          "type": "default",
+          "sourcePosition": "bottom",
+          "targetPosition": "top",
+          "automataKey": null,
+          "automateId": null,
+          "executionStatus": null
+        },
+        {
+          "id": "state-completed",
+          "label": "COMPLETED",
+          "position": {
+            "x": 300.0,
+            "y": 150.0
+          },
+          "type": "default",
+          "sourcePosition": "bottom",
+          "targetPosition": "top",
+          "automataKey": null,
+          "automateId": null,
+          "executionStatus": null
+        }
+      ],
+      "transitions": [
+        {
+          "id": "edge-1748161225447",
+          "source": "state-initial",
+          "target": "state-completed",
+          "label": "initial_to_completed",
+          "markerEnd": "arrowclosed",
+          "conditions": [
+            "package__ptest__test1"
+          ],
+          "automataDependencies": []
+        }
+      ],
+      "executionMetadata": null
+    },
+    {
+      "id": "flow-deploiement",
+      "name": "Flow D\u00e9ploiement",
+      "active": false,
+      "states": [
+        {
+          "id": "deployment-state-01",
+          "label": "Clause Test",
+          "position": {
+            "x": 200.0,
+            "y": 200.0
+          },
+          "type": "standard",
+          "sourcePosition": null,
+          "targetPosition": null,
+          "automataKey": "Automata0",
+          "automateId": "01",
+          "executionStatus": "active"
+        }
+      ],
+      "transitions": [],
+      "executionMetadata": {
+        "completedAutomates": [],
+        "contractId": "8a531071-5dc9-46b5-a994-5a8fa1a5667f",
+        "globalStatus": "pending",
+        "lastUpdated": "2025-05-25 08:28:08.485000+00:00"
+      }
+    }
+  ]
+}
