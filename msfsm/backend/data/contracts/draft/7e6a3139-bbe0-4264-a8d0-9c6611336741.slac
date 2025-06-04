@@ -1,0 +1,110 @@
+{
+  "id": "7e6a3139-bbe0-4264-a8d0-9c6611336741",
+  "name": "aaaaa",
+  "status": "deployed",
+  "createdAt": "2025-05-26 10:14:18.895022+00:00",
+  "updatedAt": "2025-05-26 10:14:32.326880+00:00",
+  "createdBy": "admin@localhost.com",
+  "description": "",
+  "automates": [
+    {
+      "id": "01",
+      "name": "a",
+      "active": false,
+      "states": [
+        {
+          "id": "state-initial",
+          "label": "INITIAL",
+          "position": {
+            "x": 20.0,
+            "y": 0.0
+          },
+          "type": "default",
+          "sourcePosition": "bottom",
+          "targetPosition": null,
+          "automataKey": null,
+          "automateId": null,
+          "executionStatus": null
+        },
+        {
+          "id": "state-completed",
+          "label": "COMPLETED",
+          "position": {
+            "x": 300.0,
+            "y": 150.0
+          },
+          "type": "default",
+          "sourcePosition": null,
+          "targetPosition": "top",
+          "automataKey": null,
+          "automateId": null,
+          "executionStatus": null
+        }
+      ],
+      "transitions": [
+        {
+          "id": "edge-1748254452509",
+          "source": "state-initial",
+          "target": "state-completed",
+          "label": "initial_to_completed",
+          "markerEnd": "arrowclosed",
+          "conditions": [],
+          "automataDependencies": []
+        }
+      ],
+      "executionMetadata": null
+    },
+    {
+      "id": "flow-deploiement",
+      "name": "Flow D\u00e9ploiement",
+      "active": true,
+      "states": [
+        {
+          "id": "state-initial",
+          "label": "INITIAL",
+          "position": {
+            "x": 20.0,
+            "y": 0.0
+          },
+          "type": "default",
+          "sourcePosition": "bottom",
+          "targetPosition": null,
+          "automataKey": "Automata0",
+          "automateId": "state-initial",
+          "executionStatus": "active"
+        },
+        {
+          "id": "state-completed",
+          "label": "COMPLETED",
+          "position": {
+            "x": 300.0,
+            "y": 150.0
+          },
+          "type": "default",
+          "sourcePosition": null,
+          "targetPosition": "top",
+          "automataKey": "Automata1",
+          "automateId": "state-completed",
+          "executionStatus": "pending"
+        }
+      ],
+      "transitions": [
+        {
+          "id": "edge-1748254452509",
+          "source": "state-initial",
+          "target": "state-completed",
+          "label": "initial_to_completed",
+          "markerEnd": "arrowclosed",
+          "conditions": [],
+          "automataDependencies": []
+        }
+      ],
+      "executionMetadata": {
+        "completedAutomates": [],
+        "contractId": "7e6a3139-bbe0-4264-a8d0-9c6611336741",
+        "globalStatus": "pending",
+        "lastUpdated": "2025-05-26 10:14:32.242000+00:00"
+      }
+    }
+  ]
+}

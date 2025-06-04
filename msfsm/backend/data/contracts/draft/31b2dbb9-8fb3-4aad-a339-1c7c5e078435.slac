@@ -1,0 +1,220 @@
+{
+  "id": "31b2dbb9-8fb3-4aad-a339-1c7c5e078435",
+  "name": "aaaaaaa",
+  "status": "deployed",
+  "createdAt": "2025-05-25 10:07:01.234478+00:00",
+  "updatedAt": "2025-05-25 10:07:15.407784+00:00",
+  "createdBy": "admin@localhost.com",
+  "description": "",
+  "automates": [
+    {
+      "id": "01",
+      "name": "a",
+      "active": false,
+      "states": [
+        {
+          "id": "state-initial",
+          "label": "INITIAL",
+          "position": {
+            "x": -191.0,
+            "y": -14.0
+          },
+          "type": "default",
+          "sourcePosition": "bottom",
+          "targetPosition": null,
+          "automataKey": null,
+          "automateId": null,
+          "executionStatus": null
+        },
+        {
+          "id": "state-completed",
+          "label": "COMPLETED",
+          "position": {
+            "x": 354.0,
+            "y": 209.0
+          },
+          "type": "default",
+          "sourcePosition": null,
+          "targetPosition": "top",
+          "automataKey": null,
+          "automateId": null,
+          "executionStatus": null
+        },
+        {
+          "id": "state-1748167504041-jfv8nka0d",
+          "label": "\u00c9tat1",
+          "position": {
+            "x": 139.33428128155083,
+            "y": -22.381175950480554
+          },
+          "type": "default",
+          "sourcePosition": "bottom",
+          "targetPosition": "top",
+          "automataKey": null,
+          "automateId": null,
+          "executionStatus": null
+        },
+        {
+          "id": "state-1748167508740-dxo2pxqj8",
+          "label": "\u00c9tat2",
+          "position": {
+            "x": 308.2166599580273,
+            "y": 109.71656914239543
+          },
+          "type": "default",
+          "sourcePosition": "bottom",
+          "targetPosition": "top",
+          "automataKey": null,
+          "automateId": null,
+          "executionStatus": null
+        }
+      ],
+      "transitions": [
+        {
+          "id": "edge-1748167507051",
+          "source": "state-initial",
+          "target": "state-1748167504041-jfv8nka0d",
+          "label": "initial_to_etat1",
+          "markerEnd": "arrowclosed",
+          "conditions": [],
+          "automataDependencies": []
+        },
+        {
+          "id": "edge-1748167523706",
+          "source": "state-1748167504041-jfv8nka0d",
+          "target": "state-1748167508740-dxo2pxqj8",
+          "label": "etat1_to_etat2",
+          "markerEnd": "arrowclosed",
+          "conditions": [],
+          "automataDependencies": []
+        },
+        {
+          "id": "edge-1748167547931",
+          "source": "state-1748167508740-dxo2pxqj8",
+          "target": "state-completed",
+          "label": "etat2_to_completed",
+          "markerEnd": "arrowclosed",
+          "conditions": [],
+          "automataDependencies": []
+        },
+        {
+          "id": "edge-1748167578677",
+          "source": "state-1748167508740-dxo2pxqj8",
+          "target": "state-1748167504041-jfv8nka0d",
+          "label": "etat2_to_etat1",
+          "markerEnd": "arrowclosed",
+          "conditions": [],
+          "automataDependencies": []
+        }
+      ],
+      "executionMetadata": null
+    },
+    {
+      "id": "flow-deploiement",
+      "name": "Flow D\u00e9ploiement",
+      "active": true,
+      "states": [
+        {
+          "id": "state-initial",
+          "label": "INITIAL",
+          "position": {
+            "x": -210.0,
+            "y": -36.0
+          },
+          "type": "default",
+          "sourcePosition": "bottom",
+          "targetPosition": null,
+          "automataKey": "Automata0",
+          "automateId": "state-initial",
+          "executionStatus": "active"
+        },
+        {
+          "id": "state-completed",
+          "label": "COMPLETED",
+          "position": {
+            "x": 354.0,
+            "y": 209.0
+          },
+          "type": "default",
+          "sourcePosition": null,
+          "targetPosition": "top",
+          "automataKey": "Automata1",
+          "automateId": "state-completed",
+          "executionStatus": "pending"
+        },
+        {
+          "id": "state-1748167504041-jfv8nka0d",
+          "label": "\u00c9tat1",
+          "position": {
+            "x": 67.33428128155083,
+            "y": 25.618824049519446
+          },
+          "type": "default",
+          "sourcePosition": "bottom",
+          "targetPosition": "top",
+          "automataKey": "Automata2",
+          "automateId": "state-1748167504041-jfv8nka0d",
+          "executionStatus": "pending"
+        },
+        {
+          "id": "state-1748167508740-dxo2pxqj8",
+          "label": "\u00c9tat2",
+          "position": {
+            "x": 308.2166599580273,
+            "y": 109.71656914239543
+          },
+          "type": "default",
+          "sourcePosition": "bottom",
+          "targetPosition": "top",
+          "automataKey": "Automata3",
+          "automateId": "state-1748167508740-dxo2pxqj8",
+          "executionStatus": "pending"
+        }
+      ],
+      "transitions": [
+        {
+          "id": "edge-1748167507051",
+          "source": "state-initial",
+          "target": "state-1748167504041-jfv8nka0d",
+          "label": "initial_to_etat1",
+          "markerEnd": "arrowclosed",
+          "conditions": [],
+          "automataDependencies": []
+        },
+        {
+          "id": "edge-1748167523706",
+          "source": "state-1748167504041-jfv8nka0d",
+          "target": "state-1748167508740-dxo2pxqj8",
+          "label": "etat1_to_etat2",
+          "markerEnd": "arrowclosed",
+          "conditions": [],
+          "automataDependencies": []
+        },
+        {
+          "id": "edge-1748167547931",
+          "source": "state-1748167508740-dxo2pxqj8",
+          "target": "state-completed",
+          "label": "etat2_to_completed",
+          "markerEnd": "arrowclosed",
+          "conditions": [],
+          "automataDependencies": []
+        },
+        {
+          "id": "edge-1748167578677",
+          "source": "state-1748167508740-dxo2pxqj8",
+          "target": "state-1748167504041-jfv8nka0d",
+          "label": "etat2_to_etat1",
+          "markerEnd": "arrowclosed",
+          "conditions": [],
+          "automataDependencies": []
+        }
+      ],
+      "executionMetadata": {
+        "completedAutomates": [],
+        "contractId": "31b2dbb9-8fb3-4aad-a339-1c7c5e078435",
+        "globalStatus": "pending",
+        "lastUpdated": "2025-05-25 10:07:15.344000+00:00"
+      }
+    }
+  ]
+}

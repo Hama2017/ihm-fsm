@@ -1,0 +1,40 @@
+{
+    "name": "dag2",
+    "required_packages": ["p1"],
+    "automatons": {
+      "Automata0": {
+        "states": ["q1", "q2", "completed"],
+        "transitions": [
+          {
+            "source": "q1",
+            "destination": "q2",
+            "trigger": "valider",
+            "conditions": ["package__p1__c1"]
+          },
+          {
+            "source": "q2",
+            "destination": "completed",
+            "trigger": "reporter",
+            "conditions": []
+          }
+        ]
+      },
+        "Automata1": {
+            "states": ["q1", "q2", "completed"],
+            "transitions": [
+            {
+                "source": "q1",
+                "destination": "q2",
+                "trigger": "valider",
+                "conditions": []
+            },
+            {
+                "source": "q2",
+                "destination": "completed",
+                "trigger": "reporter",
+                "conditions": []
+            }
+            ]
+        }
+    }
+  }

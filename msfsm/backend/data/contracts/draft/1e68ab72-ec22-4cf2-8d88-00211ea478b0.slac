@@ -1,0 +1,164 @@
+{
+  "id": "1e68ab72-ec22-4cf2-8d88-00211ea478b0",
+  "name": "sds",
+  "status": "completed",
+  "createdAt": "2025-05-25 10:00:47.213933+00:00",
+  "updatedAt": "2025-05-25 10:10:09.442196+00:00",
+  "createdBy": "admin@localhost.com",
+  "description": "",
+  "automates": [
+    {
+      "id": "01",
+      "name": "a",
+      "active": true,
+      "states": [
+        {
+          "id": "state-initial",
+          "label": "INITIAL",
+          "position": {
+            "x": -74.43973655323816,
+            "y": -49.08430296377608
+          },
+          "type": "default",
+          "sourcePosition": "bottom",
+          "targetPosition": "top",
+          "automataKey": null,
+          "automateId": null,
+          "executionStatus": null
+        },
+        {
+          "id": "state-completed",
+          "label": "COMPLETED",
+          "position": {
+            "x": 637.8673984632273,
+            "y": 209.49396267837545
+          },
+          "type": "default",
+          "sourcePosition": "bottom",
+          "targetPosition": "top",
+          "automataKey": null,
+          "automateId": null,
+          "executionStatus": null
+        },
+        {
+          "id": "state-1748167173697-4netx46j4",
+          "label": "\u00c9tat1",
+          "position": {
+            "x": 109.64285562966336,
+            "y": 73.7034428126579
+          },
+          "type": "default",
+          "sourcePosition": "bottom",
+          "targetPosition": "top",
+          "automataKey": null,
+          "automateId": null,
+          "executionStatus": null
+        },
+        {
+          "id": "state-1748167176154-ofv2gpcw5",
+          "label": "\u00c9tat2",
+          "position": {
+            "x": 552.5069289201357,
+            "y": 74.85686282762526
+          },
+          "type": "default",
+          "sourcePosition": "bottom",
+          "targetPosition": "top",
+          "automataKey": null,
+          "automateId": null,
+          "executionStatus": null
+        },
+        {
+          "id": "state-1748167212401-8168wscqg",
+          "label": "\u00c9tat3",
+          "position": {
+            "x": 297.1521897291382,
+            "y": -45.07049116121988
+          },
+          "type": "default",
+          "sourcePosition": "bottom",
+          "targetPosition": "top",
+          "automataKey": null,
+          "automateId": null,
+          "executionStatus": null
+        }
+      ],
+      "transitions": [
+        {
+          "id": "edge-1748167188249",
+          "source": "state-initial",
+          "target": "state-1748167173697-4netx46j4",
+          "label": "initial_to_etat1",
+          "markerEnd": "arrowclosed",
+          "conditions": [],
+          "automataDependencies": []
+        },
+        {
+          "id": "edge-1748167197032",
+          "source": "state-1748167173697-4netx46j4",
+          "target": "state-1748167176154-ofv2gpcw5",
+          "label": "etat1_to_etat2",
+          "markerEnd": "arrowclosed",
+          "conditions": [],
+          "automataDependencies": []
+        },
+        {
+          "id": "edge-1748167200026",
+          "source": "state-1748167176154-ofv2gpcw5",
+          "target": "state-completed",
+          "label": "etat2_to_completed",
+          "markerEnd": "arrowclosed",
+          "conditions": [],
+          "automataDependencies": []
+        },
+        {
+          "id": "edge-1748167218491",
+          "source": "state-1748167176154-ofv2gpcw5",
+          "target": "state-1748167212401-8168wscqg",
+          "label": "etat2_to_etat3",
+          "markerEnd": "arrowclosed",
+          "conditions": [],
+          "automataDependencies": []
+        },
+        {
+          "id": "edge-1748167224489",
+          "source": "state-1748167212401-8168wscqg",
+          "target": "state-1748167173697-4netx46j4",
+          "label": "etat3_to_etat1",
+          "markerEnd": "arrowclosed",
+          "conditions": [],
+          "automataDependencies": []
+        }
+      ],
+      "executionMetadata": null
+    },
+    {
+      "id": "flow-deploiement",
+      "name": "Flow D\u00e9ploiement",
+      "active": false,
+      "states": [
+        {
+          "id": "deployment-state-01",
+          "label": "a",
+          "position": {
+            "x": 200.0,
+            "y": 200.0
+          },
+          "type": "standard",
+          "sourcePosition": null,
+          "targetPosition": null,
+          "automataKey": "Automata0",
+          "automateId": "01",
+          "executionStatus": "active"
+        }
+      ],
+      "transitions": [],
+      "executionMetadata": {
+        "completedAutomates": [],
+        "contractId": "1e68ab72-ec22-4cf2-8d88-00211ea478b0",
+        "globalStatus": "pending",
+        "lastUpdated": "2025-05-25 10:08:38.855000+00:00"
+      }
+    }
+  ]
+}

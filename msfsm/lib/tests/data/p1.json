@@ -1,0 +1,40 @@
+{
+    "id": "p1",
+    "name": "p1",
+    "label": "p1",
+    "description": "",
+    "functions": {
+        "c1": {
+            "code": "function package__p1__c1() public pure returns (bool) { return true; }",
+            "default": false,
+            "label": "",
+            "description": ""
+        },
+        "c2": {
+            "code": "function package__p1__c2() public pure returns (bool) { return true; }",
+            "default": false,
+            "label": "",
+            "description": ""
+        },
+        "get_current_state": {
+            "code": "function get_current_state() public view returns (uint) { return uint(currentState); }",
+            "default": true,
+            "label": "",
+            "description": ""
+        },
+        "is_completed": {
+            "code": "function is_completed() public view returns (bool) { return currentState == State.COMPLETED; }",
+            "default": true,
+            "label": "",
+            "description": ""
+        },
+        "to_completed": {
+            "code": "function to_completed() public { currentState = State.COMPLETED; }",
+            "default": true,
+            "label": "",
+            "description": ""
+        }
+    },
+    "variables": [],
+    "structs": []
+}

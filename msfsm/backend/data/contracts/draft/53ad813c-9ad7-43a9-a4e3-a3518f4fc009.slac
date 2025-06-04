@@ -1,0 +1,237 @@
+{
+  "id": "53ad813c-9ad7-43a9-a4e3-a3518f4fc009",
+  "name": "a",
+  "status": "draft",
+  "createdAt": "2025-05-26 09:57:04.255664+00:00",
+  "updatedAt": "2025-05-26 10:00:45.565730+00:00",
+  "createdBy": "admin@localhost.com",
+  "description": "",
+  "automates": [
+    {
+      "id": "01",
+      "name": "a",
+      "active": true,
+      "states": [
+        {
+          "id": "state-initial",
+          "label": "INITIAL",
+          "position": {
+            "x": 20.0,
+            "y": 0.0
+          },
+          "type": "default",
+          "sourcePosition": "bottom",
+          "targetPosition": "top",
+          "automataKey": null,
+          "automateId": null,
+          "executionStatus": null
+        },
+        {
+          "id": "state-completed",
+          "label": "COMPLETED",
+          "position": {
+            "x": 300.0,
+            "y": 150.0
+          },
+          "type": "default",
+          "sourcePosition": "bottom",
+          "targetPosition": "top",
+          "automataKey": null,
+          "automateId": null,
+          "executionStatus": null
+        }
+      ],
+      "transitions": [
+        {
+          "id": "edge-1748253386490",
+          "source": "state-initial",
+          "target": "state-completed",
+          "label": "initial_to_completed",
+          "markerEnd": "arrowclosed",
+          "conditions": [
+            "package__p1__c1"
+          ],
+          "automataDependencies": []
+        }
+      ],
+      "executionMetadata": null
+    },
+    {
+      "id": "02",
+      "name": "b",
+      "active": false,
+      "states": [
+        {
+          "id": "state-initial",
+          "label": "INITIAL",
+          "position": {
+            "x": 20.0,
+            "y": 0.0
+          },
+          "type": "default",
+          "sourcePosition": "bottom",
+          "targetPosition": "top",
+          "automataKey": null,
+          "automateId": null,
+          "executionStatus": null
+        },
+        {
+          "id": "state-completed",
+          "label": "COMPLETED",
+          "position": {
+            "x": 300.0,
+            "y": 150.0
+          },
+          "type": "default",
+          "sourcePosition": "bottom",
+          "targetPosition": "top",
+          "automataKey": null,
+          "automateId": null,
+          "executionStatus": null
+        }
+      ],
+      "transitions": [
+        {
+          "id": "edge-1748253398286",
+          "source": "state-initial",
+          "target": "state-completed",
+          "label": "initial_to_completed",
+          "markerEnd": "arrowclosed",
+          "conditions": [
+            "package__p1__c1"
+          ],
+          "automataDependencies": [
+            "01"
+          ]
+        }
+      ],
+      "executionMetadata": null
+    },
+    {
+      "id": "03",
+      "name": "c",
+      "active": false,
+      "states": [
+        {
+          "id": "state-initial",
+          "label": "INITIAL",
+          "position": {
+            "x": 20.0,
+            "y": 0.0
+          },
+          "type": "default",
+          "sourcePosition": "bottom",
+          "targetPosition": "top",
+          "automataKey": null,
+          "automateId": null,
+          "executionStatus": null
+        },
+        {
+          "id": "state-completed",
+          "label": "COMPLETED",
+          "position": {
+            "x": 300.0,
+            "y": 150.0
+          },
+          "type": "default",
+          "sourcePosition": "bottom",
+          "targetPosition": "top",
+          "automataKey": null,
+          "automateId": null,
+          "executionStatus": null
+        }
+      ],
+      "transitions": [
+        {
+          "id": "edge-1748253405206",
+          "source": "state-initial",
+          "target": "state-completed",
+          "label": "initial_to_completed",
+          "markerEnd": "arrowclosed",
+          "conditions": [
+            "package__p1__c1"
+          ],
+          "automataDependencies": [
+            "02"
+          ]
+        }
+      ],
+      "executionMetadata": null
+    },
+    {
+      "id": "flow-deploiement",
+      "name": "Flow D\u00e9ploiement",
+      "active": false,
+      "states": [
+        {
+          "id": "deployment-state-01",
+          "label": "a",
+          "position": {
+            "x": 200.0,
+            "y": 200.0
+          },
+          "type": "standard",
+          "sourcePosition": null,
+          "targetPosition": null,
+          "automataKey": "Automata0",
+          "automateId": "01",
+          "executionStatus": "active"
+        },
+        {
+          "id": "deployment-state-02",
+          "label": "b",
+          "position": {
+            "x": 500.0,
+            "y": 200.0
+          },
+          "type": "standard",
+          "sourcePosition": null,
+          "targetPosition": null,
+          "automataKey": "Automata1",
+          "automateId": "02",
+          "executionStatus": "pending"
+        },
+        {
+          "id": "deployment-state-03",
+          "label": "c",
+          "position": {
+            "x": 800.0,
+            "y": 200.0
+          },
+          "type": "standard",
+          "sourcePosition": null,
+          "targetPosition": null,
+          "automataKey": "Automata2",
+          "automateId": "03",
+          "executionStatus": "pending"
+        }
+      ],
+      "transitions": [
+        {
+          "id": "deployment-edge-01-to-02",
+          "source": "deployment-state-01",
+          "target": "deployment-state-02",
+          "label": "Depends On",
+          "markerEnd": "arrowclosed",
+          "conditions": [],
+          "automataDependencies": null
+        },
+        {
+          "id": "deployment-edge-02-to-03",
+          "source": "deployment-state-02",
+          "target": "deployment-state-03",
+          "label": "Depends On",
+          "markerEnd": "arrowclosed",
+          "conditions": [],
+          "automataDependencies": null
+        }
+      ],
+      "executionMetadata": {
+        "completedAutomates": [],
+        "contractId": "53ad813c-9ad7-43a9-a4e3-a3518f4fc009",
+        "globalStatus": "pending",
+        "lastUpdated": "2025-05-26 10:00:45.545000+00:00"
+      }
+    }
+  ]
+}

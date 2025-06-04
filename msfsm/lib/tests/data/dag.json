@@ -1,0 +1,161 @@
+{
+    "name": "Test",
+    "automatons": {
+        "Automata0": {
+            "states": [
+                "q0",
+                "q1",
+                "completed"
+            ],
+            "transitions": [
+                {
+                    "source": "q0",
+                    "destination": "q1",
+                    "trigger": "a",
+                    "conditions": [
+                        "package__p1__c1"
+                    ]
+                },
+                {
+                    "source": "q1",
+                    "destination": "completed",
+                    "trigger": "b",
+                    "conditions": [
+                        "package__p1__c2"
+                    ]
+                }
+            ]
+        },
+        "Automata1": {
+            "states": [
+                "q0",
+                "q1",
+                "q2",
+                "q3",
+                "completed"
+            ],
+            "transitions": [
+                {
+                    "source": "q0",
+                    "destination": "q1",
+                    "trigger": "a",
+                    "conditions": [
+                        "automata__Automata0__is_completed"
+                    ]
+                },
+                {
+                    "source": "q1",
+                    "destination": "q2",
+                    "trigger": "b",
+                    "conditions": [
+                        "automata__Automata2__is_completed"
+                    ]
+                },
+                {
+                    "source": "q1",
+                    "destination": "q3",
+                    "trigger": "d",
+                    "conditions": [
+                        "package__p1__c1",
+                        "package__p1__c2"
+                    ]
+                },
+                {
+                    "source": "q3",
+                    "destination": "completed",
+                    "trigger": "e",
+                    "conditions": [
+                        "package__p1__c2"
+                    ]
+                },
+                {
+                    "source": "q2",
+                    "destination": "completed",
+                    "trigger": "c",
+                    "conditions": [
+                        "automata__Automata3__is_completed"
+                    ]
+                }
+            ]
+        },
+        "Automata2": {
+            "states": [
+                "q0",
+                "q1",
+                "completed"
+            ],
+            "transitions": [
+                {
+                    "source": "q0",
+                    "destination": "q1",
+                    "trigger": "a",
+                    "conditions": [
+                        "package__p2__c1"
+                    ]
+                },
+                {
+                    "source": "q1",
+                    "destination": "completed",
+                    "trigger": "b",
+                    "conditions": [
+                        "automata__Automata0__is_completed"
+                    ]
+                }
+            ]
+        },
+        "Automata3": {
+            "states": [
+                "q0",
+                "q1",
+                "completed"
+            ],
+            "transitions": [
+                {
+                    "source": "q0",
+                    "destination": "q1",
+                    "trigger": "a",
+                    "conditions": [
+                        "package__p2__c1"
+                    ]
+                },
+                {
+                    "source": "q1",
+                    "destination": "completed",
+                    "trigger": "b",
+                    "conditions": [
+                        "automata__Automata2__is_completed"
+                    ]
+                }
+            ]
+        },
+        "Automata4": {
+            "states": [
+                "q0",
+                "q1",
+                "completed"
+            ],
+            "transitions": [
+                {
+                    "source": "q0",
+                    "destination": "q1",
+                    "trigger": "a",
+                    "conditions": [
+                        "package__p2__c1"
+                    ]
+                },
+                {
+                    "source": "q1",
+                    "destination": "completed",
+                    "trigger": "b",
+                    "conditions": [
+                        "automata__Automata3__is_completed"
+                    ]
+                }
+            ]
+        }
+    },
+    "required_packages": [
+        "p1",
+        "p2"
+    ]
+}

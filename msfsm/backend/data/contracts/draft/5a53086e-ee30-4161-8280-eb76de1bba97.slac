@@ -1,0 +1,538 @@
+{
+  "id": "test-dag-transformed",
+  "name": "Test DAG Workflow",
+  "status": "draft",
+  "createdAt": "2025-05-26 12:00:00.000000+00:00",
+  "updatedAt": "2025-05-26 12:00:00.000000+00:00",
+  "createdBy": "admin@localhost.com",
+  "description": "Workflow transformé depuis le DAG Test",
+  "automates": [
+    {
+      "id": "Automata0",
+      "name": "Automata0 - Package P1 Workflow",
+      "active": true,
+      "states": [
+        {
+          "id": "state-q0",
+          "label": "Q0",
+          "position": {
+            "x": 20.0,
+            "y": 0.0
+          },
+          "type": "default",
+          "sourcePosition": "bottom",
+          "targetPosition": "top",
+          "automataKey": "Automata0",
+          "automateId": "Automata0",
+          "executionStatus": "active"
+        },
+        {
+          "id": "state-q1",
+          "label": "Q1",
+          "position": {
+            "x": 150.0,
+            "y": 75.0
+          },
+          "type": "default",
+          "sourcePosition": "bottom",
+          "targetPosition": "top",
+          "automataKey": "Automata0",
+          "automateId": "Automata0",
+          "executionStatus": "pending"
+        },
+        {
+          "id": "state-completed",
+          "label": "COMPLETED",
+          "position": {
+            "x": 300.0,
+            "y": 150.0
+          },
+          "type": "default",
+          "sourcePosition": null,
+          "targetPosition": "top",
+          "automataKey": "Automata0",
+          "automateId": "Automata0",
+          "executionStatus": "pending"
+        }
+      ],
+      "transitions": [
+        {
+          "id": "edge-q0-to-q1",
+          "source": "state-q0",
+          "target": "state-q1",
+          "label": "trigger: a",
+          "markerEnd": "arrowclosed",
+          "conditions": ["package__p1__c1"],
+          "automataDependencies": []
+        },
+        {
+          "id": "edge-q1-to-completed",
+          "source": "state-q1",
+          "target": "state-completed",
+          "label": "trigger: b",
+          "markerEnd": "arrowclosed",
+          "conditions": ["package__p1__c2"],
+          "automataDependencies": []
+        }
+      ],
+      "executionMetadata": {
+        "requiredPackages": ["p1"],
+        "currentState": "q0"
+      }
+    },
+    {
+      "id": "Automata1",
+      "name": "Automata1 - Main Orchestrator",
+      "active": false,
+      "states": [
+        {
+          "id": "state-q0",
+          "label": "Q0",
+          "position": {
+            "x": 20.0,
+            "y": 0.0
+          },
+          "type": "default",
+          "sourcePosition": "bottom",
+          "targetPosition": "top",
+          "automataKey": "Automata1",
+          "automateId": "Automata1",
+          "executionStatus": "pending"
+        },
+        {
+          "id": "state-q1",
+          "label": "Q1",
+          "position": {
+            "x": 120.0,
+            "y": 75.0
+          },
+          "type": "default",
+          "sourcePosition": "bottom",
+          "targetPosition": "top",
+          "automataKey": "Automata1",
+          "automateId": "Automata1",
+          "executionStatus": "pending"
+        },
+        {
+          "id": "state-q2",
+          "label": "Q2",
+          "position": {
+            "x": 220.0,
+            "y": 120.0
+          },
+          "type": "default",
+          "sourcePosition": "bottom",
+          "targetPosition": "top",
+          "automataKey": "Automata1",
+          "automateId": "Automata1",
+          "executionStatus": "pending"
+        },
+        {
+          "id": "state-completed",
+          "label": "COMPLETED",
+          "position": {
+            "x": 320.0,
+            "y": 180.0
+          },
+          "type": "default",
+          "sourcePosition": null,
+          "targetPosition": "top",
+          "automataKey": "Automata1",
+          "automateId": "Automata1",
+          "executionStatus": "pending"
+        }
+      ],
+      "transitions": [
+        {
+          "id": "edge-q0-to-q1",
+          "source": "state-q0",
+          "target": "state-q1",
+          "label": "trigger: a",
+          "markerEnd": "arrowclosed",
+          "conditions": ["automata__Automata0__is_completed"],
+          "automataDependencies": ["Automata0"]
+        },
+        {
+          "id": "edge-q1-to-q2",
+          "source": "state-q1",
+          "target": "state-q2",
+          "label": "trigger: b",
+          "markerEnd": "arrowclosed",
+          "conditions": ["automata__Automata2__is_completed"],
+          "automataDependencies": ["Automata2"]
+        },
+        {
+          "id": "edge-q2-to-completed",
+          "source": "state-q2",
+          "target": "state-completed",
+          "label": "trigger: c",
+          "markerEnd": "arrowclosed",
+          "conditions": ["automata__Automata3__is_completed"],
+          "automataDependencies": ["Automata3"]
+        }
+      ],
+      "executionMetadata": {
+        "currentState": "q0"
+      }
+    },
+    {
+      "id": "Automata2",
+      "name": "Automata2 - Package P2 Branch A",
+      "active": false,
+      "states": [
+        {
+          "id": "state-q0",
+          "label": "Q0",
+          "position": {
+            "x": 20.0,
+            "y": 0.0
+          },
+          "type": "default",
+          "sourcePosition": "bottom",
+          "targetPosition": "top",
+          "automataKey": "Automata2",
+          "automateId": "Automata2",
+          "executionStatus": "pending"
+        },
+        {
+          "id": "state-q1",
+          "label": "Q1",
+          "position": {
+            "x": 150.0,
+            "y": 75.0
+          },
+          "type": "default",
+          "sourcePosition": "bottom",
+          "targetPosition": "top",
+          "automataKey": "Automata2",
+          "automateId": "Automata2",
+          "executionStatus": "pending"
+        },
+        {
+          "id": "state-completed",
+          "label": "COMPLETED",
+          "position": {
+            "x": 300.0,
+            "y": 150.0
+          },
+          "type": "default",
+          "sourcePosition": null,
+          "targetPosition": "top",
+          "automataKey": "Automata2",
+          "automateId": "Automata2",
+          "executionStatus": "pending"
+        }
+      ],
+      "transitions": [
+        {
+          "id": "edge-q0-to-q1",
+          "source": "state-q0",
+          "target": "state-q1",
+          "label": "trigger: a",
+          "markerEnd": "arrowclosed",
+          "conditions": ["package__p2__c1"],
+          "automataDependencies": []
+        },
+        {
+          "id": "edge-q1-to-completed",
+          "source": "state-q1",
+          "target": "state-completed",
+          "label": "trigger: b",
+          "markerEnd": "arrowclosed",
+          "conditions": ["automata__Automata0__is_completed"],
+          "automataDependencies": ["Automata0"]
+        }
+      ],
+      "executionMetadata": {
+        "requiredPackages": ["p2"],
+        "currentState": "q0"
+      }
+    },
+    {
+      "id": "Automata3",
+      "name": "Automata3 - Package P2 Branch B",
+      "active": false,
+      "states": [
+        {
+          "id": "state-q0",
+          "label": "Q0",
+          "position": {
+            "x": 20.0,
+            "y": 0.0
+          },
+          "type": "default",
+          "sourcePosition": "bottom",
+          "targetPosition": "top",
+          "automataKey": "Automata3",
+          "automateId": "Automata3",
+          "executionStatus": "pending"
+        },
+        {
+          "id": "state-q1",
+          "label": "Q1",
+          "position": {
+            "x": 150.0,
+            "y": 75.0
+          },
+          "type": "default",
+          "sourcePosition": "bottom",
+          "targetPosition": "top",
+          "automataKey": "Automata3",
+          "automateId": "Automata3",
+          "executionStatus": "pending"
+        },
+        {
+          "id": "state-completed",
+          "label": "COMPLETED",
+          "position": {
+            "x": 300.0,
+            "y": 150.0
+          },
+          "type": "default",
+          "sourcePosition": null,
+          "targetPosition": "top",
+          "automataKey": "Automata3",
+          "automateId": "Automata3",
+          "executionStatus": "pending"
+        }
+      ],
+      "transitions": [
+        {
+          "id": "edge-q0-to-q1",
+          "source": "state-q0",
+          "target": "state-q1",
+          "label": "trigger: a",
+          "markerEnd": "arrowclosed",
+          "conditions": ["package__p2__c1"],
+          "automataDependencies": []
+        },
+        {
+          "id": "edge-q1-to-completed",
+          "source": "state-q1",
+          "target": "state-completed",
+          "label": "trigger: b",
+          "markerEnd": "arrowclosed",
+          "conditions": ["automata__Automata2__is_completed"],
+          "automataDependencies": ["Automata2"]
+        }
+      ],
+      "executionMetadata": {
+        "requiredPackages": ["p2"],
+        "currentState": "q0"
+      }
+    },
+    {
+      "id": "Automata4",
+      "name": "Automata4 - Package P2 Branch C",
+      "active": false,
+      "states": [
+        {
+          "id": "state-q0",
+          "label": "Q0",
+          "position": {
+            "x": 20.0,
+            "y": 0.0
+          },
+          "type": "default",
+          "sourcePosition": "bottom",
+          "targetPosition": "top",
+          "automataKey": "Automata4",
+          "automateId": "Automata4",
+          "executionStatus": "pending"
+        },
+        {
+          "id": "state-q1",
+          "label": "Q1",
+          "position": {
+            "x": 150.0,
+            "y": 75.0
+          },
+          "type": "default",
+          "sourcePosition": "bottom",
+          "targetPosition": "top",
+          "automataKey": "Automata4",
+          "automateId": "Automata4",
+          "executionStatus": "pending"
+        },
+        {
+          "id": "state-completed",
+          "label": "COMPLETED",
+          "position": {
+            "x": 300.0,
+            "y": 150.0
+          },
+          "type": "default",
+          "sourcePosition": null,
+          "targetPosition": "top",
+          "automataKey": "Automata4",
+          "automateId": "Automata4",
+          "executionStatus": "pending"
+        }
+      ],
+      "transitions": [
+        {
+          "id": "edge-q0-to-q1",
+          "source": "state-q0",
+          "target": "state-q1",
+          "label": "trigger: a",
+          "markerEnd": "arrowclosed",
+          "conditions": ["package__p2__c1"],
+          "automataDependencies": []
+        },
+        {
+          "id": "edge-q1-to-completed",
+          "source": "state-q1",
+          "target": "state-completed",
+          "label": "trigger: b",
+          "markerEnd": "arrowclosed",
+          "conditions": ["automata__Automata3__is_completed"],
+          "automataDependencies": ["Automata3"]
+        }
+      ],
+      "executionMetadata": {
+        "requiredPackages": ["p2"],
+        "currentState": "q0"
+      }
+    },
+    {
+      "id": "flow-deployment",
+      "name": "Flow Déploiement Global",
+      "active": true,
+      "states": [
+        {
+          "id": "deployment-state-automata0",
+          "label": "Automata0",
+          "position": {
+            "x": 100.0,
+            "y": 100.0
+          },
+          "type": "standard",
+          "sourcePosition": null,
+          "targetPosition": null,
+          "automataKey": "Automata0",
+          "automateId": "Automata0",
+          "executionStatus": "active"
+        },
+        {
+          "id": "deployment-state-automata1",
+          "label": "Automata1",
+          "position": {
+            "x": 500.0,
+            "y": 300.0
+          },
+          "type": "standard",
+          "sourcePosition": null,
+          "targetPosition": null,
+          "automataKey": "Automata1",
+          "automateId": "Automata1",
+          "executionStatus": "pending"
+        },
+        {
+          "id": "deployment-state-automata2",
+          "label": "Automata2",
+          "position": {
+            "x": 200.0,
+            "y": 200.0
+          },
+          "type": "standard",
+          "sourcePosition": null,
+          "targetPosition": null,
+          "automataKey": "Automata2",
+          "automateId": "Automata2",
+          "executionStatus": "pending"
+        },
+        {
+          "id": "deployment-state-automata3",
+          "label": "Automata3",
+          "position": {
+            "x": 350.0,
+            "y": 200.0
+          },
+          "type": "standard",
+          "sourcePosition": null,
+          "targetPosition": null,
+          "automataKey": "Automata3",
+          "automateId": "Automata3",
+          "executionStatus": "pending"
+        },
+        {
+          "id": "deployment-state-automata4",
+          "label": "Automata4",
+          "position": {
+            "x": 450.0,
+            "y": 150.0
+          },
+          "type": "standard",
+          "sourcePosition": null,
+          "targetPosition": null,
+          "automataKey": "Automata4",
+          "automateId": "Automata4",
+          "executionStatus": "pending"
+        }
+      ],
+      "transitions": [
+        {
+          "id": "deployment-edge-a0-to-a1",
+          "source": "deployment-state-automata0",
+          "target": "deployment-state-automata1",
+          "label": "Depends On",
+          "markerEnd": "arrowclosed",
+          "conditions": [],
+          "automataDependencies": null
+        },
+        {
+          "id": "deployment-edge-a0-to-a2",
+          "source": "deployment-state-automata0",
+          "target": "deployment-state-automata2",
+          "label": "Depends On",
+          "markerEnd": "arrowclosed",
+          "conditions": [],
+          "automataDependencies": null
+        },
+        {
+          "id": "deployment-edge-a2-to-a1",
+          "source": "deployment-state-automata2",
+          "target": "deployment-state-automata1",
+          "label": "Depends On",
+          "markerEnd": "arrowclosed",
+          "conditions": [],
+          "automataDependencies": null
+        },
+        {
+          "id": "deployment-edge-a2-to-a3",
+          "source": "deployment-state-automata2",
+          "target": "deployment-state-automata3",
+          "label": "Depends On",
+          "markerEnd": "arrowclosed",
+          "conditions": [],
+          "automataDependencies": null
+        },
+        {
+          "id": "deployment-edge-a3-to-a1",
+          "source": "deployment-state-automata3",
+          "target": "deployment-state-automata1",
+          "label": "Depends On",
+          "markerEnd": "arrowclosed",
+          "conditions": [],
+          "automataDependencies": null
+        },
+        {
+          "id": "deployment-edge-a3-to-a4",
+          "source": "deployment-state-automata3",
+          "target": "deployment-state-automata4",
+          "label": "Depends On",
+          "markerEnd": "arrowclosed",
+          "conditions": [],
+          "automataDependencies": null
+        }
+      ],
+      "executionMetadata": {
+        "completedAutomates": [],
+        "contractId": "test-dag-transformed",
+        "globalStatus": "pending",
+        "lastUpdated": "2025-05-26 12:00:00.000000+00:00",
+        "requiredPackages": ["p1", "p2"]
+      }
+    }
+  ]
+}

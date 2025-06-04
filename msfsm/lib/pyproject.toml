@@ -1,0 +1,26 @@
+[project]
+name = "msfsm"
+version = "0.1.4"
+description = ""
+authors = [
+    {name = "Maxence Lambard",email = "maxence.lambard@univ-lehavre.fr"}
+]
+readme = "README.md"
+requires-python = "^3.11"
+dependencies = [
+    "pydantic (>=2.10.6,<3.0.0)",
+    "pytest (>=8.3.5,<9.0.0)",
+    "py-solc-x (>=2.0.3,<3.0.0)",
+    "web3 (>=7.10.0,<8.0.0)"
+]
+
+[tool.poetry]
+packages = [{include = "msfsm", from = "src"}]
+
+
+[tool.poetry.group.dev.dependencies]
+pdoc = "^15.0.3"
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
