@@ -1,0 +1,50 @@
+/* Variables de couleurs VitePress - SYSTÈME COMPLET BLEU */
+:root {
+    /* Couleurs principales brand (bleu) */
+    --vp-c-brand: #3B82F6;
+    --vp-c-brand-1: #3B82F6;
+    --vp-c-brand-2: #60A5FA;
+    --vp-c-brand-3: #93C5FD;
+    
+    /* Couleurs brand light/dark */
+    --vp-c-brand-light: #60A5FA;
+    --vp-c-brand-lighter: #93C5FD;
+    --vp-c-brand-lightest: #DBEAFE;
+    --vp-c-brand-dark: #2563EB;
+    --vp-c-brand-darker: #1D4ED8;
+    
+    /* Boutons et liens */
+    --vp-button-brand-border: #3B82F6;
+    --vp-button-brand-text: #ffffff;
+    --vp-button-brand-bg: #3B82F6;
+    --vp-button-brand-hover-border: #2563EB;
+    --vp-button-brand-hover-text: #ffffff;
+    --vp-button-brand-hover-bg: #2563EB;
+    --vp-button-brand-active-border: #1D4ED8;
+    --vp-button-brand-active-text: #ffffff;
+    --vp-button-brand-active-bg: #1D4ED8;
+    
+    /* Navigation */
+    /*--vp-nav-bg-color: rgba(255, 255, 255, 0.95);*/
+    --vp-nav-screen-bg-color: rgba(255, 255, 255, 0.8);
+    
+    /* Sidebar */
+    --vp-sidebar-bg-color: var(--vp-c-bg-alt);
+  }
+  
+  /* Mode sombre */
+  .dark {
+    --vp-c-brand: #60A5FA;
+    --vp-c-brand-1: #60A5FA;
+    --vp-c-brand-2: #3B82F6;
+    --vp-c-brand-3: #2563EB;
+    --vp-c-brand-soft: rgba(96, 165, 250, 0.16);
+    
+    --vp-button-brand-border: #60A5FA;
+    --vp-button-brand-text: #1e293b;
+    --vp-button-brand-bg: #60A5FA;
+    --vp-button-brand-hover-border: #93C5FD;
+    --vp-button-brand-hover-text: #1e293b;
+    --vp-button-brand-hover-bg: #93C5FD;
+  }
+  

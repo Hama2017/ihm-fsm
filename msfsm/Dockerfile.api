@@ -1,0 +1,38 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Install necessary system dependencies
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+# Environment variables
+ENV APP_ENV=docker
+
+# Copy configuration files
+COPY backend/.env.docker /app/.env.docker
+
+# Copy requirements.txt
+COPY backend/app/requirements.txt ./requirements.txt
+
+# Install dependencies
+RUN pip install -r requirements.txt
+RUN pip install python-dotenv pydantic-settings python-jose[cryptography] passlib[bcrypt]
+
+# Copy source code
+COPY backend/app/ ./app/
+COPY backend/hardhat.config.js ./
+COPY lib/ /msfsm/
+
+# Data directory
+RUN mkdir -p data/contracts/draft data/contracts/deployed data/packages data/history data/users/profile
+
+# Install msfsm
+RUN pip install -e /msfsm
+
+# Expose port
+EXPOSE 8000
+
+# Command to start the application
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]

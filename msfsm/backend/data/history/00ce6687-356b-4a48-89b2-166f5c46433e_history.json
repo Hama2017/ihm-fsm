@@ -1,0 +1,13 @@
+{
+  "events": [
+    {
+      "timestamp": "2025-06-04T06:57:45.671979+00:00",
+      "contract_id": "00ce6687-356b-4a48-89b2-166f5c46433e",
+      "event_type": "create",
+      "user_id": "admin@localhost.com",
+      "details": {
+        "automatons_count": 2
+      }
+    }
+  ]
+}

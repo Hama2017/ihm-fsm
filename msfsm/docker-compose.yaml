@@ -1,0 +1,65 @@
+services:
+  hardhat:
+    build:
+      context: .
+      dockerfile: Dockerfile.hardhat
+    container_name: msfsm-hardhat
+    ports:
+      - "127.0.0.1:8545:8545"
+    volumes:
+      - ./backend/hardhat.config.js:/app/hardhat.config.js
+    networks:
+      - msfsm-network
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    container_name: msfsm-api
+    ports:
+      - "127.0.0.1:8000:8000"
+    environment:
+      - APP_ENV=docker
+      - ETHEREUM_PROVIDER_URL=http://hardhat:8545
+      - API_PREFIX=/api/v1
+      - JWT_SECRET_KEY=your_secure_secret_key_here
+      - ETHEREUM_CHAIN_ID=31337
+      - ETHEREUM_PUBLIC_KEY=0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+      - ETHEREUM_PRIVATE_KEY=0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
+      - API_TITLE=Multi-Scale Finite State Machine API
+      - API_VERSION=1.0.0
+      - JWT_ALGORITHM=HS256
+      - ACCESS_TOKEN_EXPIRE_MINUTES=60
+      - REFRESH_TOKEN_EXPIRE_DAYS=7
+      - ETHEREUM_SOL_VERSION=0.8.0
+      - API_KEY_HEADER_NAME=X-API-KEY
+      - MASTER_KEY_NAME=sk_master_admin
+    volumes:
+      - ./backend/app:/app/app
+      - ./backend/data:/app/data
+      - ./lib:/msfsm
+    depends_on:
+      - hardhat
+    networks:
+      - msfsm-network
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+      args:
+        - VITE_API_URL=http://localhost:8000/api/v1
+        - VITE_API_KEY=sk_master_admin
+    container_name: msfsm-frontend
+    ports:
+      - "127.0.0.1:3000:80"
+    depends_on:
+      - api
+    networks:
+      - msfsm-network
+    restart: unless-stopped
+
+networks:
+  msfsm-network:
+    driver: bridge

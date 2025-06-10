@@ -1,0 +1,11 @@
+{
+  "events": [
+    {
+      "timestamp": "2025-06-04T06:57:32.296613+00:00",
+      "contract_id": "fcc86ae7-278f-4b7e-9b62-8eed0d9d1ae7",
+      "event_type": "delete",
+      "user_id": "admin@localhost.com",
+      "details": {}
+    }
+  ]
+}

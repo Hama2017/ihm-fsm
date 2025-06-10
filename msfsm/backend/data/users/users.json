@@ -1,0 +1,13 @@
+[
+  {
+    "firstName": "Admin",
+    "lastName": "User",
+    "email": "admin@localhost.com",
+    "hashedPassword": "$2b$12$ztx1FFPjOIGkH.8iUUJNwe/UKRmFvAmktIY0Hro04G/d0s1fVp96S",
+    "role": "admin",
+    "profilePicture": null,
+    "createdAt": "2025-06-04 06:48:00.002116+00:00",
+    "refreshToken": "nszpxNto3q-jByASipUqWOvk2eYyRFjwF283F_iR7EYxm0mW9ml6lktJLOMutyF5yKf4bgKVt4L6NMoEtBVw8Q",
+    "refreshTokenExpiresAt": "2025-06-11 06:56:44.052994+00:00"
+  }
+]
